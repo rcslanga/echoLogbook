@@ -63,6 +63,34 @@
             letter-spacing: -0.5px;
         }
 
+        /* Login View Specifics */
+        #login-view {
+            background: linear-gradient(135deg, var(--bolt-blue) 0%, #001A44 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding-bottom: 0;
+            margin: 0;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            margin: 20px;
+        }
+
+        .login-logo {
+            font-size: 4rem;
+            color: var(--bolt-blue);
+            margin-bottom: 10px;
+        }
+
         /* Home View Styles */
         .home-header {
             padding: 40px 20px 20px;
@@ -564,19 +592,38 @@
 <body>
 
     <div id="loader">
-        <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;"></div>
-        <span class="mt-3 fw-bold text-dark">A PROCESSAR...</span>
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+    </div>
+
+    <!-- ================= LOGIN VIEW ================= -->
+    <div id="login-view" class="app-view active">
+        <div class="login-card">
+            <i class="fa-solid fa-car-side login-logo"></i>
+            <h2 style="font-weight: 800; color: var(--bolt-blue); margin-bottom: 5px;">ECHO Drive Pro</h2>
+            <p class="text-secondary mb-4 small">Acesso Restrito</p>
+
+            <form id="loginForm">
+                <div class="text-start mb-4">
+                    <label class="form-label text-secondary small mb-1">E-mail Corporativo</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="o.seu.email@exemplo.com"
+                        required
+                        style="background: var(--bg-light); border-radius: 12px; border: 1px solid var(--border-color); padding: 12px; margin-bottom: 0;">
+                </div>
+                <button type="submit" class="btn-main" style="border-radius: 12px;">Entrar</button>
+            </form>
+            <div id="loginError" class="text-danger small mt-3" style="display: none; font-weight: 600;"></div>
+        </div>
     </div>
 
     <!-- ================= HOME VIEW ================= -->
-    <div id="home-view" class="app-view active">
+    <div id="home-view" class="app-view">
         <div class="home-header">
             <div>
                 <h1 class="mb-0">ECHO Drive</h1>
                 <div class="text-secondary small fw-bold mt-1"><i class="fa-solid fa-star"></i> Pro Fleet | Moçambique
                 </div>
             </div>
-            <div class="user-profile"><i class="fa-solid fa-user"></i></div>
+            <div class="user-profile"><i class="fa-brands fa-google"></i></div>
         </div>
 
         <div class="action-grid">
@@ -922,6 +969,13 @@
                         style="color:var(--uber-green)">Rodrigues Langa</span></p>
             </div>
 
+            <div class="form-card mx-0 mt-4 text-center">
+                <button type="button" class="btn btn-outline-danger w-100" onclick="logout()"
+                    style="border-radius: 12px; font-weight: 600;">
+                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Terminar Sessão
+                </button>
+            </div>
+
             <div class="form-card mx-0 mt-4">
                 <h4 class="mb-3 fs-5">FAQ (Perguntas Frequentes)</h4>
                 <div class="accordion accordion-flush" id="faqAccordion"
@@ -1033,11 +1087,19 @@
         const icons = { "Hilux": "https://www.pngall.com/wp-content/uploads/2/Toyota-Hilux-PNG-Photos.png", "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png", "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png", "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png" };
 
         let fuelIdx = 0;
+        let currentUserEmail = "";
 
         // View Switching Logic
         function switchView(viewId) {
             document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
+
+            const nav = document.querySelector('.bottom-nav');
+            if (viewId === 'login-view') {
+                nav.style.display = 'none';
+            } else {
+                nav.style.display = 'flex';
+            }
 
             document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
             if (viewId === 'home-view') document.getElementById('nav-home').classList.add('active');
@@ -1090,8 +1152,77 @@
             }
         }
 
+        // AUTH LOGIC
+        function logout() {
+            localStorage.removeItem('echo_user_email');
+            localStorage.removeItem('echo_user_name');
+            currentUserEmail = "";
+            document.getElementById('loginEmail').value = "";
+            switchView('login-view');
+        }
+
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const errDiv = document.getElementById('loginError');
+            errDiv.style.display = 'none';
+
+            if (!email) return;
+
+            document.getElementById('loader').style.display = 'flex';
+
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                setTimeout(() => {
+                    // Simulação offline: Aceita qualquer email com "admin" ou aprova por defeito
+                    if (email.includes('bloqueado')) {
+                        errDiv.innerText = "Acesso Negado (Simulação).";
+                        errDiv.style.display = 'block';
+                    } else {
+                        localStorage.setItem('echo_user_email', email);
+                        localStorage.setItem('echo_user_name', "Utilizador Offline");
+                        currentUserEmail = email;
+                        switchView('home-view');
+                    }
+                    document.getElementById('loader').style.display = 'none';
+                }, 1000);
+                return;
+            }
+
+            try {
+                const res = await fetch(GOOGLE_WEBAPP_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: 'verifyAccess', email: email })
+                });
+                const answer = await res.json();
+
+                if (answer.status === 'success') {
+                    localStorage.setItem('echo_user_email', answer.user.email);
+                    localStorage.setItem('echo_user_name', answer.user.name);
+                    currentUserEmail = answer.user.email;
+                    switchView('home-view');
+                } else {
+                    errDiv.innerText = answer.message || "Acesso não autorizado.";
+                    errDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errDiv.innerText = "Falha de ligação ao servidor. Verifique a internet.";
+                errDiv.style.display = 'block';
+            }
+
+            document.getElementById('loader').style.display = 'none';
+        };
+
         // EVENTOS INICIAIS
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check Auth First
+            const savedEmail = localStorage.getItem('echo_user_email');
+            if (savedEmail) {
+                currentUserEmail = savedEmail;
+                switchView('home-view');
+            } else {
+                switchView('login-view');
+            }
+
             const tSel = document.getElementById('task');
             taskCodesBase.forEach(c => tSel.insertAdjacentHTML('beforeend', `<option>${c}</option>`));
 
@@ -1288,6 +1419,8 @@
             document.getElementById('loader').style.display = 'flex';
 
             const formData = {
+                action: 'logbook',
+                submetidoPor: currentUserEmail,
                 motorista: document.getElementById('driver').value,
                 viatura: document.getElementById('vehicle').value,
                 dataViagem: new Date().toISOString().split('T')[0],
@@ -1332,6 +1465,93 @@
                 }
             } catch (error) {
                 alert('Sem ligação. Tente mais tarde.');
+                document.getElementById('loader').style.display = 'none';
+            }
+        };
+
+        // SUBMETER MANUTENÇÃO
+        document.getElementById('maintForm').onsubmit = async (e) => {
+            e.preventDefault();
+            document.getElementById('loader').style.display = 'flex';
+
+            const formData = {
+                action: 'maintenance',
+                submetidoPor: currentUserEmail,
+                viatura: document.getElementById('maintVehicle').value,
+                tipoServico: document.getElementById('maintType').value,
+                kmActuais: document.getElementById('maintKm').value,
+                custo: document.getElementById('maintCost').value,
+                proximaRevisao: document.getElementById('maintNextDate').value,
+                notas: document.getElementById('maintObs').value,
+                dataSubmissao: new Date().toISOString()
+            };
+
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                setTimeout(() => { alert('Manutenção registada (Simulação Offline).'); location.reload(); }, 1000);
+                return;
+            }
+
+            try {
+                const res = await fetch(GOOGLE_WEBAPP_URL, { method: "POST", body: JSON.stringify(formData) });
+                const answer = await res.json();
+                if (answer.status === 'success') {
+                    alert('Manutenção submetida com sucesso! 🛠️✅');
+                    location.reload();
+                } else {
+                    alert('Erro: ' + answer.message);
+                    document.getElementById('loader').style.display = 'none';
+                }
+            } catch (error) {
+                alert('Falha na ligação. Tente novamente.');
+                document.getElementById('loader').style.display = 'none';
+            }
+        };
+
+        // SUBMETER OCORRÊNCIA (INCIDENTES)
+        document.getElementById('incidentForm').onsubmit = async (e) => {
+            e.preventDefault();
+            document.getElementById('loader').style.display = 'flex';
+
+            let base64Photo = "Sem Foto";
+            const fileInput = document.getElementById('incPhoto');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                await new Promise(r => reader.onload = () => { base64Photo = reader.result; r(); });
+            }
+
+            let gravidade = "";
+            document.getElementsByName('incSeverity').forEach(r => { if (r.checked) gravidade = r.value; });
+
+            const formData = {
+                action: 'incident',
+                submetidoPor: currentUserEmail,
+                tipoOcorrencia: document.getElementById('incType').value,
+                gravidade: gravidade,
+                localizacao: document.getElementById('incLocation').value,
+                descricao: document.getElementById('incDesc').value,
+                foto: base64Photo,
+                dataSubmissao: new Date().toISOString()
+            };
+
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                setTimeout(() => { alert('Ocorrência de emergência registada (Offline).'); location.reload(); }, 1000);
+                return;
+            }
+
+            try {
+                const res = await fetch(GOOGLE_WEBAPP_URL, { method: "POST", body: JSON.stringify(formData) });
+                const answer = await res.json();
+                if (answer.status === 'success') {
+                    alert('Ocorrência reportada com sucesso! 🚨✅');
+                    location.reload();
+                } else {
+                    alert('Erro: ' + answer.message);
+                    document.getElementById('loader').style.display = 'none';
+                }
+            } catch (error) {
+                alert('Ligação falhou ao submeter ocorrência.');
                 document.getElementById('loader').style.display = 'none';
             }
         };
