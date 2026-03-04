@@ -1,224 +1,890 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ECHO Drive Pro - Baseline</title>
+    <title>ECHO Drive Pro - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --uber-black: #060606; --uber-blue: #276ef1; --card-bg: #141414; --input-bg: #202020; --text-gray: #a6a6a6; }
-        body { background-color: var(--uber-black); color: white; font-family: 'Inter', sans-serif; padding-bottom: 120px; }
-        .app-header { padding: 30px 20px 10px; }
-        .nav-pills { background: #1a1a1a; margin: 0 20px 20px; border-radius: 50px; padding: 5px; border: 1px solid #333; }
-        .nav-pills .nav-link { color: var(--text-gray); border-radius: 50px; font-weight: 600; font-size: 0.75rem; border: none; }
-        .nav-pills .nav-link.active { background-color: white; color: black; }
-        .form-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin: 0 15px 15px; border: 1px solid #282828; position: relative; }
-        .form-label { color: var(--text-gray); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: block; }
-        .form-control, .form-select { background-color: var(--input-bg); border: 1px solid #333; color: white; border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 0.9rem; }
-        .summary-box { background: #000; border-radius: 15px; padding: 15px; text-align: center; border: 1px solid var(--uber-blue); margin-bottom: 15px; }
-        .summary-box h2 { font-size: 2.2rem; font-weight: 900; color: var(--uber-blue); margin: 0; }
-        .duration-text { font-size: 0.8rem; color: #00ff88; font-weight: 600; margin-top: 5px; }
-        .vehicle-thumb-container { position: absolute; top: 15px; right: 15px; width: 60px; height: 40px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; }
-        #vehicleThumb { max-width: 80%; max-height: 80%; opacity: 0; transition: 0.3s; }
-        .fuel-entry { background: #181818; border-radius: 16px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--uber-blue); position: relative; }
-        .remove-entry { position: absolute; top: 8px; right: 12px; color: #ff4d4d; font-size: 1.2rem; cursor: pointer; }
-        .btn-uber { background-color: var(--uber-blue); color: white; border: none; border-radius: 18px; padding: 18px; width: 100%; font-weight: 700; }
-        .fixed-bottom-btn { position: fixed; bottom: 25px; left: 20px; right: 20px; z-index: 1000; }
-        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
+        :root {
+            --uber-black: #000000;
+            --uber-gray: #121212;
+            --uber-light-gray: #242424;
+            --uber-blue: #276ef1;
+            --uber-green: #05a357;
+            --card-bg: #1A1A1A;
+            --input-bg: #2C2C2C;
+            --text-gray: #B3B3B3;
+        }
+
+        body {
+            background-color: var(--uber-black);
+            color: white;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            padding-bottom: 80px;
+            margin: 0;
+        }
+
+        /* Views */
+        .app-view {
+            display: none;
+        }
+
+        .app-view.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* Home View Styles */
+        .home-header {
+            padding: 40px 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            width: 45px;
+            height: 45px;
+            background: var(--uber-light-gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 0 20px;
+            margin-top: 10px;
+        }
+
+        .action-card {
+            background: var(--uber-gray);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .action-card:hover,
+        .action-card:active {
+            transform: scale(0.98);
+            background: var(--uber-light-gray);
+        }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .icon-ride {
+            background: #E2E2E2;
+            color: #000;
+        }
+
+        .icon-history {
+            background: #2E2E2E;
+            color: #FFF;
+        }
+
+        .promo-banner {
+            margin: 25px 20px;
+            background: linear-gradient(135deg, var(--uber-green) 0%, #036b39 100%);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .promo-banner h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .promo-banner p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            z-index: 2;
+            position: relative;
+        }
+
+        .promo-icon {
+            position: absolute;
+            right: -10px;
+            bottom: -20px;
+            font-size: 6rem;
+            opacity: 0.2;
+            transform: rotate(-15deg);
+        }
+
+        .recent-section {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        /* Form & History Styles (Adapted from Baseline) */
+        .form-header {
+            padding: 20px;
+            padding-top: 30px;
+            border-bottom: 1px solid var(--uber-gray);
+            background: var(--uber-black);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .nav-pills {
+            background: var(--uber-light-gray);
+            margin: 20px;
+            border-radius: 50px;
+            padding: 5px;
+        }
+
+        .nav-pills .nav-link {
+            color: var(--text-gray);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: none;
+            padding: 10px 5px;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: white;
+            color: black;
+        }
+
+        .form-card {
+            background: var(--uber-gray);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 0 20px 20px;
+            position: relative;
+        }
+
+        .form-label {
+            color: var(--text-gray);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control,
+        .form-select {
+            background-color: var(--input-bg);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background-color: #383838;
+            color: white;
+            box-shadow: none;
+            border-left: 3px solid var(--uber-green);
+        }
+
+        .summary-box {
+            background: var(--uber-black);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--uber-green);
+            margin-bottom: 15px;
+        }
+
+        .summary-box h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--uber-green);
+            margin: 0;
+        }
+
+        .duration-text {
+            font-size: 0.85rem;
+            color: #FFF;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        .vehicle-thumb-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #vehicleThumb {
+            max-width: 100%;
+            max-height: 100%;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .fuel-entry {
+            background: var(--uber-light-gray);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--uber-blue);
+            position: relative;
+        }
+
+        .remove-entry {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #ff4d4d;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .btn-uber {
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            width: 100%;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+        }
+
+        .btn-uber:hover {
+            background-color: #e0e0e0;
+        }
+
+        .fixed-bottom-btn {
+            position: fixed;
+            bottom: 85px;
+            left: 20px;
+            right: 20px;
+            z-index: 900;
+        }
+
+        /* History Item */
+        .history-item {
+            background: var(--uber-gray);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .history-icon-wrapper {
+            background: var(--uber-light-gray);
+            height: 50px;
+            width: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .history-details {
+            flex-grow: 1;
+        }
+
+        .history-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+
+        .history-subtitle {
+            color: var(--text-gray);
+            font-size: 0.8rem;
+        }
+
+        .history-value {
+            font-weight: 700;
+            color: white;
+            text-align: right;
+        }
+
+        .history-km {
+            font-size: 1rem;
+            color: var(--uber-green);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--uber-black);
+            border-top: 1px solid var(--uber-gray);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 20px;
+            z-index: 1000;
+        }
+
+        .nav-item-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: none;
+            background: none;
+            gap: 5px;
+        }
+
+        .nav-item-btn i {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+
+        .nav-item-btn.active {
+            color: white;
+        }
+
+        #loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            backdrop-filter: blur(5px);
+        }
     </style>
 </head>
+
 <body>
 
-<div id="loader">
-    <div class="spinner-border text-primary"></div>
-    <span class="mt-3 fw-bold small">ENVIANDO PARA GOOGLE SHEETS...</span>
-</div>
+    <div id="loader">
+        <div class="spinner-border text-light" style="width: 3rem; height: 3rem;"></div>
+        <span class="mt-3 fw-bold">A PROCESSAR...</span>
+    </div>
 
-<div class="app-header text-center">
-    <h1 class="fw-bold h4 mb-0">ECHO <span style="color: var(--uber-blue);">Drive</span></h1>
-    <p class="text-secondary small">Baseline v5.0 | Moçambique</p>
-</div>
-
-<ul class="nav nav-pills nav-justified" id="pills-tab">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-1">VIATURA</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-2">CUSTOS</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-3">EQUIPA</button></li>
-</ul>
-
-<form id="logForm">
-    <div class="tab-content">
-        <div class="tab-pane fade show active" id="tab-1">
-            <div class="form-card">
-                <div class="vehicle-thumb-container"><img id="vehicleThumb" src="" alt=""></div>
-                <label class="form-label">Motorista</label>
-                <select id="driver" class="form-select" required>
-                    <option value="">Seleccione o motorista...</option>
-                    <script>
-                        ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa", "Bernardo Nsicuzinaimue", "Carlos Mirassy", "Carlos Saboia", "Edson de Sousa", "Faizal Matuare Alide", "Fernando Muianga", "Fungai Ulhanane", "Herminio Muchave", "Inacio Paulo Augusto Junior", "Joao Aide", "Joao Bonda", "Joao Massocha", "Joao Paulo Ganje", "Jone Juze Aleixo", "Manuel Jose", "Manuel Xavier", "Marcos Campaunda", "Moises Ndoa", "Rajhi Mussa", "Raul Baptista", "Silvestre Angelica"].forEach(m => document.write(`<option>${m}</option>`));
-                    </script>
-                </select>
-
-                <label class="form-label">Contexto</label>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <select id="province" class="form-select" onchange="atualizarFrota(); sugerirPreco()" required>
-                            <option value="">Província...</option>
-                            <option value="Maputo">Maputo</option><option value="Sofala">Sofala</option><option value="Manica">Manica</option><option value="Tete">Tete</option><option value="Niassa">Niassa</option>
-                        </select>
-                    </div>
-                    <div class="col-6"><select id="vehicle" class="form-select" disabled required onchange="updateThumb()"></select></div>
-                </div>
-
-                <div class="summary-box">
-                    <h2 id="dispKm">0 KM</h2>
-                    <div id="dispDuration" class="duration-text">Duração: 0h 0m</div>
-                </div>
-
-                <div class="row">
-                    <div class="col-6"><label class="form-label">Partida</label><input type="datetime-local" id="tP" class="form-control" onchange="calcViagem()" required></div>
-                    <div class="col-6"><label class="form-label">Chegada</label><input type="datetime-local" id="tC" class="form-control" onchange="calcViagem()" required></div>
-                </div>
-
-                <div class="row">
-                    <div class="col-6"><label class="form-label">KM Inicial</label><input type="number" id="kmI" class="form-control" inputmode="numeric" oninput="calcViagem()" required></div>
-                    <div class="col-6"><label class="form-label">KM Final</label><input type="number" id="kmF" class="form-control" inputmode="numeric" oninput="calcViagem()" required></div>
+    <!-- ================= HOME VIEW ================= -->
+    <div id="home-view" class="app-view active">
+        <div class="home-header">
+            <div>
+                <h1 class="mb-0">ECHO Drive</h1>
+                <div class="text-secondary small fw-bold mt-1"><i class="fa-solid fa-star"></i> Pro Fleet | Moçambique
                 </div>
             </div>
-            <div class="fixed-bottom-btn"><button type="button" class="btn-uber" onclick="navTo('tab-2')">ADICIONAR CUSTOS</button></div>
+            <div class="user-profile"><i class="fa-solid fa-user"></i></div>
         </div>
 
-        <div class="tab-pane fade" id="tab-2">
-            <div class="form-card">
-                <div id="fuelList"></div>
-                <button type="button" class="btn btn-outline-primary w-100 mb-3" onclick="addFuel()">+ NOVO ABASTECIMENTO</button>
-                <div class="p-3 bg-black rounded-3 text-end">
-                    <small class="text-secondary">Total Litros: <span id="resL" class="text-white">0.00</span> L</small><br>
-                    <small class="text-secondary">Total Custo: <span id="resM" class="text-white">0.00</span> MT</small>
-                </div>
+        <div class="action-grid">
+            <div class="action-card" onclick="switchView('form-view'); navTo('tab-1');">
+                <div class="action-icon icon-ride"><i class="fa-solid fa-car-side"></i></div>
+                <span class="fw-bold">Nova Viagem</span>
             </div>
-            <div class="fixed-bottom-btn"><button type="button" class="btn-uber" onclick="navTo('tab-3')">DADOS DA EQUIPA</button></div>
+            <div class="action-card" onclick="switchView('history-view'); loadRecentHistory();">
+                <div class="action-icon icon-history"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <span class="fw-bold text-white">Actividade</span>
+            </div>
         </div>
 
-        <div class="tab-pane fade" id="tab-3">
-            <div class="form-card">
-                <label class="form-label">Passageiro Responsável</label>
-                <input class="form-control" list="staffList" id="passenger" placeholder="Nome | Email">
-                <datalist id="staffList">
-                    <option value="Abdul Fahamo | Abdul_Fahamo@echomoz.org">
-                    <option value="Julio Pacca | Julio.Pacca@abtglobal.com">
-                    <option value="Vânia Macome | Vania_Macome@echomoz.org">
-                </datalist>
+        <div class="promo-banner" onclick="switchView('history-view'); loadRecentHistory();">
+            <i class="fa-solid fa-leaf promo-icon"></i>
+            <h3>Impacto Local</h3>
+            <p>Acompanhe os abastecimentos e custos globais da frota ECHO.</p>
+        </div>
 
-                <label class="form-label">Task Code</label>
-                <select id="task" class="form-select" required>
-                    <script>
-                        [2010,2020,2030,2040,2050,2060,2070,2110,2120,2130,2140,2150,2160,2170,2210,2220,2230,2240,2250,2260,2270,2310,2320,2330,2340,2350,2360,2370,2410,2420,2430,2440,2450,2460,2470,2510,2520,2530,2540,2550,2560,2570,3020,3030,3040,3050,3060,3070,4010,4020].forEach(c => document.write(`<option>${c}</option>`));
-                    </script>
-                </select>
-
-                <div class="row">
-                    <div class="col-6"><label class="form-label">Origem</label><input type="text" id="ori" class="form-control" placeholder="Saída"></div>
-                    <div class="col-6"><label class="form-label">Destino</label><input type="text" id="des" class="form-control" placeholder="Chegada"></div>
-                </div>
-                
-                <label class="form-label">Notas Adicionais</label>
-                <textarea id="obs" class="form-control" rows="2" placeholder="Descreva a missão..."></textarea>
+        <div class="recent-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="section-title mb-0">Atalhos</h3>
             </div>
-            <div class="fixed-bottom-btn"><button type="submit" class="btn-uber" style="background:white; color:black;">FINALIZAR LOGBOOK</button></div>
+            <div class="history-item" onclick="switchView('form-view'); navTo('tab-2');">
+                <div class="history-icon-wrapper"><i class="fa-solid fa-gas-pump" style="color:var(--uber-blue)"></i>
+                </div>
+                <div class="history-details">
+                    <div class="history-title">Registar Combustível</div>
+                    <div class="history-subtitle">Ir directo para custos</div>
+                </div>
+                <div class="history-value"><i class="fa-solid fa-chevron-right text-secondary"></i></div>
+            </div>
         </div>
     </div>
-</form>
 
-<script>
-    const frota = {
-        "Sofala": ["AEA-596-MP (Ford)", "AGG-921-MC (Hilux)", "AGQ-300-MP (Hilux)", "AIU-716-MC (Nissan)", "AIU-717-MC (Nissan)", "AIU-719-MC (Nissan)", "AJV-251-MC (LC)", "AAZ-782-SF (Hilux)", "AAZ-783-SF (Hilux)", "ABA-169-SF (Hilux)", "ABA-170-SF (Hilux)", "ANI-566-MC (Hilux)", "AIA-702-MP (Hilux)", "AEA-592-MP (Ford)"],
-        "Niassa": ["ABY-323-MP (LC)", "AGD-264-MC (Hilux)", "AGD-263-MC (Hilux)", "AGD-261-MC (Hilux)", "AGG-929-MC (Hilux)", "AJV-236-MC (LC)"],
-        "Manica": ["AGQ-261-MC (Hilux)", "AIT-430-MC (Nissan)", "AIT-434-MC (Nissan)", "AIU-721-MC (Nissan)", "AJV-250-MC (LC)", "AIB-879-MP (Hilux)"],
-        "Tete": ["AGG-919-MC (Hilux)", "AGG-924-MC (Hilux)", "AGG-925-MC (Hilux)", "AGG-926-MC (Hilux)", "AGD-266-MC (Hilux)", "AIT-437-MC (Nissan)", "AIT-441-MC (Nissan)", "ANN-412-MC (Mazda)"],
-        "Maputo": ["AFX-797-MP (Fortuner)"]
-    };
-    const precos = { "Maputo": 89.15, "Sofala": 90.50, "Manica": 91.20, "Tete": 92.40, "Niassa": 94.80 };
-    const icons = { "Hilux": "https://prowars.info/wp-content/uploads/2020/09/hilux-icon.png", "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png", "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png", "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png" };
-    
-    let fuelIdx = 0;
+    <!-- ================= FORM VIEW (NUEVA VIAGEM) ================= -->
+    <div id="form-view" class="app-view">
+        <div class="form-header">
+            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h3 class="mb-0 fs-5">Registo de Viagem</h3>
+        </div>
 
-    function atualizarFrota() {
-        const p = document.getElementById("province").value;
-        const s = document.getElementById("vehicle");
-        s.innerHTML = '<option value="">Viatura...</option>';
-        if(p && frota[p]) { s.disabled = false; frota[p].forEach(v => s.add(new Option(v, v))); }
-        else { s.disabled = true; }
-    }
+        <ul class="nav nav-pills nav-justified" id="pills-tab">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill"
+                    data-bs-target="#tab-1">VIATURA</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-2">CUSTOS</button>
+            </li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-3">GERAL</button>
+            </li>
+        </ul>
 
-    function sugerirPreco() {
-        const prov = document.getElementById("province").value;
-        const pRef = precos[prov] || 89.15;
-        document.querySelectorAll('.fuel-p').forEach(i => { if(!i.value) i.value = pRef; });
-        updateFuelTotals();
-    }
+        <form id="logForm">
+            <div class="tab-content pb-5">
+                <!-- TAB 1: VIATURA -->
+                <div class="tab-pane fade show active" id="tab-1">
+                    <div class="form-card">
+                        <div class="vehicle-thumb-container"><img id="vehicleThumb" src="" alt=""></div>
 
-    function updateThumb() {
-        const v = document.getElementById("vehicle").value;
-        const img = document.getElementById("vehicleThumb");
-        let m = v.includes("Hilux") ? "Hilux" : (v.includes("Ford") ? "Ford" : (v.includes("LC") ? "LC" : "default"));
-        img.src = icons[m]; img.style.opacity = "1";
-    }
+                        <label class="form-label">Motorista Principal</label>
+                        <select id="driver" class="form-select" required>
+                            <option value="">A carregar motoristas...</option>
+                        </select>
 
-    function calcViagem() {
-        const ki = parseFloat(document.getElementById('kmI').value) || 0;
-        const kf = parseFloat(document.getElementById('kmF').value) || 0;
-        const p = new Date(document.getElementById('tP').value);
-        const c = new Date(document.getElementById('tC').value);
-        
-        document.getElementById('dispKm').innerText = (kf - ki > 0 ? kf - ki : 0) + " KM";
-        
-        if(p && c && c > p) {
-            const d = c - p;
-            const h = Math.floor(d / 3600000);
-            const m = Math.round((d % 3600000) / 60000);
-            document.getElementById('dispDuration').innerText = `Duração: ${h}h ${m}m`;
-            document.getElementById('dispDuration').style.color = "#00ff88";
-        } else if(c < p) {
-            document.getElementById('dispDuration').innerText = "Erro: Cronologia inválida!";
-            document.getElementById('dispDuration').style.color = "#ff4d4d";
+                        <label class="form-label mt-2">Contexto da Operação</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <select id="province" class="form-select" onchange="atualizarFrota(); sugerirPreco()"
+                                    required>
+                                    <option value="">Província...</option>
+                                    <option value="Maputo">Maputo</option>
+                                    <option value="Sofala">Sofala</option>
+                                    <option value="Manica">Manica</option>
+                                    <option value="Tete">Tete</option>
+                                    <option value="Niassa">Niassa</option>
+                                </select>
+                            </div>
+                            <div class="col-6"><select id="vehicle" class="form-select" disabled required
+                                    onchange="updateThumb()"></select></div>
+                        </div>
+
+                        <div class="summary-box mt-3">
+                            <h2 id="dispKm">0 KM</h2>
+                            <div id="dispDuration" class="duration-text">Distância percorrida</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6"><label class="form-label">Partida (Data/Hora)</label><input
+                                    type="datetime-local" id="tP" class="form-control" onchange="calcViagem()" required>
+                            </div>
+                            <div class="col-6"><label class="form-label">Chegada (Data/Hora)</label><input
+                                    type="datetime-local" id="tC" class="form-control" onchange="calcViagem()" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6"><label class="form-label">Odómetro Inicial</label><input type="number"
+                                    id="kmI" class="form-control" inputmode="numeric" oninput="calcViagem()" required>
+                            </div>
+                            <div class="col-6"><label class="form-label">Odómetro Final</label><input type="number"
+                                    id="kmF" class="form-control" inputmode="numeric" oninput="calcViagem()" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fixed-bottom-btn" id="btn-tab-1"><button type="button" class="btn-uber"
+                            onclick="navTo('tab-2')">Próximo: Custos</button></div>
+                </div>
+
+                <!-- TAB 2: CUSTOS -->
+                <div class="tab-pane fade" id="tab-2">
+                    <div class="form-card">
+                        <h4 class="mb-4">Abastecimentos</h4>
+                        <div id="fuelList"></div>
+                        <button type="button" class="btn btn-uber"
+                            style="background:var(--uber-light-gray); color:white; font-size:0.9rem;"
+                            onclick="addFuel()">
+                            <i class="fa-solid fa-plus mr-2"></i> Adicionar Recibo
+                        </button>
+
+                        <div class="mt-4 p-3 rounded-3 text-end" style="background:#0F0F0F; border:1px solid #333;">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary small">Total Litros</span>
+                                <span class="fw-bold"><span id="resL">0.00</span> L</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-secondary small">Custo Total</span>
+                                <span class="fw-bold fs-5 text-white"><span id="resM">0.00</span> MT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fixed-bottom-btn" id="btn-tab-2" style="display:none;"><button type="button"
+                            class="btn-uber" onclick="navTo('tab-3')">Próximo: Geral</button></div>
+                </div>
+
+                <!-- TAB 3: GERAL -->
+                <div class="tab-pane fade" id="tab-3">
+                    <div class="form-card">
+                        <label class="form-label">Passageiro Responsável / Missão</label>
+                        <input class="form-control" list="staffList" id="passenger" placeholder="E.g., Julio Pacca">
+                        <datalist id="staffList">
+                            <option value="Abdul Fahamo">
+                            <option value="Julio Pacca">
+                            <option value="Vânia Macome">
+                        </datalist>
+
+                        <label class="form-label mt-2">Código da Tarefa (Task Code)</label>
+                        <select id="task" class="form-select" required>
+                            <!-- Preenchido via script -->
+                        </select>
+
+                        <label class="form-label mt-2">Percurso Geográfico</label>
+                        <div class="row g-2">
+                            <div class="col-6"><input type="text" id="ori" class="form-control"
+                                    placeholder="Local de Saída"></div>
+                            <div class="col-6"><input type="text" id="des" class="form-control"
+                                    placeholder="Destino Final"></div>
+                        </div>
+
+                        <label class="form-label mt-2">Observações / Incidentes</label>
+                        <textarea id="obs" class="form-control" rows="3"
+                            placeholder="Insira detalhes adicionais aqui..."></textarea>
+                    </div>
+                    <div class="fixed-bottom-btn" id="btn-tab-3" style="display:none;"><button type="submit"
+                            class="btn-uber" style="background:var(--uber-blue); color:white;">Finalizar Viagem</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ================= HISTORY VIEW ================= -->
+    <div id="history-view" class="app-view">
+        <div class="form-header">
+            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h3 class="mb-0 fs-5">Actividade Passada</h3>
+        </div>
+
+        <div class="p-3">
+            <h2 class="mb-4">Viagens Realizadas</h2>
+            <div id="historicoContainer">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-secondary" style="width:2rem;height:2rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= BOTTOM NAVIGATION ================= -->
+    <div class="bottom-nav">
+        <button class="nav-item-btn active" id="nav-home" onclick="switchView('home-view')">
+            <i class="fa-solid fa-house"></i> Início
+        </button>
+        <button class="nav-item-btn" id="nav-form" onclick="switchView('form-view')">
+            <i class="fa-solid fa-car"></i> Viagem
+        </button>
+        <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view'); loadRecentHistory();">
+            <i class="fa-solid fa-list-ul"></i> Relatórios
+        </button>
+    </div>
+
+    <script>
+        // Configura aqui o URL exportado pelo teu Google Apps Script
+        const GOOGLE_WEBAPP_URL = 'SUA_URL_AQUI';
+
+        // Dados base
+        const motoristasFallback = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa", "Bernardo Nsicuzinaimue", "Carlos Mirassy", "Carlos Saboia", "Edson de Sousa", "Faizal Matuare Alide", "Fernando Muianga", "Fungai Ulhanane", "Herminio Muchave", "Inacio Paulo Augusto Junior", "Joao Aide", "Joao Bonda", "Joao Massocha", "Joao Paulo Ganje", "Jone Juze Aleixo", "Manuel Jose", "Manuel Xavier", "Marcos Campaunda", "Moises Ndoa", "Rajhi Mussa", "Raul Baptista", "Silvestre Angelica"];
+        const taskCodesBase = [2010, 2020, 2030, 2040, 2050, 2060, 2070, 2110, 2120, 2130, 2140, 2150, 2160, 2170, 2210, 2220, 2230, 2240, 2250, 2260, 2270, 2310, 2320, 2330, 2340, 2350, 2360, 2370, 2410, 2420, 2430, 2440, 2450, 2460, 2470, 2510, 2520, 2530, 2540, 2550, 2560, 2570, 3020, 3030, 3040, 3050, 3060, 3070, 4010, 4020];
+
+        const frota = {
+            "Sofala": ["AEA-596-MP (Ford)", "AGG-921-MC (Hilux)", "AGQ-300-MP (Hilux)", "AIU-716-MC (Nissan)", "AIU-717-MC (Nissan)", "AIU-719-MC (Nissan)", "AJV-251-MC (LC)", "AAZ-782-SF (Hilux)", "AAZ-783-SF (Hilux)", "ABA-169-SF (Hilux)", "ABA-170-SF (Hilux)", "ANI-566-MC (Hilux)", "AIA-702-MP (Hilux)", "AEA-592-MP (Ford)"],
+            "Niassa": ["ABY-323-MP (LC)", "AGD-264-MC (Hilux)", "AGD-263-MC (Hilux)", "AGD-261-MC (Hilux)", "AGG-929-MC (Hilux)", "AJV-236-MC (LC)"],
+            "Manica": ["AGQ-261-MC (Hilux)", "AIT-430-MC (Nissan)", "AIT-434-MC (Nissan)", "AIU-721-MC (Nissan)", "AJV-250-MC (LC)", "AIB-879-MP (Hilux)"],
+            "Tete": ["AGG-919-MC (Hilux)", "AGG-924-MC (Hilux)", "AGG-925-MC (Hilux)", "AGG-926-MC (Hilux)", "AGD-266-MC (Hilux)", "AIT-437-MC (Nissan)", "AIT-441-MC (Nissan)", "ANN-412-MC (Mazda)"],
+            "Maputo": ["AFX-797-MP (Fortuner)"]
+        };
+        const precos = { "Maputo": 89.15, "Sofala": 90.50, "Manica": 91.20, "Tete": 92.40, "Niassa": 94.80 };
+        const icons = { "Hilux": "https://www.pngall.com/wp-content/uploads/2/Toyota-Hilux-PNG-Photos.png", "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png", "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png", "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png" };
+
+        let fuelIdx = 0;
+
+        // View Switching Logic
+        function switchView(viewId) {
+            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
+            if (viewId === 'home-view') document.getElementById('nav-home').classList.add('active');
+            if (viewId === 'form-view') document.getElementById('nav-form').classList.add('active');
+            if (viewId === 'history-view') document.getElementById('nav-history').classList.add('active');
+            window.scrollTo(0, 0);
         }
-    }
 
-    function addFuel() {
-        fuelIdx++;
-        const div = document.createElement('div');
-        div.className = 'fuel-entry';
-        div.id = `fuel-${fuelIdx}`;
-        div.innerHTML = `<span class="remove-entry" onclick="this.parentElement.remove();updateFuelTotals()">&times;</span>
+        // EVENTOS INICIAIS
+        document.addEventListener('DOMContentLoaded', async () => {
+            const tSel = document.getElementById('task');
+            taskCodesBase.forEach(c => tSel.insertAdjacentHTML('beforeend', `<option>${c}</option>`));
+
+            const dSel = document.getElementById('driver');
+            dSel.innerHTML = '<option value="">Seleccione o motorista...</option>';
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                motoristasFallback.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
+            } else {
+                try {
+                    const res = await fetch(`${GOOGLE_WEBAPP_URL}?action=getInitialData`);
+                    const data = await res.json();
+                    if (data.status === 'success' && data.motoristas) {
+                        data.motoristas.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
+                    }
+                } catch (err) {
+                    motoristasFallback.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
+                }
+            }
+
+            // Tab observer to show/hide fixed buttons
+            const triggerTabList = document.querySelectorAll('#pills-tab button')
+            triggerTabList.forEach(triggerEl => {
+                triggerEl.addEventListener('shown.bs.tab', event => {
+                    document.getElementById('btn-tab-1').style.display = 'none';
+                    document.getElementById('btn-tab-2').style.display = 'none';
+                    document.getElementById('btn-tab-3').style.display = 'none';
+
+                    const target = event.target.getAttribute('data-bs-target');
+                    if (target === '#tab-1') document.getElementById('btn-tab-1').style.display = 'block';
+                    if (target === '#tab-2') document.getElementById('btn-tab-2').style.display = 'block';
+                    if (target === '#tab-3') document.getElementById('btn-tab-3').style.display = 'block';
+                })
+            })
+        });
+
+        // SISTEMA RESPONSIVO
+        function atualizarFrota() {
+            const p = document.getElementById("province").value;
+            const s = document.getElementById("vehicle");
+            s.innerHTML = '<option value="">Viatura...</option>';
+            if (p && frota[p]) { s.disabled = false; frota[p].forEach(v => s.add(new Option(v, v))); }
+            else { s.disabled = true; }
+            updateThumb();
+        }
+
+        function sugerirPreco() {
+            const prov = document.getElementById("province").value;
+            const pRef = precos[prov] || 89.15;
+            document.querySelectorAll('.fuel-p').forEach(i => { if (!i.value) i.value = pRef; });
+            updateFuelTotals();
+        }
+
+        function updateThumb() {
+            const v = document.getElementById("vehicle").value;
+            const img = document.getElementById("vehicleThumb");
+            if (!v) { img.style.opacity = "0"; return; }
+            let m = v.includes("Hilux") ? "Hilux" : (v.includes("Ford") ? "Ford" : (v.includes("LC") ? "LC" : "default"));
+            img.src = icons[m]; img.style.opacity = "1";
+        }
+
+        function calcViagem() {
+            const ki = parseFloat(document.getElementById('kmI').value) || 0;
+            const kf = parseFloat(document.getElementById('kmF').value) || 0;
+            const p = new Date(document.getElementById('tP').value);
+            const c = new Date(document.getElementById('tC').value);
+
+            document.getElementById('dispKm').innerText = (kf - ki > 0 ? kf - ki : 0) + " KM";
+
+            if (p && c && c > p) {
+                const d = c - p;
+                const h = Math.floor(d / 3600000);
+                const m = Math.round((d % 3600000) / 60000);
+                document.getElementById('dispDuration').innerText = `Duração: ${h}h ${m}m`;
+            }
+        }
+
+        function addFuel() {
+            fuelIdx++;
+            const div = document.createElement('div');
+            div.className = 'fuel-entry';
+            div.id = `fuel-${fuelIdx}`;
+            div.innerHTML = `<span class="remove-entry" onclick="this.parentElement.remove();updateFuelTotals()"><i class="fa-solid fa-xmark"></i></span>
             <div class="row g-2">
-                <div class="col-4"><label class="form-label small">Litros</label><input type="number" step="0.01" class="form-control fuel-l" oninput="updateFuelTotals()" inputmode="decimal"></div>
-                <div class="col-4"><label class="form-label small">Preço (MZN)</label><input type="number" step="0.01" class="form-control fuel-p" oninput="updateFuelTotals()" inputmode="decimal"></div>
+                <div class="col-4"><label class="form-label small">Litros</label><input type="number" step="0.01" class="form-control fuel-l" oninput="updateFuelTotals()" inputmode="decimal" placeholder="0.00"></div>
+                <div class="col-4"><label class="form-label small">Preço/L (MT)</label><input type="number" step="0.01" class="form-control fuel-p" oninput="updateFuelTotals()" inputmode="decimal"></div>
                 <div class="col-4"><label class="form-label small">KM Actual</label><input type="number" class="form-control" inputmode="numeric"></div>
             </div>`;
-        document.getElementById('fuelList').appendChild(div);
-        sugerirPreco();
-    }
+            document.getElementById('fuelList').appendChild(div);
+            sugerirPreco();
+        }
 
-    function updateFuelTotals() {
-        let lT = 0, mT = 0;
-        document.querySelectorAll('.fuel-entry').forEach(e => {
-            const l = parseFloat(e.querySelector('.fuel-l').value) || 0;
-            const p = parseFloat(e.querySelector('.fuel-p').value) || 0;
-            lT += l; mT += (l * p);
-        });
-        document.getElementById('resL').innerText = lT.toFixed(2);
-        document.getElementById('resM').innerText = mT.toFixed(2);
-    }
+        function updateFuelTotals() {
+            let lT = 0, mT = 0;
+            document.querySelectorAll('.fuel-entry').forEach(e => {
+                const l = parseFloat(e.querySelector('.fuel-l').value) || 0;
+                const p = parseFloat(e.querySelector('.fuel-p').value) || 0;
+                lT += l; mT += (l * p);
+            });
+            document.getElementById('resL').innerText = lT.toFixed(2);
+            document.getElementById('resM').innerText = mT.toFixed(2);
+        }
 
-    function navTo(id) { new bootstrap.Tab(document.querySelector(`button[data-bs-target="#${id}"]`)).show(); window.scrollTo(0,0); }
+        function navTo(id) {
+            new bootstrap.Tab(document.querySelector(`button[data-bs-target="#${id}"]`)).show();
+            window.scrollTo(0, 0);
+        }
 
-    document.getElementById('logForm').onsubmit = (e) => {
-        e.preventDefault();
-        document.getElementById('loader').style.display = 'flex';
-        // Simulação de envio
-        setTimeout(() => { alert('SUCESSO! LogBook guardado localmente.'); location.reload(); }, 2000);
-    };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        // CARREGAR HISTÓRICO
+        async function loadRecentHistory() {
+            const hc = document.getElementById('historicoContainer');
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                hc.innerHTML = '<div class="text-center py-4 text-secondary"><i class="fa-solid fa-cloud-arrow-down fs-1 mb-3"></i><br>Sem conexão Google configurada.<br><small>A simular ambiente offline.</small></div>';
+                return;
+            }
+
+            hc.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-light mb-3"></div></div>';
+
+            try {
+                const res = await fetch(`${GOOGLE_WEBAPP_URL}?action=getHistory`);
+                const data = await res.json();
+
+                if (data.status === 'success' && data.history && data.history.length > 0) {
+                    hc.innerHTML = data.history.map(row => `
+                    <div class="history-item">
+                        <div class="history-icon-wrapper"><i class="fa-solid fa-car text-white"></i></div>
+                        <div class="history-details">
+                            <div class="history-title">${row['Motorista'] || 'N/A'}</div>
+                            <div class="history-subtitle">${new Date(row['Data'] || row['Timestamp']).toLocaleDateString('pt-PT')} • ${row['Viatura']}</div>
+                            <div class="history-subtitle mt-1"><i class="fa-solid fa-location-dot me-1"></i> ${row['Partida'] ? row['Partida'].substring(11, 16) : ''} ➔ ${row['Chegada'] ? row['Chegada'].substring(11, 16) : ''}</div>
+                        </div>
+                        <div class="history-value">
+                            <div class="history-km">+${(row['KM Final'] - row['KM Inicial']) || 0} km</div>
+                        </div>
+                    </div>
+                `).join('');
+                } else {
+                    hc.innerHTML = '<div class="text-center py-4 text-secondary">Nenhuma Viagem Realizada.</div>';
+                }
+            } catch (e) {
+                hc.innerHTML = '<div class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation fs-1 mb-2"></i><br>Erro de ligação</div>';
+            }
+        }
+
+        // SUBMETER LOGBOOK
+        document.getElementById('logForm').onsubmit = async (e) => {
+            e.preventDefault();
+
+            const kmInic = parseFloat(document.getElementById('kmI').value) || 0;
+            const kmFina = parseFloat(document.getElementById('kmF').value) || 0;
+            if (kmFina < kmInic) {
+                alert('Atenção: Odómetro de Chegada inferior à Partida!');
+                return;
+            }
+
+            document.getElementById('loader').style.display = 'flex';
+
+            const formData = {
+                motorista: document.getElementById('driver').value,
+                viatura: document.getElementById('vehicle').value,
+                dataViagem: new Date().toISOString().split('T')[0],
+                partida: document.getElementById('tP').value,
+                chegada: document.getElementById('tC').value,
+                kmInicial: kmInic,
+                kmFinal: kmFina,
+                taskCode: document.getElementById('task').value,
+                provincia: document.getElementById('province').value,
+                passageiro: document.getElementById('passenger').value,
+                origem: document.getElementById('ori').value,
+                destino: document.getElementById('des').value,
+                observacoes: document.getElementById('obs').value,
+                abastecimentos: []
+            };
+
+            document.querySelectorAll('.fuel-entry').forEach(caixa => {
+                const litro = parseFloat(caixa.querySelector('.fuel-l').value);
+                const preco = parseFloat(caixa.querySelector('.fuel-p').value);
+                if (!isNaN(litro) && !isNaN(preco)) {
+                    formData.abastecimentos.push({ litros: litro, precoPorLitro: preco, custoTotal: parseFloat((litro * preco).toFixed(2)), provincia: formData.provincia });
+                }
+            });
+
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                setTimeout(() => {
+                    alert('SUCESSO! Viagem registada (Simulação Offline).');
+                    location.reload();
+                }, 1000);
+                return;
+            }
+
+            try {
+                const res = await fetch(GOOGLE_WEBAPP_URL, { method: "POST", body: JSON.stringify(formData) });
+                const answer = await res.json();
+                if (answer.status === 'success') {
+                    alert('Viagem submetida para a Cloud! ✅');
+                    location.reload();
+                } else {
+                    alert('Erro: ' + answer.message);
+                    document.getElementById('loader').style.display = 'none';
+                }
+            } catch (error) {
+                alert('Sem ligação. Tente mais tarde.');
+                document.getElementById('loader').style.display = 'none';
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
