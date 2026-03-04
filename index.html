@@ -3,204 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ECHO Drive Pro</title>
+    <title>ECHO Drive Pro v2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --uber-black: #050505; --uber-blue: #276ef1; --card-bg: #121212; --input-bg: #1f1f1f; --text-gray: #a6a6a6; }
-        body { background-color: var(--uber-black); color: white; font-family: 'Inter', sans-serif; padding-bottom: 110px; }
-        .app-header { padding: 30px 20px 10px; background: var(--uber-black); }
-        .nav-pills { background: #1a1a1a; margin: 0 20px 20px; border-radius: 50px; padding: 5px; border: 1px solid #333; }
-        .nav-pills .nav-link { color: var(--text-gray); border-radius: 50px; font-weight: 600; font-size: 0.75rem; border: none; }
-        .nav-pills .nav-link.active { background-color: white; color: black; }
+        body { background-color: var(--uber-black); color: white; font-family: 'Inter', sans-serif; padding-bottom: 120px; }
+        .form-card { background: var(--card-bg); border-radius: 24px; padding: 20px; margin: 15px; border: 1px solid #222; position: relative; }
+        .form-label { color: var(--text-gray); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .form-control, .form-select { background-color: var(--input-bg); border: 1px solid #333; color: white; border-radius: 12px; padding: 12px; margin-bottom: 15px; }
         
-        .form-card { background: var(--card-bg); border-radius: 28px; padding: 25px; margin: 0 20px 20px; border: 1px solid #222; position: relative; }
-        .form-label { color: var(--text-gray); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: block; }
-        .form-control, .form-select { background-color: var(--input-bg); border: 1px solid #333; color: white; border-radius: 14px; padding: 12px; margin-bottom: 15px; font-size: 0.95rem; }
+        /* Estilo para múltiplos abastecimentos */
+        .fuel-entry { background: #1a1a1a; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--uber-blue); position: relative; }
+        .remove-entry { position: absolute; top: 10px; right: 10px; color: #ff4d4d; font-size: 1.2rem; cursor: pointer; }
+        .btn-add { background: transparent; border: 1px dashed var(--uber-blue); color: var(--uber-blue); width: 100%; padding: 10px; border-radius: 12px; font-weight: 600; }
         
-        /* Thumbnail Style */
-        .vehicle-thumb-container {
-            position: absolute; top: 20px; right: 20px; width: 70px; height: 45px;
-            background: #1a1a1a; border-radius: 10px; border: 1px solid #333;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
-        #vehicleThumb { max-width: 85%; max-height: 85%; opacity: 0; transition: opacity 0.4s; }
-
-        .km-display { text-align: center; padding: 20px; background: linear-gradient(135deg, #276ef1, #0645ad); border-radius: 22px; margin-bottom: 20px; }
-        .km-display h2 { font-size: 2.2rem; font-weight: 800; margin: 0; }
+        .km-badge { background: #222; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; color: var(--uber-blue); }
+        .fixed-bottom-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; z-index: 1000; }
+        .btn-uber { background-color: var(--uber-blue); color: white; border: none; border-radius: 18px; padding: 18px; width: 100%; font-weight: 700; }
         
-        .fixed-bottom-btn { position: fixed; bottom: 25px; left: 20px; right: 20px; z-index: 1000; }
-        .btn-uber { background-color: var(--uber-blue); color: white; border: none; border-radius: 18px; padding: 18px; width: 100%; font-weight: 700; font-size: 1rem; }
-        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
+        .nav-pills .nav-link.active { background-color: white; color: black; border-radius: 50px; }
     </style>
 </head>
 <body>
 
-<div id="loader">
-    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-    <span class="mt-3 fw-bold small">SINCRONIZANDO COM SERVIDOR...</span>
+<div class="p-3">
+    <h1 class="fw-bold h4">ECHO <span style="color: var(--uber-blue);">Drive</span></h1>
+    <p class="text-secondary small">Registo Detalhado de Missão</p>
 </div>
 
-<div class="app-header">
-    <h1 class="fw-bold h4 mb-0">ECHO <span style="color: var(--uber-blue);">Drive</span></h1>
-    <p class="text-secondary small" style="font-size: 0.7rem;">LOGBOOK DIGITAL MOÇAMBIQUE</p>
-</div>
-
-<ul class="nav nav-pills nav-justified" id="pills-tab">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-1">VIATURA</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-2">CUSTOS</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-3">MISSÃO</button></li>
+<ul class="nav nav-pills nav-justified px-3 mb-3" id="pills-tab">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-v">VIAGEM</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-f">ABASTECER</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-e">EQUIPA</button></li>
 </ul>
 
 <form id="logForm">
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="tab-1">
+        
+        <div class="tab-pane fade show active" id="tab-v">
             <div class="form-card">
-                <div class="vehicle-thumb-container"><img id="vehicleThumb" src="" alt="Viatura"></div>
+                <label class="form-label">Partida (Data e Hora)</label>
+                <input type="datetime-local" class="form-control" id="dataPartida" required>
                 
-                <label class="form-label">Motorista</label>
-                <select id="driver" class="form-select" required>
-                    <option value="">Seleccione o motorista...</option>
-                    <option>Agostinho Mujanda</option><option>Alberto Barros</option><option>Arlindo Cossa</option>
-                    <option>Bernardo Nsicuzinaimue</option><option>Carlos Mirassy</option><option>Carlos Saboia</option>
-                    <option>Edson de Sousa</option><option>Faizal Matuare Alide</option><option>Fernando Muianga</option>
-                    <option>Fungai Ulhanane</option><option>Herminio Muchave</option><option>Inacio Paulo Augusto Junior</option>
-                    <option>Joao Aide</option><option>Joao Bonda</option><option>Joao Massocha</option><option>Joao Paulo Ganje</option>
-                    <option>Jone Juze Aleixo</option><option>Manuel Jose</option><option>Manuel Xavier</option>
-                    <option>Marcos Campaunda</option><option>Moises Ndoa</option><option>Rajhi Mussa</option>
-                    <option>Raul Baptista</option><option>Silvestre Angelica</option>
-                </select>
+                <label class="form-label">Chegada (Data e Hora)</label>
+                <input type="datetime-local" class="form-control" id="dataChegada" required>
 
-                <label class="form-label">Província</label>
-                <select id="province" class="form-select" onchange="atualizarFrota()" required>
-                    <option value="">Seleccione a região...</option>
-                    <option>Sofala</option><option>Manica</option><option>Tete</option><option>Niassa</option><option>Maputo</option>
-                </select>
-
-                <label class="form-label">Viatura Associada</label>
-                <select id="vehicle" class="form-select" disabled required onchange="updateThumb()">
-                    <option value="">Aguardando província...</option>
-                </select>
-
-                <div class="km-display"><small class="opacity-75">DISTÂNCIA</small><h2 id="totalKm">0 KM</h2></div>
                 <div class="row">
-                    <div class="col-6"><label class="form-label">KM Inicial</label><input type="number" id="kmI" class="form-control" placeholder="0" oninput="calc()"></div>
-                    <div class="col-6"><label class="form-label">KM Final</label><input type="number" id="kmF" class="form-control" placeholder="0" oninput="calc()"></div>
+                    <div class="col-6"><label class="form-label">KM Inicial</label><input type="number" id="kmI" class="form-control" placeholder="0"></div>
+                    <div class="col-6"><label class="form-label">KM Final</label><input type="number" id="kmF" class="form-control" placeholder="0"></div>
+                </div>
+                
+                <label class="form-label">Viatura</label>
+                <select id="vehicle" class="form-select" required>
+                    <option>AGG-921-MC (Hilux)</option>
+                    <option>AEA-596-MP (Ford)</option>
+                </select>
+            </div>
+            <div class="fixed-bottom-btn"><button type="button" class="btn-uber" onclick="goTo('tab-f')">ADICIONAR ABASTECIMENTOS</button></div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-f">
+            <div class="form-card">
+                <div id="fuelContainer">
+                    </div>
+                <button type="button" class="btn-add" onclick="addFuelEntry()">
+                    <i class="fas fa-plus"></i> + NOVO ABASTECIMENTO
+                </button>
+                <div class="mt-3 text-end">
+                    <small class="text-secondary">Total Litros: <span id="totalLitros">0</span>L</small><br>
+                    <small class="text-secondary">Total Custo: <span id="totalMoney">0</span> MZN</small>
                 </div>
             </div>
-            <div class="fixed-bottom-btn"><button type="button" class="btn-uber" onclick="showTab('tab-2')">PRÓXIMO</button></div>
+            <div class="fixed-bottom-btn"><button type="button" class="btn-uber" onclick="goTo('tab-e')">DADOS DA EQUIPA</button></div>
         </div>
 
-        <div class="tab-pane fade" id="tab-2">
+        <div class="tab-pane fade" id="tab-e">
             <div class="form-card">
-                <label class="form-label">Abastecimento (Litros)</label>
-                <input type="number" step="0.01" class="form-control" id="litros" placeholder="0.00">
-                <label class="form-label">Custo Combustível (MZN)</label>
-                <input type="number" class="form-control" id="valorFuel" placeholder="0.00">
-                <label class="form-label">Portagens / Tolls (MZN)</label>
-                <input type="number" class="form-control" id="portagens" placeholder="0">
-            </div>
-            <div class="fixed-bottom-btn"><button type="button" class="btn-uber" onclick="showTab('tab-3')">DADOS DA EQUIPA</button></div>
-        </div>
-
-        <div class="tab-pane fade" id="tab-3">
-            <div class="form-card">
-                <label class="form-label">Passageiro (Nome | Email)</label>
-                <input class="form-control" list="staffList" id="passenger" placeholder="Pesquisar utilizador...">
-                <datalist id="staffList">
-                    <option value="Abdul Fahamo | Abdul_Fahamo@echomoz.org">
-                    <option value="Agostinho Mujanda | Agostinho_Mujanda@echomoz.org">
-                    <option value="Alberto Barros | Alberto_Barros@echomoz.org">
-                    <option value="Carlos Mirassy | Carlos_Mirassy@echomoz.org">
-                    <option value="Julio Pacca | Julio.Pacca@abtglobal.com">
-                    <option value="Vânia Macome | Vania_Macome@echomoz.org">
-                    </datalist>
-
+                <label class="form-label">Passageiro Responsável</label>
+                <input class="form-control" list="staffList" id="passenger" placeholder="Nome do Staff">
+                
                 <label class="form-label">Task Code</label>
-                <select id="task" class="form-select" required>
-                    <script>
-                        [2010,2020,2030,2040,2050,2060,2070,2110,2120,2130,2140,2150,2160,2170,2210,2220,2230,2240,2250,2260,2270,2310,2320,2330,2340,2350,2360,2370,2410,2420,2430,2440,2450,2460,2470,2510,2520,2530,2540,2550,2560,2570,3020,3030,3040,3050,3060,3070,4010,4020].forEach(c => document.write(`<option>${c}</option>`));
-                    </script>
+                <select id="task" class="form-select">
+                    <option>2010</option><option>4010</option>
                 </select>
 
                 <div class="row">
-                    <div class="col-6"><label class="form-label">Origem</label><input type="text" class="form-control" id="ori" placeholder="Ponto de Partida"></div>
-                    <div class="col-6"><label class="form-label">Destino</label><input type="text" class="form-control" id="des" placeholder="Ponto de Chegada"></div>
+                    <div class="col-6"><label class="form-label">Origem</label><input type="text" class="form-control" placeholder="Maputo"></div>
+                    <div class="col-6"><label class="form-label">Destino</label><input type="text" class="form-control" placeholder="Beira"></div>
                 </div>
-
-                <label class="form-label">Propósito / Observações</label>
-                <textarea id="obs" class="form-control" rows="2" placeholder="Descreva a missão..."></textarea>
-                
-                <label class="form-label">Foto Comprovativa</label>
-                <input type="file" class="form-control" accept="image/*" capture="camera">
             </div>
-            <div class="fixed-bottom-btn"><button type="submit" class="btn-uber" style="background: white; color: black;">FINALIZAR LOGBOOK</button></div>
+            <div class="fixed-bottom-btn"><button type="submit" class="btn-uber" style="background:white; color:black;">SUBMETER LOGBOOK</button></div>
         </div>
+
     </div>
 </form>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const frota = {
-        "Sofala": ["AEA-596-MP (Ford)", "AGG-921-MC (Hilux)", "AIU-716-MC (Nissan)", "AJV-251-MC (LC)"],
-        "Niassa": ["ABY-323-MP (LC)", "AGD-264-MC (Hilux)", "AGG-929-MC (Hilux)"],
-        "Manica": ["AGQ-261-MC (Hilux)", "AIT-430-MC (Nissan)", "AJV-250-MC (LC)"],
-        "Tete": ["AGG-919-MC (Hilux)", "AIT-437-MC (Nissan)", "ANN-412-MC (Mazda)"],
-        "Maputo": ["AFX-797-MP (Fortuner)"]
-    };
-
-    const icons = {
-        "Hilux": "https://prowars.info/wp-content/uploads/2020/09/hilux-icon.png",
-        "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png",
-        "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png",
-        "Nissan": "https://www.pngall.com/wp-content/uploads/12/Nissan-Frontier-PNG-Image.png",
-        "Mazda": "https://www.pngall.com/wp-content/uploads/2/Mazda-PNG-Pic.png",
-        "Fortuner": "https://www.pngall.com/wp-content/uploads/2/Toyota-Fortuner-PNG-Free-Download.png",
-        "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png"
-    };
-
-    function atualizarFrota() {
-        const p = document.getElementById("province").value;
-        const s = document.getElementById("vehicle");
-        s.innerHTML = '<option value="">Seleccione o veículo...</option>';
-        if(p && frota[p]) {
-            s.disabled = false;
-            frota[p].forEach(v => s.add(new Option(v, v)));
-        } else { s.disabled = true; }
-        document.getElementById("vehicleThumb").style.opacity = "0";
+    // Função para adicionar bloco de abastecimento
+    let fuelCount = 0;
+    function addFuelEntry() {
+        fuelCount++;
+        const container = document.getElementById('fuelContainer');
+        const entry = document.createElement('div');
+        entry.className = 'fuel-entry';
+        entry.id = `entry-${fuelCount}`;
+        entry.innerHTML = `
+            <span class="remove-entry" onclick="removeFuel(${fuelCount})">&times;</span>
+            <label class="form-label">Abastecimento #${fuelCount}</label>
+            <div class="row">
+                <div class="col-6">
+                    <label class="form-label small">Litros</label>
+                    <input type="number" step="0.01" class="form-control fuel-l" oninput="updateTotals()">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">KM no Acto</label>
+                    <input type="number" class="form-control fuel-km" placeholder="KM">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <label class="form-label small">Custo (MZN)</label>
+                    <input type="number" class="form-control fuel-cost" oninput="updateTotals()">
+                </div>
+            </div>
+        `;
+        container.appendChild(entry);
     }
 
-    function updateThumb() {
-        const val = document.getElementById("vehicle").value;
-        const img = document.getElementById("vehicleThumb");
-        let model = "default";
-        if (val.includes("Hilux")) model = "Hilux";
-        else if (val.includes("Ford")) model = "Ford";
-        else if (val.includes("LC")) model = "LC";
-        else if (val.includes("Nissan")) model = "Nissan";
-        else if (val.includes("Mazda")) model = "Mazda";
-        else if (val.includes("Fortuner")) model = "Fortuner";
-        
-        img.src = icons[model];
-        img.style.opacity = "1";
+    function removeFuel(id) {
+        document.getElementById(`entry-${id}`).remove();
+        updateTotals();
     }
 
-    function calc() {
-        const i = parseFloat(document.getElementById("kmI").value) || 0;
-        const f = parseFloat(document.getElementById("kmF").value) || 0;
-        document.getElementById("totalKm").innerText = (f - i > 0 ? f - i : 0) + " KM";
+    function updateTotals() {
+        let totalL = 0;
+        let totalM = 0;
+        document.querySelectorAll('.fuel-l').forEach(el => totalL += parseFloat(el.value || 0));
+        document.querySelectorAll('.fuel-cost').forEach(el => totalM += parseFloat(el.value || 0));
+        document.getElementById('totalLitros').innerText = totalL.toFixed(2);
+        document.getElementById('totalMoney').innerText = totalM.toFixed(2);
     }
 
-    function showTab(id) { new bootstrap.Tab(document.querySelector(`button[data-bs-target="#${id}"]`)).show(); window.scrollTo(0,0); }
+    function goTo(tabId) {
+        const trigger = document.querySelector(`button[data-bs-target="#${tabId}"]`);
+        new bootstrap.Tab(trigger).show();
+    }
 
-    document.getElementById('logForm').onsubmit = (e) => {
-        e.preventDefault();
-        document.getElementById('loader').style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById('loader').style.display = 'none';
-            alert('VIAGEM SUBMETIDA COM SUCESSO!');
-        }, 2000);
-    };
+    // Inicializa com um abastecimento vazio (opcional)
+    // addFuelEntry();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
