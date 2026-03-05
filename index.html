@@ -1224,7 +1224,20 @@
         catch (err) { alert('Erro: ' + err.message); document.getElementById('loader').style.display = 'none'; }
     };
 </script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('ServiceWorker registado com sucesso!', registration.scope);
+        })
+        .catch(err => {
+          console.log('Falha ao registar o ServiceWorker: ', err);
+        });
+    });
+  }
+</script>
+    
 </body>
 </html>
-
-
