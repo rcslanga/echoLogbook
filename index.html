@@ -8,23 +8,27 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Maps API -->
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIJPWtg4ruD7z9f1OGltvFFVPQBqa8eGQ&libraries=places&callback=initMap"
+        async defer></script>
     <style>
         :root {
-            --uber-black: #000000;
-            --uber-gray: #121212;
-            --uber-light-gray: #242424;
-            --uber-blue: #276ef1;
-            --uber-green: #05a357;
-            --card-bg: #1A1A1A;
-            --input-bg: #2C2C2C;
-            --text-gray: #B3B3B3;
+            --bolt-blue: #002868;
+            --bolt-red: #BF0A30;
+            --bg-light: #F5F7FA;
+            --card-bg: #FFFFFF;
+            --input-bg: #FFFFFF;
+            --text-gray: #6B7280;
+            --text-dark: #1A1A1A;
+            --border-color: #E5E7EB;
         }
 
         body {
-            background-color: var(--uber-black);
-            color: white;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            padding-bottom: 80px;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding-bottom: 90px;
             margin: 0;
         }
 
@@ -65,17 +69,32 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: var(--bolt-blue);
+            color: white;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 40, 104, 0.15);
+        }
+
+        .home-header h1 {
+            color: white;
+        }
+
+        .home-header .text-secondary {
+            color: rgba(255, 255, 255, 0.8) !important;
         }
 
         .user-profile {
             width: 45px;
             height: 45px;
-            background: var(--uber-light-gray);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            color: white;
         }
 
         .action-grid {
@@ -83,31 +102,32 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             padding: 0 20px;
-            margin-top: 10px;
         }
 
         .action-card {
-            background: var(--uber-gray);
+            background: var(--card-bg);
             border-radius: 20px;
-            padding: 20px;
+            padding: 24px 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 15px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
         }
 
         .action-card:hover,
         .action-card:active {
-            transform: scale(0.98);
-            background: var(--uber-light-gray);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
 
         .action-icon {
             width: 60px;
             height: 60px;
-            border-radius: 18px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -115,46 +135,54 @@
         }
 
         .icon-ride {
-            background: #E2E2E2;
-            color: #000;
+            background: #E8F0FE;
+            color: var(--bolt-blue);
         }
 
         .icon-history {
-            background: #2E2E2E;
-            color: #FFF;
+            background: #F3F4F6;
+            color: var(--text-dark);
+        }
+
+        .icon-danger {
+            background: #FDE8E8;
+            color: var(--bolt-red);
         }
 
         .promo-banner {
             margin: 25px 20px;
-            background: linear-gradient(135deg, var(--uber-green) 0%, #036b39 100%);
-            border-radius: 20px;
-            padding: 20px;
+            background: linear-gradient(135deg, var(--bolt-blue) 0%, #001A44 100%);
+            border-radius: 24px;
+            padding: 24px;
             position: relative;
             overflow: hidden;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 40, 104, 0.2);
         }
 
         .promo-banner h3 {
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             z-index: 2;
             position: relative;
         }
 
         .promo-banner p {
-            margin: 5px 0 0;
-            font-size: 0.9rem;
+            margin: 8px 0 0;
+            font-size: 0.85rem;
             opacity: 0.9;
             z-index: 2;
             position: relative;
+            line-height: 1.4;
         }
 
         .promo-icon {
             position: absolute;
             right: -10px;
             bottom: -20px;
-            font-size: 6rem;
-            opacity: 0.2;
-            transform: rotate(-15deg);
+            font-size: 7rem;
+            opacity: 0.15;
+            transform: rotate(-10deg);
         }
 
         .recent-section {
@@ -167,106 +195,131 @@
             margin-bottom: 15px;
         }
 
-        /* Form & History Styles (Adapted from Baseline) */
+        /* Form & History Styles */
         .form-header {
-            padding: 20px;
-            padding-top: 30px;
-            border-bottom: 1px solid var(--uber-gray);
-            background: var(--uber-black);
+            padding: 30px 20px 20px;
+            background: var(--bolt-blue);
+            color: white;
             position: sticky;
             top: 0;
             z-index: 10;
             display: flex;
             align-items: center;
             gap: 15px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 4px 15px rgba(0, 40, 104, 0.1);
         }
 
         .back-btn {
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            padding: 5px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .back-btn:active {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .nav-pills {
-            background: var(--uber-light-gray);
-            margin: 20px;
-            border-radius: 50px;
-            padding: 5px;
+            background: #E5E7EB;
+            margin: -10px 20px 20px;
+            border-radius: 12px;
+            padding: 4px;
+            position: relative;
+            z-index: 11;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
 
         .nav-pills .nav-link {
             color: var(--text-gray);
-            border-radius: 50px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             border: none;
             padding: 10px 5px;
+            transition: all 0.2s;
         }
 
         .nav-pills .nav-link.active {
-            background-color: white;
-            color: black;
+            background-color: var(--card-bg);
+            color: var(--bolt-blue);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
         .form-card {
-            background: var(--uber-gray);
+            background: var(--card-bg);
             border-radius: 20px;
             padding: 20px;
             margin: 0 20px 20px;
             position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
         }
 
         .form-label {
-            color: var(--text-gray);
-            font-size: 0.75rem;
-            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.8rem;
+            font-weight: 700;
             margin-bottom: 8px;
             display: block;
         }
 
         .form-control,
         .form-select {
-            background-color: var(--input-bg);
+            background-color: transparent;
             border: none;
-            color: white;
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-dark);
+            border-radius: 0;
+            padding: 10px 5px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
         }
 
         .form-control:focus,
         .form-select:focus {
-            background-color: #383838;
-            color: white;
+            background-color: transparent;
+            color: var(--text-dark);
             box-shadow: none;
-            border-left: 3px solid var(--uber-green);
+            border-bottom: 2px solid var(--bolt-blue);
         }
 
         .summary-box {
-            background: var(--uber-black);
-            border-radius: 15px;
-            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 16px;
+            padding: 20px;
             text-align: center;
-            border: 1px solid var(--uber-green);
-            margin-bottom: 15px;
+            border: none;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         .summary-box h2 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: var(--uber-green);
+            color: var(--bolt-blue);
             margin: 0;
+            letter-spacing: -1px;
         }
 
         .duration-text {
             font-size: 0.85rem;
-            color: #FFF;
-            font-weight: 500;
+            color: var(--text-gray);
+            font-weight: 600;
             margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .vehicle-thumb-container {
@@ -288,11 +341,11 @@
         }
 
         .fuel-entry {
-            background: var(--uber-light-gray);
+            background: var(--bg-light);
             border-radius: 16px;
             padding: 15px;
             margin-bottom: 15px;
-            border-left: 4px solid var(--uber-blue);
+            border-left: 4px solid var(--bolt-blue);
             position: relative;
         }
 
@@ -300,25 +353,44 @@
             position: absolute;
             top: 10px;
             right: 15px;
-            color: #ff4d4d;
+            color: var(--bolt-red);
             font-size: 1.2rem;
             cursor: pointer;
         }
 
-        .btn-uber {
-            background-color: white;
-            color: black;
+        /* Buttons */
+        .btn-uber,
+        .btn-main {
+            background-color: var(--bolt-blue);
+            color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 20px;
             padding: 16px;
             width: 100%;
             font-weight: 600;
             font-size: 1.1rem;
-            transition: background 0.2s;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 40, 104, 0.2);
         }
 
-        .btn-uber:hover {
-            background-color: #e0e0e0;
+        .btn-uber:active,
+        .btn-main:active {
+            transform: scale(0.98);
+            background-color: #001A44;
+        }
+
+        .btn-danger-custom {
+            background-color: var(--bolt-red);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 16px;
+            width: 100%;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(191, 10, 48, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .fixed-bottom-btn {
@@ -331,17 +403,20 @@
 
         /* History Item */
         .history-item {
-            background: var(--uber-gray);
+            background: var(--card-bg);
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
         }
 
         .history-icon-wrapper {
-            background: var(--uber-light-gray);
+            background: #E8F0FE;
+            color: var(--bolt-blue);
             height: 50px;
             width: 50px;
             border-radius: 12px;
@@ -356,9 +431,10 @@
         }
 
         .history-title {
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1rem;
             margin-bottom: 3px;
+            color: var(--text-dark);
         }
 
         .history-subtitle {
@@ -368,13 +444,13 @@
 
         .history-value {
             font-weight: 700;
-            color: white;
+            color: var(--text-dark);
             text-align: right;
         }
 
         .history-km {
             font-size: 1rem;
-            color: var(--uber-green);
+            color: var(--bolt-blue);
         }
 
         /* Bottom Nav */
@@ -383,12 +459,15 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: var(--uber-black);
-            border-top: 1px solid var(--uber-gray);
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0 20px;
+            padding: 12px 0 25px;
             z-index: 1000;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.03);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
         }
 
         .nav-item-btn {
@@ -397,11 +476,13 @@
             align-items: center;
             color: var(--text-gray);
             text-decoration: none;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
             border: none;
             background: none;
             gap: 5px;
+            transition: color 0.2s;
+            opacity: 0.6;
         }
 
         .nav-item-btn i {
@@ -410,7 +491,8 @@
         }
 
         .nav-item-btn.active {
-            color: white;
+            color: var(--bolt-blue);
+            opacity: 1;
         }
 
         #loader {
@@ -427,14 +509,63 @@
             flex-direction: column;
             backdrop-filter: blur(5px);
         }
+
+        /* Map Modal Styles */
+        #mapModal .modal-dialog {
+            margin: 10px auto;
+            max-width: 95%;
+            max-height: 90vh;
+        }
+
+        #mapModal .modal-content {
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        #mapModal .modal-header {
+            border-bottom: 1px solid #333;
+        }
+
+        #mapModal .modal-title {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        #mapModal .btn-close {
+            /* Removes the filter that inverted the close symbol to white previously */
+        }
+
+        #mapModal .modal-footer {
+            border-top: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+        }
+
+        #mapModal {
+            z-index: 10050;
+        }
+
+        /* Ensure it's above other elements */
+        .modal-backdrop {
+            z-index: 10040 !important;
+        }
     </style>
 </head>
 
 <body>
 
     <div id="loader">
-        <div class="spinner-border text-light" style="width: 3rem; height: 3rem;"></div>
-        <span class="mt-3 fw-bold">A PROCESSAR...</span>
+        <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;"></div>
+        <span class="mt-3 fw-bold text-dark">A PROCESSAR...</span>
     </div>
 
     <!-- ================= HOME VIEW ================= -->
@@ -451,11 +582,25 @@
         <div class="action-grid">
             <div class="action-card" onclick="switchView('form-view'); navTo('tab-1');">
                 <div class="action-icon icon-ride"><i class="fa-solid fa-car-side"></i></div>
-                <span class="fw-bold">Nova Viagem</span>
+                <span class="fw-bold" style="color: black !important;">Nova Viagem</span>
             </div>
-            <div class="action-card" onclick="switchView('history-view'); loadRecentHistory();">
-                <div class="action-icon icon-history"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <span class="fw-bold text-white">Actividade</span>
+            <div class="action-card" onclick="switchView('maintenance-view');">
+                <div class="action-icon icon-ride" style="background:var(--bolt-blue); color:white;"><i
+                        class="fa-solid fa-tools"></i></div>
+                <span class="fw-bold" style="color: black !important;">Manutenção</span>
+            </div>
+            <div class="action-card" onclick="switchView('incidents-view'); autoFillIncidentOrigin();">
+                <div class="action-icon icon-danger" style="background:var(--bolt-red); color:white;"><i
+                        class="fa-solid fa-triangle-exclamation"></i></div>
+                <span class="fw-bold" style="color: black !important;">Ocorrência</span>
+            </div>
+            <div class="action-card" onclick="switchView('history-view'); loadRecentHistory();"
+                style="grid-column: span 2; align-items: center; flex-direction: row; justify-content: center; padding: 15px;">
+                <div class="action-icon icon-history"
+                    style="width: 40px; height: 40px; font-size:1.1rem; border-radius: 12px;"><i
+                        class="fa-solid fa-clock-rotate-left"></i></div>
+                <span class="fw-bold mb-0" style="margin-left: 5px; color: black !important;">Histórico de
+                    Viagens</span>
             </div>
         </div>
 
@@ -470,7 +615,7 @@
                 <h3 class="section-title mb-0">Atalhos</h3>
             </div>
             <div class="history-item" onclick="switchView('form-view'); navTo('tab-2');">
-                <div class="history-icon-wrapper"><i class="fa-solid fa-gas-pump" style="color:var(--uber-blue)"></i>
+                <div class="history-icon-wrapper"><i class="fa-solid fa-gas-pump" style="color:var(--bolt-blue)"></i>
                 </div>
                 <div class="history-details">
                     <div class="history-title">Registar Combustível</div>
@@ -542,10 +687,14 @@
 
                         <div class="row">
                             <div class="col-6"><label class="form-label">Odómetro Inicial</label><input type="number"
-                                    id="kmI" class="form-control" inputmode="numeric" oninput="calcViagem()" required>
+                                    id="kmI" class="form-control" inputmode="numeric"
+                                    oninput="calcViagem(); validateKmFinal();" required>
                             </div>
                             <div class="col-6"><label class="form-label">Odómetro Final</label><input type="number"
-                                    id="kmF" class="form-control" inputmode="numeric" oninput="calcViagem()" required>
+                                    id="kmF" class="form-control" inputmode="numeric"
+                                    oninput="calcViagem(); validateKmFinal();" required>
+                                <div id="sugestaoKm" class="small mt-1"
+                                    style="color:var(--bolt-blue); font-weight: 500;"></div>
                             </div>
                         </div>
                     </div>
@@ -559,19 +708,20 @@
                         <h4 class="mb-4">Abastecimentos</h4>
                         <div id="fuelList"></div>
                         <button type="button" class="btn btn-uber"
-                            style="background:var(--uber-light-gray); color:white; font-size:0.9rem;"
+                            style="background:var(--uber-light-gray); color:var(--text-dark); font-size:0.9rem;"
                             onclick="addFuel()">
                             <i class="fa-solid fa-plus mr-2"></i> Adicionar Recibo
                         </button>
 
-                        <div class="mt-4 p-3 rounded-3 text-end" style="background:#0F0F0F; border:1px solid #333;">
+                        <div class="mt-4 p-3 rounded-3 text-end"
+                            style="background:#FFFFFF; border:1px solid #E2E2E2; box-shadow: 0 2px 4px rgba(0,0,0,0.02)">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-secondary small">Total Litros</span>
                                 <span class="fw-bold"><span id="resL">0.00</span> L</span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span class="text-secondary small">Custo Total</span>
-                                <span class="fw-bold fs-5 text-white"><span id="resM">0.00</span> MT</span>
+                                <span class="fw-bold fs-5 text-dark"><span id="resM">0.00</span> MT</span>
                             </div>
                         </div>
                     </div>
@@ -597,10 +747,26 @@
 
                         <label class="form-label mt-2">Percurso Geográfico</label>
                         <div class="row g-2">
-                            <div class="col-6"><input type="text" id="ori" class="form-control"
-                                    placeholder="Local de Saída"></div>
-                            <div class="col-6"><input type="text" id="des" class="form-control"
-                                    placeholder="Destino Final"></div>
+                            <div class="col-6">
+                                <div class="input-group" style="margin-bottom: 15px;">
+                                    <input type="text" id="ori" class="form-control" placeholder="Local de Saída"
+                                        style="margin-bottom: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="openMapModal('ori')"
+                                        style="border-color: var(--border-color); color: var(--bolt-blue); border-top-right-radius: 12px; border-bottom-right-radius: 12px; background: transparent;"><i
+                                            class="fas fa-map-marker-alt"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="input-group" style="margin-bottom: 15px;">
+                                    <input type="text" id="des" class="form-control" placeholder="Destino Final"
+                                        style="margin-bottom: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="openMapModal('des')"
+                                        style="border-color: var(--border-color); color: var(--bolt-blue); border-top-right-radius: 12px; border-bottom-right-radius: 12px; background: transparent;"><i
+                                            class="fas fa-map-marker-alt"></i></button>
+                                </div>
+                            </div>
                         </div>
 
                         <label class="form-label mt-2">Observações / Incidentes</label>
@@ -608,7 +774,7 @@
                             placeholder="Insira detalhes adicionais aqui..."></textarea>
                     </div>
                     <div class="fixed-bottom-btn" id="btn-tab-3" style="display:none;"><button type="submit"
-                            class="btn-uber" style="background:var(--uber-blue); color:white;">Finalizar Viagem</button>
+                            class="btn-main">Finalizar Viagem</button>
                     </div>
                 </div>
             </div>
@@ -632,6 +798,206 @@
         </div>
     </div>
 
+    <!-- ================= MAINTENANCE VIEW ================= -->
+    <div id="maintenance-view" class="app-view">
+        <div class="form-header">
+            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h3 class="mb-0 fs-5">Registo de Manutenção</h3>
+        </div>
+
+        <form id="maintForm" class="p-3">
+            <div class="form-card mx-0 mt-2">
+                <div class="vehicle-thumb-container"><img id="maintVehicleThumb" src="" alt=""></div>
+
+                <label class="form-label">Viatura</label>
+                <select id="maintVehicle" class="form-select" required onchange="updateMaintThumb()">
+                    <option value="">A carregar frota...</option>
+                </select>
+
+                <label class="form-label">Tipo de Serviço</label>
+                <select id="maintType" class="form-select" required>
+                    <option value="">Selecione...</option>
+                    <option value="Óleo e Filtros">Óleo e Filtros</option>
+                    <option value="Pneus">Pneus (Substituição/Alinhamento)</option>
+                    <option value="Travões">Travões (Pastilhas/Discos)</option>
+                    <option value="Geral/Revisão">Revisão Geral / Inspecção</option>
+                    <option value="Reparação Avaria">Reparação de Avaria</option>
+                </select>
+
+                <div class="row">
+                    <div class="col-6"><label class="form-label">Odómetro Act. (KM)</label><input type="number"
+                            id="maintKm" class="form-control" inputmode="numeric" required></div>
+                    <div class="col-6"><label class="form-label">Custo Total (MZN)</label><input type="number"
+                            id="maintCost" class="form-control" inputmode="decimal" required></div>
+                </div>
+
+                <label class="form-label mt-2">Data Prevista p/ Próxima Revisão</label>
+                <input type="date" id="maintNextDate" class="form-control" required>
+
+                <label class="form-label mt-2">Notas / Fornecedor (Opcional)</label>
+                <textarea id="maintObs" class="form-control" rows="2"
+                    placeholder="Oficina, peças trocadas..."></textarea>
+            </div>
+            <button type="submit" class="btn-main mb-5 mt-3">Registar Manutenção</button>
+        </form>
+    </div>
+
+    <!-- ================= INCIDENTS VIEW ================= -->
+    <div id="incidents-view" class="app-view">
+        <div class="form-header" style="background: var(--bolt-red);">
+            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h3 class="mb-0 fs-5">Registar Ocorrência</h3>
+        </div>
+
+        <div class="p-3 mb-3 text-center">
+            <button class="btn-danger-custom" type="button" onclick="alert('Funcionalidade de emergência acionada!')">
+                <i class="fa-solid fa-phone-volume mb-1 fs-3"></i><br>
+                SOS / EMERGÊNCIA
+            </button>
+            <p class="text-secondary small mt-2">Toque para alertar a central de operações de imediato.</p>
+        </div>
+
+        <form id="incidentForm" class="p-3">
+            <div class="form-card mx-0">
+                <label class="form-label">Tipo de Ocorrência</label>
+                <select id="incType" class="form-select" required>
+                    <option value="">Selecione...</option>
+                    <option value="Acidente de Viação">Acidente de Viação</option>
+                    <option value="Avaria Mecânica Urgente">Avaria Mecânica Urgente</option>
+                    <option value="Furo de Pneu">Furo de Pneu</option>
+                    <option value="Problema de Segurança">Problema de Segurança / Assalto</option>
+                </select>
+
+                <label class="form-label mt-2">Gravidade</label>
+                <div class="d-flex gap-2 mb-3">
+                    <input type="radio" class="btn-check" name="incSeverity" id="sev1" value="Alta" autocomplete="off"
+                        required>
+                    <label class="btn btn-outline-danger flex-grow-1" for="sev1"
+                        style="border-radius:12px; font-weight: 600;">Alta</label>
+
+                    <input type="radio" class="btn-check" name="incSeverity" id="sev2" value="Média" autocomplete="off">
+                    <label class="btn btn-outline-warning flex-grow-1" for="sev2"
+                        style="border-radius:12px; font-weight: 600;">Média</label>
+
+                    <input type="radio" class="btn-check" name="incSeverity" id="sev3" value="Baixa" autocomplete="off">
+                    <label class="btn btn-outline-info flex-grow-1" for="sev3"
+                        style="border-radius:12px; font-weight: 600;">Baixa</label>
+                </div>
+
+                <label class="form-label mt-2">Localização GPS Automática</label>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <input type="text" id="incLocation" class="form-control" placeholder="A obter localização..."
+                        style="margin-bottom: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="autoFillIncidentOrigin()"
+                        style="border-color: var(--border-color); color: var(--bolt-blue); border-top-right-radius: 12px; border-bottom-right-radius: 12px; background: transparent;"><i
+                            class="fa-solid fa-location-crosshairs"></i></button>
+                </div>
+
+                <label class="form-label mt-2">Descrição da Ocorrência</label>
+                <textarea id="incDesc" class="form-control" rows="3" required
+                    placeholder="Descreva o que aconteceu de forma clara..."></textarea>
+
+                <label class="form-label mt-2">Evidência Fotográfica</label>
+                <input type="file" id="incPhoto" class="form-control" accept="image/*" capture="environment"
+                    style="border-radius: 12px; border: 1px solid var(--border-color); padding: 5px;">
+            </div>
+            <button type="submit" class="btn-main mb-5 mt-3" style="background:var(--text-dark);">Submeter
+                Relatório</button>
+        </form>
+    </div>
+
+    <!-- ================= ABOUT VIEW ================= -->
+    <div id="about-view" class="app-view">
+        <div class="form-header">
+            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h3 class="mb-0 fs-5">Sobre</h3>
+        </div>
+
+        <div class="p-3">
+            <div class="text-center mb-4 mt-3">
+                <i class="fa-solid fa-car-side" style="font-size: 3.5rem; color: var(--bolt-blue);"></i>
+                <h3 class="mt-3 mb-1" style="font-weight: 800;">ECHO Drive Pro</h3>
+                <p class="text-secondary mb-0">v1.0.0</p>
+                <p class="mt-2 mb-0" style="font-weight: 500;">Desenvolvido por: <br><span
+                        style="color:var(--uber-green)">Rodrigues Langa</span></p>
+            </div>
+
+            <div class="form-card mx-0 mt-4">
+                <h4 class="mb-3 fs-5">FAQ (Perguntas Frequentes)</h4>
+                <div class="accordion accordion-flush" id="faqAccordion"
+                    style="--bs-accordion-bg: transparent; --bs-accordion-color: var(--text-dark);">
+                    <div class="accordion-item" style="border-bottom: 1px solid #E2E2E2;">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq1"
+                                style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
+                                O que faço se me enganar nos KMs?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
+                                Vá ao separador de Relatórios e informe o administrador ou edite diretamente a folha
+                                Google Sheets associada, comunicando a anomalia.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item" style="border-bottom: 1px solid #E2E2E2;">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq2"
+                                style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
+                                O Mapa não encontra a minha origem?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
+                                A geolocalização funciona por estimativa na rede. Se falhar, pode clicar no botão do
+                                mapa ao lado e arrastar o pino ou escrever o endereço exato manualmente.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item" style="border-bottom: 1px solid #E2E2E2;">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq3"
+                                style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
+                                Qual é a diferença entre Manutenção e Actividade normal?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
+                                Use a Nova Viagem p/ consumos e saídas regulares em missão. O separador de Manutenção é
+                                exclusivo para reportar serviços mecânicos, óleos ou pneus no veículo.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MAP MODAL ================= -->
+    <div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Selecionar Localização</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="map"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        style="border-radius: 12px; background: var(--input-bg); border-color: #E2E2E2; color: var(--text-dark);">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmLocation()"
+                        style="background: var(--bolt-blue); border-radius: 12px; border: none; font-weight: 600;">Confirmar
+                        Local</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= BOTTOM NAVIGATION ================= -->
     <div class="bottom-nav">
         <button class="nav-item-btn active" id="nav-home" onclick="switchView('home-view')">
@@ -643,11 +1009,14 @@
         <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view'); loadRecentHistory();">
             <i class="fa-solid fa-list-ul"></i> Relatórios
         </button>
+        <button class="nav-item-btn" id="nav-about" onclick="switchView('about-view')">
+            <i class="fa-solid fa-circle-info"></i> Sobre
+        </button>
     </div>
 
     <script>
-        // URL da Vercel Serverless Function
-        const VERCEL_API_URL = '/api/save-entry';
+        // Configura aqui o URL exportado pelo teu Google Apps Script
+        const GOOGLE_WEBAPP_URL = 'SUA_URL_AQUI';
 
         // Dados base
         const motoristasFallback = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa", "Bernardo Nsicuzinaimue", "Carlos Mirassy", "Carlos Saboia", "Edson de Sousa", "Faizal Matuare Alide", "Fernando Muianga", "Fungai Ulhanane", "Herminio Muchave", "Inacio Paulo Augusto Junior", "Joao Aide", "Joao Bonda", "Joao Massocha", "Joao Paulo Ganje", "Jone Juze Aleixo", "Manuel Jose", "Manuel Xavier", "Marcos Campaunda", "Moises Ndoa", "Rajhi Mussa", "Raul Baptista", "Silvestre Angelica"];
@@ -672,9 +1041,53 @@
 
             document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
             if (viewId === 'home-view') document.getElementById('nav-home').classList.add('active');
-            if (viewId === 'form-view') document.getElementById('nav-form').classList.add('active');
+            if (viewId === 'form-view') {
+                document.getElementById('nav-form').classList.add('active');
+                if (!document.getElementById('ori').value) autoFillOrigin();
+            }
             if (viewId === 'history-view') document.getElementById('nav-history').classList.add('active');
+            if (viewId === 'about-view') document.getElementById('nav-about').classList.add('active');
+            // 'incidents-view' and 'maintenance-view' unselect bottom navs specifically
             window.scrollTo(0, 0);
+        }
+
+        function autoFillOrigin() {
+            if (navigator.geolocation && geocoder) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+                    geocoder.geocode({ location: pos }).then(response => {
+                        if (response.results && response.results[0]) {
+                            let bestAddr = response.results[0].formatted_address;
+                            if (response.results[1] && response.results[0].types.includes('plus_code')) {
+                                bestAddr = response.results[1].formatted_address;
+                            }
+                            document.getElementById('ori').value = bestAddr;
+                            calculateRouteDistance();
+                        }
+                    }).catch(e => console.log("Auto-origin failed"));
+                }, () => { }, { enableHighAccuracy: true, timeout: 5000 });
+            }
+        }
+
+        function autoFillIncidentOrigin() {
+            const field = document.getElementById('incLocation');
+            if (!field.value && navigator.geolocation && geocoder) {
+                field.placeholder = "A obter localização...";
+                navigator.geolocation.getCurrentPosition(position => {
+                    const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+                    geocoder.geocode({ location: pos }).then(response => {
+                        if (response.results && response.results[0]) {
+                            let bestAddr = response.results[0].formatted_address;
+                            if (response.results[1] && response.results[0].types.includes('plus_code')) {
+                                bestAddr = response.results[1].formatted_address;
+                            }
+                            field.value = bestAddr;
+                        } else {
+                            field.value = pos.lat.toFixed(5) + ", " + pos.lng.toFixed(5);
+                        }
+                    }).catch(e => field.value = pos.lat.toFixed(5) + ", " + pos.lng.toFixed(5));
+                }, () => { field.placeholder = "Erro no GPS. Use formato Manual."; }, { enableHighAccuracy: true, timeout: 5000 });
+            }
         }
 
         // EVENTOS INICIAIS
@@ -684,14 +1097,14 @@
 
             const dSel = document.getElementById('driver');
             dSel.innerHTML = '<option value="">Seleccione o motorista...</option>';
-            if (true) {
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                motoristasFallback.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
+            } else {
                 try {
-                    const res = await fetch(`${VERCEL_API_URL}?action=getInitialData`);
+                    const res = await fetch(`${GOOGLE_WEBAPP_URL}?action=getInitialData`);
                     const data = await res.json();
                     if (data.status === 'success' && data.motoristas) {
                         data.motoristas.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
-                    } else {
-                        throw new Error("Invalid response");
                     }
                 } catch (err) {
                     motoristasFallback.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
@@ -711,7 +1124,11 @@
                     if (target === '#tab-2') document.getElementById('btn-tab-2').style.display = 'block';
                     if (target === '#tab-3') document.getElementById('btn-tab-3').style.display = 'block';
                 })
-            })
+            });
+
+            // Populate Maintenance Vehicles
+            const mVeh = document.getElementById('maintVehicle');
+            Object.values(frota).flat().forEach(v => mVeh.insertAdjacentHTML('beforeend', `<option value="${v}">${v}</option>`));
         });
 
         // SISTEMA RESPONSIVO
@@ -739,19 +1156,54 @@
             img.src = icons[m]; img.style.opacity = "1";
         }
 
+        function updateMaintThumb() {
+            const v = document.getElementById("maintVehicle").value;
+            const img = document.getElementById("maintVehicleThumb");
+            if (!v) { img.style.opacity = "0"; return; }
+            let m = v.includes("Hilux") ? "Hilux" : (v.includes("Ford") ? "Ford" : (v.includes("LC") ? "LC" : "default"));
+            img.src = icons[m]; img.style.opacity = "1";
+        }
+
         function calcViagem() {
             const ki = parseFloat(document.getElementById('kmI').value) || 0;
             const kf = parseFloat(document.getElementById('kmF').value) || 0;
             const p = new Date(document.getElementById('tP').value);
             const c = new Date(document.getElementById('tC').value);
 
-            document.getElementById('dispKm').innerText = (kf - ki > 0 ? kf - ki : 0) + " KM";
+            if (kf > 0 && kf < ki) {
+                document.getElementById('dispKm').innerText = "Erro: KM Final!";
+                document.getElementById('dispKm').style.color = "#ff4d4d";
+            } else {
+                document.getElementById('dispKm').innerText = (kf - ki > 0 ? kf - ki : 0) + " KM";
+                document.getElementById('dispKm').style.color = "var(--text-dark)";
+            }
 
             if (p && c && c > p) {
                 const d = c - p;
                 const h = Math.floor(d / 3600000);
                 const m = Math.round((d % 3600000) / 60000);
                 document.getElementById('dispDuration').innerText = `Duração: ${h}h ${m}m`;
+            }
+        }
+
+        function validateKmFinal() {
+            const ki = parseFloat(document.getElementById('kmI').value) || 0;
+            const kf = parseFloat(document.getElementById('kmF').value) || 0;
+            const kmInput = document.getElementById('kmF');
+
+            if (kf > 0 && ki > 0 && kf >= ki && estimatedDistanceKm > 0) {
+                const travelled = kf - ki;
+                const diffRatio = Math.abs(travelled - estimatedDistanceKm) / estimatedDistanceKm;
+                if (diffRatio > 0.20) {
+                    kmInput.classList.add('text-warning');
+                    kmInput.style.color = "#ffc107"; // Bootstrap warning orange
+                } else {
+                    kmInput.classList.remove('text-warning');
+                    kmInput.style.color = "var(--text-dark)";
+                }
+            } else {
+                kmInput.classList.remove('text-warning');
+                kmInput.style.color = "var(--text-dark)";
             }
         }
 
@@ -789,16 +1241,21 @@
         // CARREGAR HISTÓRICO
         async function loadRecentHistory() {
             const hc = document.getElementById('historicoContainer');
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                hc.innerHTML = '<div class="text-center py-4 text-secondary"><i class="fa-solid fa-cloud-arrow-down fs-1 mb-3"></i><br>Sem conexão Google configurada.<br><small>A simular ambiente offline.</small></div>';
+                return;
+            }
+
             hc.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-light mb-3"></div></div>';
 
             try {
-                const res = await fetch(`${VERCEL_API_URL}?action=getHistory`);
+                const res = await fetch(`${GOOGLE_WEBAPP_URL}?action=getHistory`);
                 const data = await res.json();
 
                 if (data.status === 'success' && data.history && data.history.length > 0) {
                     hc.innerHTML = data.history.map(row => `
                     <div class="history-item">
-                        <div class="history-icon-wrapper"><i class="fa-solid fa-car text-white"></i></div>
+                        <div class="history-icon-wrapper"><i class="fa-solid fa-car" style="color:var(--text-dark);"></i></div>
                         <div class="history-details">
                             <div class="history-title">${row['Motorista'] || 'N/A'}</div>
                             <div class="history-subtitle">${new Date(row['Data'] || row['Timestamp']).toLocaleDateString('pt-PT')} • ${row['Viatura']}</div>
@@ -855,13 +1312,16 @@
                 }
             });
 
+            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
+                setTimeout(() => {
+                    alert('SUCESSO! Viagem registada (Simulação Offline).');
+                    location.reload();
+                }, 1000);
+                return;
+            }
+
             try {
-                formData.action = 'logbook';
-                const res = await fetch(VERCEL_API_URL, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
+                const res = await fetch(GOOGLE_WEBAPP_URL, { method: "POST", body: JSON.stringify(formData) });
                 const answer = await res.json();
                 if (answer.status === 'success') {
                     alert('Viagem submetida para a Cloud! ✅');
@@ -875,6 +1335,148 @@
                 document.getElementById('loader').style.display = 'none';
             }
         };
+
+        // GOOGLE MAPS & GEOLOCATION LOGIC
+        let map;
+        let mapMarker;
+        let geocoder;
+        let distanceService;
+        let estimatedDistanceKm = 0;
+        let currentTargetInput = '';
+
+        function initMap() {
+            geocoder = new google.maps.Geocoder();
+            distanceService = new google.maps.DistanceMatrixService();
+
+            // Estilo Global Claro para o mapa (Light Theme)
+            const lightMapStyle = [
+                { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
+                { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
+                { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{ "color": "#bdbdbd" }] },
+                { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
+                { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+                { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
+                { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+                { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+                { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
+                { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+                { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
+                { "featureType": "transit.line", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
+                { "featureType": "transit.station", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
+                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
+                { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] }
+            ];
+
+            const mapOptions = {
+                zoom: 15,
+                center: { lat: -25.9692, lng: 32.5732 }, // Maputo Default
+                disableDefaultUI: true,
+                zoomControl: true,
+                styles: lightMapStyle
+            };
+
+            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            mapMarker = new google.maps.Marker({
+                map: map,
+                draggable: true,
+                position: mapOptions.center,
+                animation: google.maps.Animation.DROP
+            });
+
+            // Lidar com o redimensionamento quando o modal Bootstrap abre e termina a transição
+            const mapModalEl = document.getElementById('mapModal');
+            mapModalEl.addEventListener('shown.bs.modal', () => {
+                google.maps.event.trigger(map, 'resize');
+                map.setCenter(mapMarker.getPosition());
+            });
+        }
+
+        function openMapModal(targetId) {
+            currentTargetInput = targetId;
+            const modal = new bootstrap.Modal(document.getElementById('mapModal'));
+            modal.show();
+
+            if (navigator.geolocation) {
+                // Tenta centrar na localização do utilizador
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        mapMarker.setPosition(pos);
+                        map.setCenter(pos);
+                    },
+                    (err) => {
+                        console.warn("Geolocalização indisponível:", err);
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            }
+        }
+
+        function confirmLocation() {
+            if (!mapMarker) return;
+            const pos = mapMarker.getPosition();
+            if (!pos) return;
+
+            const latLng = { lat: pos.lat(), lng: pos.lng() };
+            const defFallback = latLng.lat.toFixed(5) + ", " + latLng.lng.toFixed(5);
+            const targetInput = document.getElementById(currentTargetInput);
+
+            // Preenche imediatamente a garantia (fallback puro)
+            targetInput.value = defFallback;
+
+            // Fecha o modal para não bloquear a UI do motorista enqanto converte
+            const modalEl = document.getElementById('mapModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+
+            // Tenta Reverse Geocoding
+            if (geocoder) {
+                geocoder.geocode({ location: latLng })
+                    .then((response) => {
+                        if (response.results && response.results[0]) {
+                            // Tenta simplificar Endereço completo vs Plus Code
+                            let bestAddr = response.results[0].formatted_address;
+                            // Previne string enormes se houver uma opção mais amigável
+                            if (response.results[1] && response.results[0].types.includes('plus_code')) {
+                                bestAddr = response.results[1].formatted_address;
+                            }
+                            targetInput.value = bestAddr;
+                            calculateRouteDistance();
+                        }
+                    })
+                    .catch((e) => {
+                        console.log("Geocoding failed, keeping exact coordinates. Error: " + e);
+                        calculateRouteDistance();
+                    });
+            }
+        }
+
+        function calculateRouteDistance() {
+            const origin = document.getElementById('ori').value;
+            const dest = document.getElementById('des').value;
+
+            if (origin && dest && distanceService) {
+                distanceService.getDistanceMatrix({
+                    origins: [origin],
+                    destinations: [dest],
+                    travelMode: google.maps.TravelMode.DRIVING,
+                }).then(response => {
+                    if (response.rows && response.rows[0] && response.rows[0].elements[0].status === "OK") {
+                        const distMeters = response.rows[0].elements[0].distance.value;
+                        estimatedDistanceKm = distMeters / 1000;
+                        document.getElementById('sugestaoKm').innerText = `Estimado: ${estimatedDistanceKm.toFixed(1)} km`;
+                        validateKmFinal();
+                    }
+                }).catch(e => console.log("Distance API Exception", e));
+            }
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
