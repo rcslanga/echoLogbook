@@ -520,6 +520,7 @@
     const VERCEL_API_USERS = VERCEL_BASE_URL + '/api/get-users';
     const VERCEL_API_HISTORY = VERCEL_BASE_URL + '/api/get-history';
     const VERCEL_API_AUTH = VERCEL_BASE_URL + '/api/verify-access'; 
+    const VERCEL_API_INCIDENTS = VERCEL_BASE_URL + '/api/get-incidents';
 
     const IMGBB_KEY = '752f66aaa3afa895ee81d09b023b226a';
 
@@ -598,8 +599,9 @@
         }
 
         if (viewId === 'home-view') {
-            loadRecentHistory();
-        }
+    loadRecentHistory();
+    loadIncidentsSummary();
+}
 
         window.scrollTo(0, 0);
     }
@@ -814,3 +816,4 @@
 </script>
 </body>
 </html>
+
