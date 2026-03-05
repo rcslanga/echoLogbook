@@ -37,7 +37,8 @@ const logbookValues = [[
     data.destino,                               // 12. Destino
     data.obs || '',                             // 13. Motivo da viagem
     JSON.stringify(data.abastecimentos || []),  // 14. Abastecimentos
-    data.submetidoPor                           // 15. Coluna 2 (Email/Submetido Por)
+    data.submetidoPor,                          // 15. Coluna 2 (Email/Submetido Por)
+    JSON.stringify(data.portagens || [])       // 15. Portagens (NOVA COLUNA)
 ]];
             await sheets.spreadsheets.values.append({
                 spreadsheetId: spreadsheetId,
@@ -117,4 +118,5 @@ const logbookValues = [[
         return res.status(500).json({ status: 'error', message: 'Erro interno de servidor.' });
     }
 }
+
 
