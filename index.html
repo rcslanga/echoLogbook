@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StateDrive - Operações de Frota</title>
+    <title>ECHO Drive</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIJPWtg4ruD7z9f1OGltvFFVPQBqa8eGQ&libraries=places&callback=initMap" async defer></script>
 
     <style>
@@ -31,6 +30,7 @@
         #login-view { background: linear-gradient(135deg, var(--us-navy) 0%, #001A44 100%); align-items: center; justify-content: center; min-height: 100vh; padding-bottom: 0; margin: 0; }
         #login-view.active { display: flex; }
         .login-card { background: var(--bolt-card); border-radius: 24px; padding: 40px 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); margin: 20px; }
+        .login-logo { font-size: 4rem; color: var(--us-navy); margin-bottom: 10px; }
 
         /* Header e Menu (Home) */
         .home-header { background: var(--us-navy); color: white; padding: 50px 25px 30px; border-radius: 0 0 30px 30px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;}
@@ -45,13 +45,13 @@
         .form-header { padding: 30px 20px 20px; background: var(--us-navy); color: white; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 15px; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 4px 15px rgba(0, 40, 104, 0.1); }
         .back-btn { background: rgba(255, 255, 255, 0.2); border: none; color: white; font-size: 1.1rem; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .nav-pills { background: #E5E7EB; margin: -10px 20px 20px; border-radius: 12px; padding: 4px; position: relative; z-index: 11; }
-        .nav-pills .nav-link { color: var(--text-gray); border-radius: 10px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; padding: 10px 5px; }
+        .nav-pills .nav-link { color: var(--text-gray); border-radius: 10px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; padding: 10px 5px; border: none; background: transparent; transition: 0.2s;}
         .nav-pills .nav-link.active { background: white; color: var(--us-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         /* Cartões de Formulário e Inputs */
         .form-card { background: white; border-radius: 24px; padding: 25px; margin: 0 20px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; border: 1px solid var(--border-color);}
         .form-label { color: var(--us-navy); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: block;}
-        .form-control, .form-select { background: transparent; border: none; border-bottom: 2px solid var(--border-color); border-radius: 0; padding: 10px 5px; font-size: 0.95rem; color: #111; margin-bottom: 15px; }
+        .form-control, .form-select { background: transparent; border: none; border-bottom: 2px solid var(--border-color); border-radius: 0; padding: 10px 5px; font-size: 0.95rem; color: #111; margin-bottom: 15px; transition: 0.3s;}
         .form-control:focus, .form-select:focus { border-color: var(--us-navy); box-shadow: none; background: transparent;}
         
         /* Resumo KM & Combustível */
@@ -71,7 +71,7 @@
         .btn-danger-custom { background-color: var(--us-red); color: white; border: none; border-radius: 20px; padding: 16px; width: 100%; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(191, 10, 48, 0.3); }
         .btn-main:active { transform: scale(0.98); }
         
-        /* Bottom Nav */
+        /* Bottom Nav (Tabs inferiores) */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bolt-card); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0 25px; z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; }
         .nav-item-btn { display: flex; flex-direction: column; align-items: center; color: var(--text-gray); text-decoration: none; font-size: 0.75rem; font-weight: 600; border: none; background: none; gap: 5px; transition: color 0.2s; opacity: 0.6; }
         .nav-item-btn i { font-size: 1.4rem; margin-bottom: 2px; }
@@ -82,6 +82,7 @@
         #map { width: 100%; height: 400px; border-radius: 12px; }
         #mapModal .modal-content { border-radius: 24px; border: none; }
 
+        /* Loading */
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px);}
         
         /* History Item */
@@ -327,26 +328,9 @@
 <div id="about-view" class="app-view">
     <div class="form-header">
         <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
-        <h3 class="mb-0 fs-5">Sobre o Sistema</h3>
-    </div>
-    <div class="p-4 text-center">
-        <i class="fa-solid fa-shield-halved" style="font-size: 4rem; color: var(--us-navy); margin-top:20px;"></i>
-        <h3 class="mt-3 mb-1" style="font-weight: 800; color: var(--us-navy);">StateDrive</h3>
-        <p class="text-secondary mb-0">Gestão de Frota Autorizada</p>
-        <p class="text-secondary small mt-4">Sessão iniciada como:<br><strong id="userDisplayEmail"></strong></p>
-        
-        <button type="button" class="btn btn-outline-danger w-100 mt-4 py-3" onclick="logout()" style="border-radius: 16px; font-weight: 700;">
-            <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Terminar Sessão
-        </button>
-    </div>
-</div>
-
-<div id="about-view" class="app-view">
-    <div class="form-header">
-        <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 class="mb-0 fs-5">Perfil e Ajuda</h3>
     </div>
-    <div class="p-3">
+    <div class="p-3 mb-5">
         <div class="text-center mb-4 mt-3">
             <i class="fa-solid fa-car-side" style="font-size: 3.5rem; color: var(--us-navy);"></i>
             <h3 class="mt-3 mb-1" style="font-weight: 800; color: var(--us-navy);">StateDrive Pro</h3>
@@ -398,7 +382,7 @@
                 <div class="accordion-item" style="border-bottom: 1px solid var(--border-color);">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
-                            Diferença entre Manutenção e Actividade normal?
+                            Diferença entre Manutenção e Actividade?
                         </button>
                     </h2>
                     <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
@@ -411,6 +395,13 @@
             </div>
         </div>
     </div>
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-item-btn active" id="nav-home" onclick="switchView('home-view')"><i class="fa-solid fa-house"></i> Início</button>
+    <button class="nav-item-btn" id="nav-form" onclick="switchView('form-view'); navTo('tab-1');"><i class="fa-solid fa-car"></i> Viagem</button>
+    <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view'); loadRecentHistory();"><i class="fa-solid fa-list-ul"></i> Relatórios</button>
+    <button class="nav-item-btn" id="nav-about" onclick="switchView('about-view')"><i class="fa-solid fa-user-gear"></i> Perfil</button>
 </div>
 
 <div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
@@ -426,8 +417,9 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // AS ROTAS CORRETAS DO VERCEL
+    // ROTAS DO VERCEL
     const VERCEL_API_SAVE = '/api/save-entry';
     const VERCEL_API_USERS = '/api/get-users';
     const VERCEL_API_HISTORY = '/api/get-history';
@@ -442,9 +434,8 @@
     const precos = { "Maputo": 89.15, "Sofala": 90.50 };
     const icons = { "Hilux": "https://www.pngall.com/wp-content/uploads/2/Toyota-Hilux-PNG-Photos.png", "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png", "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png", "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png" };
 
-    // 1. INIT & DB FETCH
+    // INIT
     document.addEventListener('DOMContentLoaded', async () => {
-        // Preencher Comboboxes
         document.getElementById('task').innerHTML = '<option value="">Selecione o código...</option>' + taskCodesBase.map(c => `<option value="${c}">${c}</option>`).join('');
         document.getElementById('driver').innerHTML = '<option value="">Seleccione o motorista...</option>' + motoristasFallback.map(m => `<option value="${m}">${m}</option>`).join('');
         
@@ -457,7 +448,7 @@
         const savedEmail = localStorage.getItem('echo_user_email');
         if (savedEmail) { 
             currentUserEmail = savedEmail; 
-            document.getElementById('userDisplayEmail').innerText = currentUserEmail;
+            if(document.getElementById('userDisplayEmail')) document.getElementById('userDisplayEmail').innerText = currentUserEmail;
             switchView('home-view'); 
         } else { 
             switchView('login-view'); 
@@ -474,10 +465,10 @@
                     staffList.innerHTML = data.users.map(u => `<option value="${u}">`).join('');
                 }
             }
-        } catch (e) { console.log('Uso de passageiros fallback (Vercel offline)'); }
+        } catch (e) { console.log('Uso de passageiros fallback'); }
     }
 
-    // 2. NAVEGAÇÃO E ABAS (SEM FALHAS)
+    // NAVEGAÇÃO
     function switchView(viewId) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
@@ -488,7 +479,6 @@
         document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
         if(document.getElementById(`nav-${viewId.split('-')[0]}`)) document.getElementById(`nav-${viewId.split('-')[0]}`).classList.add('active');
         
-        // Se entrar no formulário, preenche a hora de partida e o GPS de origem
         if(viewId === 'form-view') {
             const tpInput = document.getElementById('tP');
             if (!tpInput.value) {
@@ -498,7 +488,6 @@
             }
             if (!document.getElementById('ori').value) autoFillOrigin();
         }
-        
         window.scrollTo(0, 0);
     }
 
@@ -517,10 +506,10 @@
 
     function logout() {
         localStorage.removeItem('echo_user_email');
-        location.reload(); // Recarrega a página para limpar tudo
+        location.reload(); 
     }
 
-    // 3. UI LÓGICA
+    // UI LÓGICA (Veículos, Custos, KM)
     function atualizarFrota() { const p = document.getElementById("province").value; const s = document.getElementById("vehicle"); s.innerHTML = '<option value="">Viatura...</option>'; if (p && frota[p]) { s.disabled = false; frota[p].forEach(v => s.add(new Option(v, v))); } else { s.disabled = true; } updateThumb(); }
     function updateThumb() { const v = document.getElementById("vehicle").value; const img = document.getElementById("vehicleThumb"); if (!v) { img.style.opacity = "0"; return; } img.src = icons[v.includes("Hilux") ? "Hilux" : v.includes("Ford") ? "Ford" : "default"]; img.style.opacity = "1"; }
     function updateMaintThumb() { const v = document.getElementById("maintVehicle").value; const img = document.getElementById("maintVehicleThumb"); if (!v) { img.style.opacity = "0"; return; } img.src = icons[v.includes("Hilux") ? "Hilux" : v.includes("Ford") ? "Ford" : "default"]; img.style.opacity = "1"; }
@@ -531,7 +520,7 @@
         document.getElementById('dispKm').innerText = (kf > 0 && kf < ki) ? "Erro: KM!" : (kf - ki > 0 ? kf - ki : 0) + " KM";
         if (p && c && c > p) { const d = c - p; document.getElementById('dispDuration').innerText = `Duração: ${Math.floor(d / 3600000)}h ${Math.round((d % 3600000) / 60000)}m`; }
     }
-    function validateKmFinal() { /* validação avançada mantida */ }
+    function validateKmFinal() {} 
 
     function addFuel() {
         fuelIdx++; const div = document.createElement('div'); div.className = 'fuel-entry';
@@ -546,7 +535,7 @@
     function sugerirPreco() { const pRef = precos[document.getElementById("province").value] || 89.15; document.querySelectorAll('.fuel-p').forEach(i => { if (!i.value) i.value = pRef; }); updateFuelTotals(); }
     function updateFuelTotals() { let lT = 0, mT = 0; document.querySelectorAll('.fuel-entry').forEach(e => { const l = parseFloat(e.querySelector('.fuel-l').value) || 0, p = parseFloat(e.querySelector('.fuel-p').value) || 0; lT += l; mT += (l * p); }); document.getElementById('resL').innerText = lT.toFixed(2); document.getElementById('resM').innerText = mT.toFixed(2); }
 
-    // 4. MAPAS (MODAL CORRIGIDO)
+    // MAPAS (GOOGLE API)
     function initMap() { geocoder = new google.maps.Geocoder(); distanceService = new google.maps.DistanceMatrixService(); map = new google.maps.Map(document.getElementById("map"), { zoom: 15, center: { lat: -25.9692, lng: 32.5732 }, disableDefaultUI: true }); mapMarker = new google.maps.Marker({ map: map, draggable: true, position: { lat: -25.9692, lng: 32.5732 } }); document.getElementById('mapModal').addEventListener('shown.bs.modal', () => { google.maps.event.trigger(map, 'resize'); map.setCenter(mapMarker.getPosition()); }); }
     
     function openMapModal(id) { 
@@ -559,10 +548,7 @@
         if(navigator.geolocation) { 
             navigator.geolocation.getCurrentPosition(p => { 
                 const pos = { lat: p.coords.latitude, lng: p.coords.longitude }; 
-                if (mapMarker && map) {
-                    mapMarker.setPosition(pos); 
-                    map.setCenter(pos); 
-                }
+                if (mapMarker && map) { mapMarker.setPosition(pos); map.setCenter(pos); }
             }, ()=>{}, {enableHighAccuracy: true}); 
         } 
     }
@@ -572,7 +558,7 @@
     function autoFillOrigin() { if (navigator.geolocation && geocoder && !document.getElementById('ori').value) { navigator.geolocation.getCurrentPosition(p => { geocoder.geocode({ location: {lat: p.coords.latitude, lng: p.coords.longitude} }).then(r => { if (r.results[0]) { document.getElementById('ori').value = r.results[0].formatted_address; calculateRouteDistance();} }); }); } }
     function autoFillIncidentOrigin() { const field = document.getElementById('incLocation'); if(navigator.geolocation) { navigator.geolocation.getCurrentPosition(p => { field.value = `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`; if(geocoder) { geocoder.geocode({ location: {lat: p.coords.latitude, lng: p.coords.longitude} }).then(r => { if (r.results[0]) field.value = r.results[0].formatted_address; }); } }); } }
 
-    // 5. SUBMISSÕES VERCEL
+    // SUBMISSÕES (VERCEL)
     document.getElementById('loginForm').onsubmit = async (e) => {
         e.preventDefault(); document.getElementById('loader').style.display = 'flex';
         const email = document.getElementById('loginEmail').value.trim();
@@ -581,10 +567,11 @@
             const answer = await res.json(); 
             if(answer.status === 'success'){ 
                 localStorage.setItem('echo_user_email', email); 
-                document.getElementById('userDisplayEmail').innerText = email;
+                if(document.getElementById('userDisplayEmail')) document.getElementById('userDisplayEmail').innerText = email;
                 switchView('home-view'); 
-            } 
-            else { document.getElementById('loginError').innerText = "Acesso Negado ou Conta Inativa."; document.getElementById('loginError').style.display = 'block'; }
+            } else { 
+                document.getElementById('loginError').innerText = "Acesso Negado ou Conta Inativa."; document.getElementById('loginError').style.display = 'block'; 
+            }
         } catch (err) { document.getElementById('loginError').innerText = "Falha de ligação ao servidor."; document.getElementById('loginError').style.display = 'block'; }
         document.getElementById('loader').style.display = 'none';
     };
@@ -595,7 +582,6 @@
         try {
             const res = await fetch(VERCEL_API_HISTORY); 
             const data = await res.json();
-            
             if (!res.ok) throw new Error(data.message || `Erro do Servidor (${res.status})`);
             
             if (data.status === 'success' && data.history && data.history.length > 0) {
@@ -614,7 +600,6 @@
                 hc.innerHTML = '<div class="text-center py-4 text-secondary">Nenhuma Viagem Encontrada na base de dados.</div>';
             }
         } catch (e) { 
-            console.error(e);
             hc.innerHTML = `<div class="text-center py-4 text-danger border border-danger rounded-3 bg-white mt-2">
                 <i class="fa-solid fa-triangle-exclamation fs-1 mb-2"></i><br><b>Erro 500 (Vercel)</b><br>
                 <small class="text-dark">Detalhe: ${e.message}</small><br><br>
@@ -636,8 +621,21 @@
         catch (err) { alert('Erro: ' + err.message); document.getElementById('loader').style.display = 'none'; }
     };
 
-    // SUBMISSÃO DA MANUTENÇÃO E INCIDENTES... (mantido conforme a versão anterior)
+    document.getElementById('maintForm').onsubmit = async (e) => {
+        e.preventDefault(); document.getElementById('loader').style.display = 'flex';
+        const formData = { action: 'maintenance', submetidoPor: currentUserEmail, viatura: document.getElementById('maintVehicle').value, tipoServico: document.getElementById('maintType').value, kmActuais: document.getElementById('maintKm').value, custo: document.getElementById('maintCost').value, proximaRevisao: document.getElementById('maintNextDate').value, notas: document.getElementById('maintObs').value };
+        try { const res = await fetch(VERCEL_API_SAVE, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) }); const answer = await res.json(); if(answer.status === 'success') { alert('Manutenção Submetida 🛠️'); location.reload(); } else throw new Error(answer.message); } 
+        catch (err) { alert('Erro: ' + err.message); document.getElementById('loader').style.display = 'none'; }
+    };
+
+    document.getElementById('incidentForm').onsubmit = async (e) => {
+        e.preventDefault(); document.getElementById('loader').style.display = 'flex';
+        let base64Photo = "Sem Foto"; const fileInput = document.getElementById('incPhoto');
+        if (fileInput.files.length > 0) { const reader = new FileReader(); reader.readAsDataURL(fileInput.files[0]); await new Promise(r => reader.onload = () => { base64Photo = reader.result; r(); }); }
+        const formData = { action: 'incident', submetidoPor: currentUserEmail, tipoOcorrencia: document.getElementById('incType').value, gravidade: document.querySelector('input[name="incSeverity"]:checked')?.value || '', localizacao: document.getElementById('incLocation').value, descricao: document.getElementById('incDesc').value, foto: base64Photo };
+        try { const res = await fetch(VERCEL_API_SAVE, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) }); const answer = await res.json(); if(answer.status === 'success') { alert('Ocorrência Reportada 🚨'); location.reload(); } else throw new Error(answer.message); } 
+        catch (err) { alert('Erro: ' + err.message); document.getElementById('loader').style.display = 'none'; }
+    };
 </script>
 </body>
 </html>
-
