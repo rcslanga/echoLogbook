@@ -147,10 +147,10 @@
         <h3 class="mb-0 fs-5">Registo de Viagem</h3>
     </div>
 
-    <ul class="nav nav-pills nav-justified" id="pills-tab">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-1">VIATURA</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-2">CUSTOS</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-3">GERAL</button></li>
+   <ul class="nav nav-pills nav-justified" id="pills-tab">
+        <li class="nav-item"><button class="nav-link active" type="button" onclick="navTo('tab-1')" data-bs-target="#tab-1">VIATURA</button></li>
+        <li class="nav-item"><button class="nav-link" type="button" onclick="navTo('tab-2')" data-bs-target="#tab-2">CUSTOS</button></li>
+        <li class="nav-item"><button class="nav-link" type="button" onclick="navTo('tab-3')" data-bs-target="#tab-3">GERAL</button></li>
     </ul>
 
     <form id="logForm">
@@ -372,18 +372,6 @@
         carregarPassageiros();
 
         // Tabs Logic
-        const triggerTabList = document.querySelectorAll('#pills-tab button')
-        triggerTabList.forEach(triggerEl => {
-            triggerEl.addEventListener('shown.bs.tab', event => {
-                document.getElementById('btn-tab-1').style.display = 'none';
-                document.getElementById('btn-tab-2').style.display = 'none';
-                document.getElementById('btn-tab-3').style.display = 'none';
-                const target = event.target.getAttribute('data-bs-target');
-                if (target === '#tab-1') document.getElementById('btn-tab-1').style.display = 'block';
-                if (target === '#tab-2') document.getElementById('btn-tab-2').style.display = 'block';
-                if (target === '#tab-3') document.getElementById('btn-tab-3').style.display = 'block';
-            })
-        });
 
         const savedEmail = localStorage.getItem('echo_user_email');
         if (savedEmail) { currentUserEmail = savedEmail; switchView('home-view'); } else { switchView('login-view'); }
@@ -415,7 +403,59 @@
         if(viewId === 'form-view' && !document.getElementById('ori').value) autoFillOrigin();
         window.scrollTo(0, 0);
     }
-    function navTo(id) { new bootstrap.Tab(document.querySelector(`button[data-bs-target="#${id}"]`)).show(); window.scrollTo(0, 0); }
+    // === NOVA LÓGICA DE ABAS (PURA E INFALÍVEL) ===
+    function navTo(id) { 
+        // 1. Muda a cor dos botões (Tabs)
+        document.querySelectorAll('#pills-tab .nav-link').forEach(b => b.classList.remove('active'));
+        document.querySelector(`button[data-bs-target="#${id}"]`).classList.add('active');
+        
+        // 2. Esconde todos os conteúdos e mostra o certo
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active'));
+        document.getElementById(id).classList.add('show', 'active');
+
+        // 3. Mostra o botão fixo correto lá em baixo
+        document.getElementById('btn-tab-1').style.display = (id === 'tab-1') ? 'block' : 'none';
+        document.getElementById('btn-tab-2').style.display = (id === 'tab-2') ? 'block' : 'none';
+        document.getElementById('btn-tab-3').style.display = (id === 'tab-3') ? 'block' : 'none';
+        
+        window.scrollTo(0, 0); 
+    }
+
+    // === HISTÓRICO COM CAPTURA DE ERRO DETALHADA ===
+    async function loadRecentHistory() {
+        const hc = document.getElementById('historicoContainer');
+        hc.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-secondary small">A ligar à Cloud...</p></div>';
+        try {
+            const res = await fetch(VERCEL_API_HISTORY); 
+            const data = await res.json();
+            
+            if (!res.ok) throw new Error(data.message || `Erro do Servidor (${res.status})`);
+            
+            if (data.status === 'success' && data.history && data.history.length > 0) {
+                hc.innerHTML = data.history.map(row => `
+                <div class="history-item">
+                    <div class="history-icon-wrapper"><i class="fa-solid fa-car"></i></div>
+                    <div class="history-details">
+                        <div class="history-title">${row.Motorista || 'N/A'}</div>
+                        <div class="history-subtitle">${row.Timestamp ? row.Timestamp.substring(0,10) : 'Data N/A'} • ${row.Viatura || 'N/A'}</div>
+                    </div>
+                    <div class="history-value">
+                        <div class="history-km">+${(parseFloat(row['KM Final']) - parseFloat(row['KM Inicial'])) || 0} km</div>
+                    </div>
+                </div>`).join('');
+            } else {
+                hc.innerHTML = '<div class="text-center py-4 text-secondary">Nenhuma Viagem Encontrada na base de dados.</div>';
+            }
+        } catch (e) { 
+            console.error(e);
+            hc.innerHTML = `<div class="text-center py-4 text-danger border border-danger rounded-3 bg-white mt-2">
+                <i class="fa-solid fa-triangle-exclamation fs-1 mb-2"></i><br>
+                <b>Erro 500 (Vercel)</b><br>
+                <small class="text-dark">Detalhe: ${e.message}</small><br><br>
+                <small class="text-muted">Dica: Confirme se a aba se chama exatamente <b>DB_Logbook</b> no Google Sheets.</small>
+            </div>`; 
+        }
+    }
 
     // 3. UI LÓGICA
     function atualizarFrota() { const p = document.getElementById("province").value; const s = document.getElementById("vehicle"); s.innerHTML = '<option value="">Viatura...</option>'; if (p && frota[p]) { s.disabled = false; frota[p].forEach(v => s.add(new Option(v, v))); } else { s.disabled = true; } updateThumb(); }
@@ -525,3 +565,4 @@
 </script>
 </body>
 </html>
+
