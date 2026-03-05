@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         const sheets = google.sheets({ version: 'v4', auth });
         
         // ATENÇÃO: Substitua pelo ID real da sua Planilha (encontra-se no URL da folha do Google)
-        const SPREADSHEET_ID = 'COLOQUE_AQUI_O_ID_DA_SUA_PLANILHA';
+        const SPREADSHEET_ID = '1e5svBTbcbaZdZuc9Go-i-r2mnX45DMYuBFG019kq8HM/';
 
         // Vai à aba 'userlist' e lê da linha 2 em diante, colunas A e B
         const response = await sheets.spreadsheets.values.get({
