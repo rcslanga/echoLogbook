@@ -7,66 +7,55 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIJPWtg4ruD7z9f1OGltvFFVPQBqa8eGQ&libraries=places&callback=initMap" async defer></script>
-
+    
     <style>
         :root { 
-            --u-black: #000000;
-            --u-white: #FFFFFF;
-            --u-gray: #F6F6F6;
-            --u-border: #EEEEEE;
-            --u-text-gray: #545454;
-            --u-blue: #276EF1;
-            --u-red: #E11900;
-            --u-green: #05944F;
+            --u-black: #000000; --u-white: #FFFFFF; --u-gray: #F6F6F6; 
+            --u-border: #EEEEEE; --u-text-gray: #545454; --u-red: #E11900; --u-green: #05944F;
         }
         
-        body { background-color: var(--u-white); color: var(--u-black); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 100px; -webkit-font-smoothing: antialiased; }
+        body { background-color: var(--u-white); color: var(--u-black); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 100px; overflow-x: hidden; }
 
-        /* Vistas */
-        .app-view { display: none; }
-        .app-view.active { display: block; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Navegação de Vistas */
+        .app-view { display: none; min-height: 100vh; padding-bottom: 20px; }
+        .app-view.active { display: block !important; }
 
-        /* Login */
-        #login-view { background: var(--u-black); min-height: 100vh; padding: 40px 25px; color: white; display: flex; flex-direction: column; justify-content: center; }
-        .login-brand { font-size: 2.8rem; font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 40px; }
+        /* Login Uber Style */
+        #login-view { background: var(--u-black); color: white; display: none; flex-direction: column; justify-content: center; padding: 40px 25px; }
+        #login-view.active { display: flex !important; }
+        .login-brand { font-size: 3.5rem; font-weight: 800; letter-spacing: -3px; line-height: 0.9; margin-bottom: 40px; }
 
         /* Header */
-        .header-main { padding: 40px 20px 20px; background: white; border-bottom: 1px solid var(--u-border); position: sticky; top: 0; z-index: 100; }
+        .header-main { padding: 45px 20px 20px; background: white; border-bottom: 1px solid var(--u-border); position: sticky; top: 0; z-index: 100; }
         .header-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
 
-        /* Home Tiles */
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
-        .u-tile { background: var(--u-gray); border-radius: 12px; padding: 20px; height: 130px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid transparent; transition: 0.1s; }
-        .u-tile:active { transform: scale(0.97); background: #EAEAEA; }
-        .u-tile i { font-size: 1.4rem; color: var(--u-black); }
-        .u-tile span { font-weight: 600; font-size: 0.95rem; }
-
         /* Dashboard Metrics */
-        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px 20px; background: var(--u-gray); margin-bottom: 10px; }
+        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; background: var(--u-gray); }
         .metric-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--u-border); }
-        .metric-val { font-size: 1.2rem; font-weight: 800; display: block; }
+        .metric-val { font-size: 1.3rem; font-weight: 800; display: block; color: var(--u-black); }
         .metric-label { font-size: 0.65rem; font-weight: 700; color: var(--u-text-gray); text-transform: uppercase; }
 
-        /* Forms */
-        .u-label { font-size: 0.7rem; font-weight: 700; color: var(--u-text-gray); text-transform: uppercase; margin-bottom: 6px; display: block; padding-left: 2px; }
-        .u-field { width: 100%; border: none; background: var(--u-gray); padding: 16px; border-radius: 8px; font-weight: 500; margin-bottom: 18px; font-size: 1rem; }
+        /* Tiles Home */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
+        .u-tile { background: var(--u-gray); border-radius: 12px; padding: 20px; height: 130px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: 0.1s; }
+        .u-tile:active { transform: scale(0.96); background: #EAEAEA; }
+        .u-tile i { font-size: 1.5rem; }
+
+        /* Inputs & Selects */
+        .u-label { font-size: 0.75rem; font-weight: 700; color: var(--u-text-gray); text-transform: uppercase; margin: 15px 0 6px; display: block; }
+        .u-field { width: 100%; border: none; background: var(--u-gray); padding: 16px; border-radius: 8px; font-weight: 500; font-size: 1rem; margin-bottom: 5px; }
         .u-field:focus { outline: 2px solid var(--u-black); background: white; }
 
-        /* Abastecimentos List */
-        .fuel-entry { border: 1px solid var(--u-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; background: white; }
-        .remove-fuel { position: absolute; top: 10px; right: 10px; color: var(--u-red); border: none; background: none; font-size: 1.2rem; }
-
-        /* Buttons */
-        .btn-u { background: var(--u-black); color: white; border: none; width: 100%; padding: 18px; font-weight: 600; font-size: 1rem; border-radius: 8px; }
-        .btn-u:active { opacity: 0.8; }
-
-        /* Nav Inferior */
-        .u-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid var(--u-border); display: flex; justify-content: space-around; padding: 10px 0 30px; z-index: 1000; }
+        /* Bottom Nav */
+        .u-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid var(--u-border); display: flex; justify-content: space-around; padding: 10px 0 35px; z-index: 1000; }
         .nav-item { color: #AFAFAF; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; font-weight: 600; border: none; background: none; }
         .nav-item.active { color: var(--u-black); }
-        .nav-item i { font-size: 1.2rem; }
+        .nav-item i { font-size: 1.3rem; }
+
+        /* History Card */
+        .h-card { border-bottom: 1px solid var(--u-border); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .h-info h4 { font-size: 0.95rem; font-weight: 700; margin: 0; }
+        .h-info p { font-size: 0.8rem; color: var(--u-text-gray); margin: 0; }
 
         /* Loader */
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
@@ -78,206 +67,197 @@
 
 <div id="loader">
     <div class="u-spinner"></div>
-    <span class="mt-3 fw-800 small text-uppercase" style="letter-spacing: 2px;">Logbook</span>
+    <span class="mt-3 fw-800 small text-uppercase" style="letter-spacing: 2px;">Sincronizando</span>
 </div>
 
-<div id="login-view" class="app-view active">
+<div id="login-view" class="app-view">
     <div class="login-brand">Logbook<br>App.</div>
     <form id="loginForm">
-        <input type="email" id="loginEmail" class="u-field" placeholder="Email corporativo" required style="background: #222; color: white;">
-        <button type="submit" class="btn-u mt-2">Continuar</button>
+        <input type="email" id="loginEmail" class="u-field" placeholder="Insira o seu email" required style="background: #222; color: white;">
+        <button type="submit" class="btn-u w-100 p-3 mt-3 border-0 fw-bold" style="background: white; color: black; border-radius: 8px;">Continuar</button>
     </form>
-    <div id="loginError" class="text-danger small mt-3" style="display: none;"></div>
 </div>
 
 <div id="home-view" class="app-view">
     <div class="header-main d-flex justify-content-between align-items-center">
-        <div class="header-title">Logbook App</div>
+        <div class="header-title">Painel Geral</div>
         <div id="uAvatar" style="width: 42px; height: 42px; border-radius: 50%; background: #000; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem;"></div>
     </div>
     <div class="action-grid">
         <div class="u-tile" onclick="switchView('form-view'); navTo('tab-1');">
-            <i class="fa-solid fa-plus-square"></i>
-            <span>Nova Viagem</span>
+            <i class="fa-solid fa-car"></i><span>Registar Viagem</span>
         </div>
         <div class="u-tile" onclick="switchView('maintenance-view')">
-            <i class="fa-solid fa-screwdriver-wrench"></i>
-            <span>Manutenção</span>
+            <i class="fa-solid fa-wrench"></i><span>Manutenção</span>
         </div>
         <div class="u-tile" onclick="switchView('incidents-view')">
-            <i class="fa-solid fa-shield-heart" style="color: var(--u-red);"></i>
-            <span style="color: var(--u-red);">Ocorrência</span>
+            <i class="fa-solid fa-triangle-exclamation" style="color: var(--u-red);"></i><span style="color: var(--u-red);">Ocorrência</span>
         </div>
         <div class="u-tile" onclick="switchView('history-view'); loadRecentHistory();">
-            <i class="fa-solid fa-chart-line"></i>
-            <span>Dashboard</span>
+            <i class="fa-solid fa-chart-simple"></i><span>Estatísticas</span>
         </div>
     </div>
 </div>
 
 <div id="form-view" class="app-view">
-    <div class="header-main py-3">
+    <div class="header-main py-4 border-0">
         <div class="d-flex align-items-center gap-3">
-            <button class="border-0 bg-transparent" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left fs-4"></i></button>
-            <div class="header-title fs-4">Registo de Viagem</div>
+            <button class="border-0 bg-transparent p-0" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left fs-4"></i></button>
+            <div class="header-title fs-3">Nova Viagem</div>
         </div>
     </div>
-
-    <div class="p-3 border-bottom">
-        <select id="formSection" class="u-field mb-0 fw-bold" onchange="navTo(this.value)">
+    <div class="px-3 pb-2">
+        <select id="formSection" class="u-field fw-bold" style="background: #000; color: #FFF;" onchange="navTo(this.value)">
             <option value="tab-1">1. Viatura e KM</option>
             <option value="tab-2">2. Combustível</option>
-            <option value="tab-3">3. Equipa e Mapa</option>
+            <option value="tab-3">3. Finalizar</option>
         </select>
     </div>
-
     <form id="logForm">
-        <div id="tab-1" class="p-3 tab-content-view">
+        <div id="tab-1" class="p-3">
             <label class="u-label">Província</label>
             <select id="province" class="u-field" onchange="atualizarFrota('province', 'vehicle')" required>
-                <option value="">Selecione...</option>
-                <option value="Maputo">Maputo</option><option value="Sofala">Sofala</option><option value="Manica">Manica</option><option value="Tete">Tete</option><option value="Niassa">Niassa</option>
+                <option value="">Selecione...</option><option value="Maputo">Maputo</option><option value="Sofala">Sofala</option><option value="Manica">Manica</option><option value="Tete">Tete</option><option value="Niassa">Niassa</option>
             </select>
-            <label class="u-label">Matrícula</label>
+            <label class="u-label">Viatura</label>
             <select id="vehicle" class="u-field" disabled required></select>
-
             <div class="row g-2">
-                <div class="col-6"><label class="u-label">KM Inicial</label><input type="number" id="kmI" class="u-field" placeholder="0" oninput="calcDist()"></div>
-                <div class="col-6"><label class="u-label">KM Final</label><input type="number" id="kmF" class="u-field" placeholder="0" oninput="calcDist()"></div>
+                <div class="col-6"><label class="u-label">KM Inicial</label><input type="number" id="kmI" class="u-field" oninput="calcDist()"></div>
+                <div class="col-6"><label class="u-label">KM Final</label><input type="number" id="kmF" class="u-field" oninput="calcDist()"></div>
             </div>
-            <div class="p-4 bg-light text-center rounded-3 mb-4">
-                <span class="u-label d-block">Distância Estimada</span>
-                <span id="dispKm" class="fs-1 fw-800">0 KM</span>
+            <div class="p-4 bg-light text-center rounded-3 mb-3 border">
+                <span class="u-label d-block">Distância Total</span><span id="dispKm" class="fs-1 fw-800">0 KM</span>
             </div>
-            <button type="button" class="btn-u" onclick="navTo('tab-2')">Próximo Passo</button>
+            <button type="button" class="btn-u w-100 p-3 mt-2 border-0 fw-bold" style="background:black; color:white; border-radius:8px;" onclick="navTo('tab-2')">Próximo Passo</button>
         </div>
-
-        <div id="tab-2" class="p-3 tab-content-view" style="display:none;">
+        <div id="tab-2" class="p-3" style="display:none;">
             <div id="fuelList"></div>
-            <button type="button" class="u-field mb-4 border-dashed" style="background: white; border: 2px dashed #DDD;" onclick="addFuel()">
-                <i class="fa-solid fa-plus me-2"></i>Adicionar Abastecimento
-            </button>
-            <div class="p-3 border rounded-3 mb-4 text-end">
-                <span class="u-label">Gasto Total</span>
-                <div class="fs-3 fw-800"><span id="resM">0.00</span> MT</div>
-            </div>
-            <button type="button" class="btn-u" onclick="navTo('tab-3')">Próximo Passo</button>
+            <button type="button" class="u-field border-dashed text-center bg-white" style="border: 2px dashed #DDD;" onclick="addFuel()">+ Adicionar Recibo</button>
+            <button type="button" class="btn-u w-100 p-3 mt-4 border-0 fw-bold" style="background:black; color:white; border-radius:8px;" onclick="navTo('tab-3')">Ir para Finalização</button>
         </div>
+        <div id="tab-3" class="p-3" style="display:none;">
+            <label class="u-label">Motorista</label><select id="driver" class="u-field" required></select>
+            <label class="u-label">Tarefa (Task Code)</label><select id="task" class="u-field" required></select>
+            <label class="u-label">Motivo/Destino</label><input type="text" id="des" class="u-field" placeholder="Ex: Entrega de Material">
+            <button type="submit" class="btn-u w-100 p-3 mt-4 border-0 fw-bold" style="background: var(--u-green); color:white; border-radius:8px;">Gravar Logbook</button>
+        </div>
+    </form>
+</div>
 
-        <div id="tab-3" class="p-3 tab-content-view" style="display:none;">
-            <label class="u-label">Motorista</label>
-            <select id="driver" class="u-field" required></select>
-            <label class="u-label">Código Tarefa</label>
-            <select id="task" class="u-field" required></select>
-            <label class="u-label">Responsável / Passageiro</label>
-            <input type="text" id="passenger" class="u-field" placeholder="Nome do passageiro">
-            <label class="u-label">Destino</label>
-            <input type="text" id="des" class="u-field" placeholder="Local de destino">
-            
-            <button type="submit" class="btn-u" style="background: var(--u-green);">Finalizar Registo</button>
+<div id="maintenance-view" class="app-view">
+    <div class="header-main py-3"><div class="header-title fs-4">Manutenção</div></div>
+    <form id="maintForm" class="p-3">
+        <label class="u-label">Viatura</label>
+        <select id="maintVehicle" class="u-field" required></select>
+        <label class="u-label">Serviço</label>
+        <select id="maintType" class="u-field" required>
+            <option value="Revisão">Revisão Periódica</option><option value="Pneus">Substituição de Pneus</option><option value="Avaria">Reparação Urgente</option>
+        </select>
+        <div class="row g-2">
+            <div class="col-6"><label class="u-label">KM Atual</label><input type="number" id="maintKm" class="u-field" required></div>
+            <div class="col-6"><label class="u-label">Custo (MZN)</label><input type="number" id="maintCost" class="u-field" required></div>
         </div>
+        <label class="u-label">Próxima Revisão</label><input type="date" id="maintNext" class="u-field" required>
+        <button type="submit" class="btn-u w-100 p-3 mt-4 border-0 fw-bold" style="background:black; color:white; border-radius:8px;">Registar Manutenção</button>
     </form>
 </div>
 
 <div id="history-view" class="app-view">
-    <div class="header-main py-3">
-        <div class="header-title fs-4">Dashboard Atividade</div>
-    </div>
-
+    <div class="header-main py-4 border-0"><div class="header-title fs-3">Atividade</div></div>
     <div class="dash-container">
-        <div class="metric-card">
-            <span class="metric-label">Total KM</span>
-            <span id="dashKm" class="metric-val">0</span>
-        </div>
-        <div class="metric-card">
-            <span class="metric-label">Combustível</span>
-            <span id="dashFuel" class="metric-val">0 MT</span>
-        </div>
-        <div class="metric-card">
-            <span class="metric-label">Viagens</span>
-            <span id="dashTrips" class="metric-val">0</span>
-        </div>
-        <div class="metric-card">
-            <span class="metric-label">Manutenções</span>
-            <span id="dashMaint" class="metric-val">0</span>
-        </div>
+        <div class="metric-card"><span class="metric-label">KMs Totais</span><span id="dashKm" class="metric-val">0</span></div>
+        <div class="metric-card"><span class="metric-label">Viagens</span><span id="dashTrips" class="metric-val">0</span></div>
     </div>
-
     <div class="p-3">
-        <label class="u-label mb-3">Últimas Operações</label>
+        <label class="u-label mb-3">Histórico de Registos</label>
         <div id="historicoList"></div>
     </div>
 </div>
 
-<div id="incidents-view" class="app-view">
-    <div class="header-main py-3">
-        <button class="border-0 bg-transparent mb-2" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left fs-4"></i></button>
-        <div class="header-title fs-4" style="color: var(--u-red);">Reportar Incidente</div>
+<div id="about-view" class="app-view">
+    <div class="header-main py-4 border-0"><div class="header-title fs-3">Conta</div></div>
+    <div class="p-4 text-center border-bottom">
+        <div id="uAvatarBig" class="mx-auto mb-3" style="width: 80px; height: 80px; border-radius: 50%; background: #000; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2rem;"></div>
+        <h4 id="uEmailText" class="fw-bold mb-0">Utilizador</h4>
+        <p class="text-secondary small">Motorista Autorizado</p>
+        <button class="btn btn-outline-danger btn-sm mt-3" onclick="logout()" style="border-radius: 20px; font-weight: 600;">Terminar Sessão</button>
     </div>
-    <form id="incidentForm" class="p-3">
-        <label class="u-label">Província</label>
-        <select id="incProvince" class="u-field" onchange="atualizarFrota('incProvince', 'incVehicle')" required>
-            <option value="">Selecione...</option>
-            <option value="Maputo">Maputo</option><option value="Sofala">Sofala</option><option value="Manica">Manica</option><option value="Tete">Tete</option><option value="Niassa">Niassa</option>
-        </select>
-        <label class="u-label">Viatura</label>
-        <select id="incVehicle" class="u-field" disabled required></select>
-        <label class="u-label">Tipo de Evento</label>
-        <select id="incType" class="u-field" required>
-            <option value="Acidente">Acidente de Viação</option>
-            <option value="Avaria">Avaria Mecânica</option>
-            <option value="Furo">Furo de Pneu</option>
-            <option value="Roubo">Roubo / Segurança</option>
-        </select>
-        <label class="u-label">Descrição</label>
-        <textarea id="incDesc" class="u-field" rows="3" placeholder="O que aconteceu?"></textarea>
-        <label class="u-label">Foto da Evidência</label>
-        <input type="file" id="incPhoto" class="u-field" accept="image/*" capture="environment">
-        
-        <button type="submit" class="btn-u" style="background: var(--u-red);">Submeter Emergência</button>
-    </form>
+    <div class="p-3">
+        <label class="u-label mt-3">FAQ - Ajuda Rápida</label>
+        <div class="accordion accordion-flush" id="faqAcc">
+            <div class="accordion-item">
+                <h2 class="accordion-header"><button class="accordion-button collapsed fw-bold text-dark bg-white" data-bs-toggle="collapse" data-bs-target="#f1">Erro nos KM?</button></h2>
+                <div id="f1" class="accordion-collapse collapse p-3 small text-secondary">Informe o administrador para editar a folha Google Sheets.</div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header"><button class="accordion-button collapsed fw-bold text-dark bg-white" data-bs-toggle="collapse" data-bs-target="#f2">Sem sinal GPS?</button></h2>
+                <div id="f2" class="accordion-collapse collapse p-3 small text-secondary">Pode introduzir o endereço manualmente no campo de destino.</div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="u-nav">
+<div class="u-nav" id="mainNav">
     <button class="nav-item active" onclick="switchView('home-view')"><i class="fa-solid fa-house"></i>Início</button>
-    <button class="nav-item" onclick="switchView('form-view'); navTo('tab-1');"><i class="fa-solid fa-car-side"></i>Viagem</button>
+    <button class="nav-item" onclick="switchView('form-view')"><i class="fa-solid fa-car-side"></i>Viagem</button>
     <button class="nav-item" onclick="switchView('history-view'); loadRecentHistory();"><i class="fa-solid fa-chart-pie"></i>Status</button>
+    <button class="nav-item" onclick="switchView('about-view')"><i class="fa-solid fa-user"></i>Conta</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const VERCEL_URL = ''; // Detetado automaticamente se no Vercel
     const IMGBB_KEY = '752f66aaa3afa895ee81d09b023b226a';
-
     const motoristas = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa", "Carlos Mirassy", "Carlos Saboia"];
-    const tasks = [1010, 1020, 2010, 2020, 3010, 4010, 5010, 9999];
     const frota = { 
-        "Sofala": ["AEA-596-MP (Ford)", "AGD-259-MC (Hilux)", "AGG-921-MC (Hilux)", "AGQ-300-MC (Hilux)", "AAZ-782-SF (Cruiser)"],
-        "Niassa": ["ABY-323-MP (Cruiser)", "AGD-264-MC (Hilux)", "AGD-261-MC (Hilux)"],
-        "Tete": ["AGG-919-MC (Hilux)", "AGG-924-MC (Hilux)", "AGG-925-MC (Hilux)"],
-        "Manica": ["AGQ-261-MC (Hilux)", "AIT-430-MC (Nissan)", "AJV-250-MC (Cruiser)"],
+        "Sofala": ["AEA-596-MP (Ford)", "AGD-259-MC (Hilux)", "AGG-921-MC (Hilux)"],
+        "Niassa": ["ABY-323-MP (Cruiser)", "AGD-264-MC (Hilux)"],
+        "Tete": ["AGG-919-MC (Hilux)", "AGG-924-MC (Hilux)"],
+        "Manica": ["AGQ-261-MC (Hilux)", "AJV-250-MC (Cruiser)"],
         "Maputo": ["AFX-797-MP (Fortuner)"]
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('driver').innerHTML = '<option value="">Motorista...</option>' + motoristas.map(m => `<option value="${m}">${m}</option>`).join('');
-        document.getElementById('task').innerHTML = '<option value="">Tarefa...</option>' + tasks.map(t => `<option value="${t}">${t}</option>`).join('');
-        
-        const email = localStorage.getItem('echo_user_email');
-        if (email) {
-            document.getElementById('uAvatar').innerText = email.charAt(0).toUpperCase();
-            switchView('home-view');
-        }
-    });
-
     function switchView(id) {
+        document.getElementById('mainNav').style.display = (id === 'login-view') ? 'none' : 'flex';
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.innerText.toLowerCase().includes(id.replace('-view','').replace('about','conta').replace('history','status'))) btn.classList.add('active');
+        });
         window.scrollTo(0,0);
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('driver').innerHTML = '<option value="">Motorista...</option>' + motoristas.map(m => `<option value="${m}">${m}</option>`).join('');
+        document.getElementById('task').innerHTML = '<option value="">Tarefa...</option>' + [1010, 2010, 3010, 9999].map(t => `<option value="${t}">${t}</option>`).join('');
+        
+        const allV = Object.values(frota).flat();
+        allV.forEach(v => {
+            document.getElementById('maintVehicle').add(new Option(v, v));
+            // if(document.getElementById('incVehicle')) document.getElementById('incVehicle').add(new Option(v, v));
+        });
+
+        const email = localStorage.getItem('echo_user_email');
+        if (email) {
+            document.getElementById('uAvatar').innerText = email.charAt(0).toUpperCase();
+            document.getElementById('uAvatarBig').innerText = email.charAt(0).toUpperCase();
+            document.getElementById('uEmailText').innerText = email.split('@')[0];
+            switchView('home-view');
+        } else { switchView('login-view'); }
+    });
+
+    document.getElementById('loginForm').onsubmit = (e) => {
+        e.preventDefault();
+        const mail = document.getElementById('loginEmail').value;
+        localStorage.setItem('echo_user_email', mail);
+        location.reload();
+    };
+
+    function logout() { localStorage.removeItem('echo_user_email'); location.reload(); }
+
     function navTo(tabId) {
         document.getElementById('formSection').value = tabId;
-        document.querySelectorAll('.tab-content-view').forEach(t => t.style.display = 'none');
+        ['tab-1', 'tab-2', 'tab-3'].forEach(t => document.getElementById(t).style.display = 'none');
         document.getElementById(tabId).style.display = 'block';
     }
 
@@ -297,140 +277,41 @@
         document.getElementById('dispKm').innerText = (f - i > 0 ? f - i : 0) + " KM";
     }
 
-    let fuelCount = 0;
-    function addFuel() {
-        fuelCount++;
-        const div = document.createElement('div');
-        div.className = 'fuel-entry';
-        div.innerHTML = `
-            <button type="button" class="remove-fuel" onclick="this.parentElement.remove();sumFuel()"><i class="fa-solid fa-trash-can"></i></button>
-            <div class="row g-2">
-                <div class="col-6"><label class="u-label">Litros</label><input type="number" step="0.01" class="u-field f-liters" oninput="sumFuel()"></div>
-                <div class="col-6"><label class="u-label">Preço/L</label><input type="number" step="0.01" class="u-field f-price" value="90.50" oninput="sumFuel()"></div>
-            </div>
-        `;
-        document.getElementById('fuelList').appendChild(div);
-    }
-
-    function sumFuel() {
-        let total = 0;
-        document.querySelectorAll('.fuel-entry').forEach(e => {
-            const l = parseFloat(e.querySelector('.f-liters').value) || 0;
-            const p = parseFloat(e.querySelector('.f-price').value) || 0;
-            total += (l * p);
-        });
-        document.getElementById('resM').innerText = total.toFixed(2);
-    }
-
     async function loadRecentHistory() {
         const list = document.getElementById('historicoList');
-        list.innerHTML = '<div class="text-center py-4"><div class="u-spinner mx-auto"></div></div>';
+        list.innerHTML = '<div class="text-center py-5"><div class="u-spinner mx-auto"></div></div>';
         try {
             const res = await fetch('/api/get-history');
             const data = await res.json();
             if (data.status === 'success') {
-                let totalKm = 0; let totalFuel = 0;
-                
+                let tk = 0;
                 list.innerHTML = data.history.map(h => {
-                    const kmViagem = (parseFloat(h['KM Final']) - parseFloat(h['KM Inicial'])) || 0;
-                    totalKm += kmKmViagem;
-                    
-                    // Se houver dados de abastecimento no JSON da linha
-                    try {
-                        const fuelData = JSON.parse(h.Abastecimentos || '[]');
-                        fuelData.forEach(f => totalFuel += (parseFloat(f.custoTotal) || 0));
-                    } catch(e){}
-
+                    const diff = (parseFloat(h['KM Final']) - parseFloat(h['KM Inicial'])) || 0;
+                    tk += diff;
                     return `
-                    <div class="history-card mb-3 p-3 bg-white border rounded-3 d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-800">${h.Motorista}</div>
-                            <div class="small text-secondary">${h.Timestamp.substring(0,10)} • ${h.Viatura}</div>
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-800 text-primary">+${kmViagem} KM</div>
-                        </div>
+                    <div class="h-card">
+                        <div class="h-info"><h4>${h.Motorista}</h4><p>${h.Timestamp.substring(0,10)} • ${h.Viatura}</p></div>
+                        <div class="fw-800">+${diff} KM</div>
                     </div>`;
                 }).join('');
-
-                // Atualizar Dashboard
-                document.getElementById('dashKm').innerText = totalKm;
-                document.getElementById('dashFuel').innerText = totalFuel.toFixed(0) + ' MT';
+                document.getElementById('dashKm').innerText = tk;
                 document.getElementById('dashTrips').innerText = data.history.length;
             }
-        } catch(e) { list.innerHTML = 'Erro ao carregar dados.'; }
+        } catch(e) { list.innerHTML = '<p class="text-center p-4">Erro ao carregar dados da nuvem.</p>'; }
     }
 
-    // Login e Submissões seguem a lógica anterior...
-    document.getElementById('loginForm').onsubmit = (e) => {
-        e.preventDefault();
-        const mail = document.getElementById('loginEmail').value;
-        if(mail.includes('@')) { localStorage.setItem('echo_user_email', mail); location.reload(); }
-    };
-
-    document.getElementById('logForm').onsubmit = async (e) => {
-        e.preventDefault();
-        document.getElementById('loader').style.display = 'flex';
-        
-        let fuelData = [];
-        document.querySelectorAll('.fuel-entry').forEach(e => {
-            const l = parseFloat(e.querySelector('.f-liters').value) || 0;
-            const p = parseFloat(e.querySelector('.f-price').value) || 0;
-            fuelData.push({ litros: l, precoPorLitro: p, custoTotal: (l*p) });
-        });
-
-        const payload = {
-            action: 'logbook',
-            submetidoPor: localStorage.getItem('echo_user_email'),
-            motorista: document.getElementById('driver').value,
-            viatura: document.getElementById('vehicle').value,
-            provincia: document.getElementById('province').value,
-            kmInicial: document.getElementById('kmI').value,
-            kmFinal: document.getElementById('kmF').value,
-            taskCode: document.getElementById('task').value,
-            passageiro: document.getElementById('passenger').value,
-            destino: document.getElementById('des').value,
-            abastecimentos: fuelData,
-            partida: new Date().toISOString()
-        };
-
-        try {
-            const res = await fetch('/api/save-entry', { method: 'POST', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'} });
-            if(res.ok) { alert('Registo concluído!'); location.reload(); }
-        } catch(err) { alert('Falha ao gravar'); }
-        document.getElementById('loader').style.display = 'none';
-    };
-
-    document.getElementById('incidentForm').onsubmit = async (e) => {
-        e.preventDefault();
-        document.getElementById('loader').style.display = 'flex';
-        let url = "Sem Foto";
-        const file = document.getElementById('incPhoto').files[0];
-        if(file) {
-            const fd = new FormData(); fd.append('image', file);
-            const resI = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
-            const jsonI = await resI.json();
-            if(jsonI.success) url = jsonI.data.url;
-        }
-
-        const payload = {
-            action: 'incident',
-            submetidoPor: localStorage.getItem('echo_user_email'),
-            provincia: document.getElementById('incProvince').value,
-            viatura: document.getElementById('incVehicle').value,
-            tipoOcorrencia: document.getElementById('incType').value,
-            descricao: document.getElementById('incDesc').value,
-            foto: url
-        };
-
-        try {
-            await fetch('/api/save-entry', { method: 'POST', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'} });
-            alert('Emergência Reportada!'); location.reload();
-        } catch(err) { alert('Erro no envio'); }
-        document.getElementById('loader').style.display = 'none';
-    };
-
-    function initMap() {} // Dummy para o callback do Maps
+    function addFuel() {
+        const div = document.createElement('div');
+        div.className = 'bg-light p-3 rounded-3 mb-3 position-relative';
+        div.innerHTML = `<button type="button" class="btn-close position-absolute top-0 end-0 m-2" onclick="this.parentElement.remove()"></button>
+            <div class="row g-2">
+                <div class="col-6"><label class="u-label">Litros</label><input type="number" step="0.01" class="u-field"></div>
+                <div class="col-6"><label class="u-label">Preço/L</label><input type="number" step="0.01" class="u-field" value="90.50"></div>
+            </div>`;
+        document.getElementById('fuelList').appendChild(div);
+    }
+    
+    function initMap() {}
 </script>
 </body>
 </html>
