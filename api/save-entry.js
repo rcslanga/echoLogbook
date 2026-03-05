@@ -31,12 +31,12 @@ export default async function handler(req, res) {
             ]];
         } 
         else if (data.action === 'incident') {
-            range = 'DB_Incidents!A:A';
+            range = 'DB_incidents!A:A';
             values = [[
-                timestamp, data.tipoOcorrencia, data.gravidade, data.localizacao, 
-                data.descricao, data.foto, data.submetidoPor
+                timestamp, data.provincia, data.viatura, data.tipoOcorrencia, 
+                data.gravidade, data.localizacao, data.descricao, data.foto, data.submetidoPor
             ]];
-        } 
+        }
         else {
             return res.status(400).json({ status: 'error', message: 'Ação desconhecida.' });
         }
@@ -57,4 +57,5 @@ export default async function handler(req, res) {
         return res.status(500).json({ status: 'error', message: 'Erro ao gravar na base de dados.' });
     }
 }
+
 
