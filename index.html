@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StateDrive - Fleet Management</title>
+    <title>StateDrive - Operações de Frota</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -11,120 +11,231 @@
 
     <style>
         :root { 
-            --us-navy: #002868; /* Old Glory Blue */
-            --us-red: #BF0A30;  /* Old Glory Red */
+            --us-navy: #002868; 
+            --us-red: #BF0A30;  
             --bolt-bg: #F5F7FA; 
             --bolt-card: #FFFFFF;
+            --text-gray: #6B7280;
         }
         
-        body { background-color: var(--bolt-bg); color: #333; font-family: 'Inter', sans-serif; margin: 0; }
+        body { background-color: var(--bolt-bg); color: #1f2937; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 100px; }
 
-        /* Estilo Bolt: Cards com Sombras Suaves e Cantos Arredondados */
-        .app-view { display: none; padding-bottom: 30px; }
+        /* Vistas (SPA) */
+        .app-view { display: none; }
         .app-view.active { display: block; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Header Institucional */
-        .header-main { background: var(--us-navy); color: white; padding: 40px 25px; border-radius: 0 0 30px 30px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .header-main h1 { font-weight: 800; letter-spacing: -1px; margin: 0; font-size: 1.8rem; }
+        /* Header e Menu (Home) */
+        .header-main { background: var(--us-navy); color: white; padding: 50px 25px 30px; border-radius: 0 0 30px 30px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .menu-card { background: var(--bolt-card); border-radius: 20px; padding: 22px; margin: 12px 20px; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.04); display: flex; align-items: center; width: calc(100% - 40px); transition: 0.2s; text-align: left; }
+        .menu-card:active { transform: scale(0.97); background: #f0f0f0; }
+        .menu-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 18px; font-size: 1.4rem; background: rgba(0, 40, 104, 0.08); color: var(--us-navy); }
+        .icon-red { background: rgba(191, 10, 48, 0.08); color: var(--us-red); }
 
-        /* Menu de Cards */
-        .menu-card { 
-            background: var(--bolt-card); border-radius: 20px; padding: 22px; margin: 12px 20px; 
-            border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; 
-            width: calc(100% - 40px); transition: 0.2s; text-align: left;
-        }
-        .menu-card:active { transform: scale(0.97); background: #f9f9f9; }
-        .menu-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 18px; font-size: 1.4rem; }
+        /* Sistema de Abas (Formulário) */
+        .nav-pills { background: #E5E7EB; border-radius: 14px; padding: 6px; margin: 0 20px 20px; }
+        .nav-pills .nav-link { color: var(--text-gray); font-size: 0.70rem; font-weight: 700; text-transform: uppercase; border-radius: 10px; padding: 10px 5px; }
+        .nav-pills .nav-link.active { background: white; color: var(--us-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* Cartões de Formulário e Inputs */
+        .form-card { background: white; border-radius: 24px; padding: 25px; margin: 0 20px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; }
+        .form-label { color: var(--us-navy); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+        .form-control, .form-select { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 14px; padding: 14px; font-size: 0.95rem; color: #111; margin-bottom: 15px; }
+        .form-control:focus, .form-select:focus { border-color: var(--us-navy); box-shadow: 0 0 0 3px rgba(0,40,104,0.1); }
         
-        /* Cores dos Ícones */
-        .bg-blue { background: rgba(0, 40, 104, 0.1); color: var(--us-navy); }
-        .bg-red { background: rgba(191, 10, 48, 0.1); color: var(--us-red); }
+        /* Resumo KM */
+        .summary-box { background: rgba(0, 40, 104, 0.04); border-radius: 16px; padding: 15px; text-align: center; border: 1px dashed rgba(0, 40, 104, 0.2); margin-bottom: 20px; }
+        .summary-box h2 { font-size: 2.2rem; font-weight: 900; color: var(--us-navy); margin: 0; }
+        .duration-text { font-size: 0.85rem; color: #059669; font-weight: 700; margin-top: 5px; }
 
-        /* Formulários Claros */
-        .form-card { background: white; border-radius: 24px; padding: 25px; margin: 0 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .form-label { color: var(--us-navy); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
-        .form-control { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 14px; padding: 14px; font-size: 1rem; }
-        .form-control:focus { border-color: var(--us-navy); box-shadow: none; }
+        /* Imagem da Viatura */
+        .vehicle-thumb-container { position: absolute; top: 20px; right: 20px; width: 60px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        #vehicleThumb { max-width: 100%; max-height: 100%; opacity: 0; transition: 0.3s; }
 
-        /* Botão Principal Estilo Bolt */
-        .btn-action { background: var(--us-navy); color: white; border: none; border-radius: 18px; padding: 18px; width: 100%; font-weight: 700; font-size: 1.1rem; }
-        .btn-emergency { background: var(--us-red); color: white; border-radius: 18px; padding: 18px; width: 100%; font-weight: 700; margin-top: 10px; }
+        /* Entradas de Combustível */
+        .fuel-entry { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 16px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--us-navy); position: relative; }
+        .remove-entry { position: absolute; top: 10px; right: 15px; color: var(--us-red); font-size: 1.2rem; cursor: pointer; border: none; background: none; }
 
-        /* Map Canvas no Modal */
-        #mapCanvas { width: 100%; height: 450px; border-radius: 0 0 24px 24px; }
-        .modal-content { border-radius: 30px; border: none; }
+        /* Botões Fixos Base */
+        .fixed-bottom-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; z-index: 1000; }
+        .btn-action { background: var(--us-navy); color: white; border: none; border-radius: 18px; padding: 18px; width: 100%; font-weight: 700; font-size: 1.1rem; box-shadow: 0 8px 15px rgba(0,40,104,0.2); transition: 0.2s; }
+        .btn-action:active { transform: scale(0.98); }
+        
+        /* Mapas */
+        .input-group-text { background: var(--us-navy); border: 1px solid var(--us-navy); color: white; border-radius: 0 14px 14px 0 !important; cursor: pointer; }
+        #mapCanvas { width: 100%; height: 400px; border-radius: 0 0 24px 24px; }
+        .modal-content { border-radius: 24px; border: none; }
+
+        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
     </style>
 </head>
 <body>
 
+<div id="loader">
+    <div class="spinner-border" style="color: var(--us-navy); width: 3rem; height: 3rem;"></div>
+    <span class="mt-3 fw-bold" style="color: var(--us-navy);">A PROCESSAR...</span>
+</div>
+
 <div id="view-home" class="app-view active">
     <div class="header-main">
-        <h1>StateDrive</h1>
-        <p class="mb-0 opacity-75">Fleet Management System</p>
+        <h1 class="mb-1">StateDrive</h1>
+        <p class="mb-0 opacity-75 small">ECHO Fleet Management</p>
     </div>
 
-    <button class="menu-card" onclick="openView('view-form'); autoFillOrigin();">
-        <div class="menu-icon bg-blue"><i class="fas fa-car-side"></i></div>
-        <div><h6 class="mb-0 fw-bold">Nova Viagem</h6><small class="text-muted">Registar saída e KM</small></div>
+    <button class="menu-card" onclick="openView('view-form')">
+        <div class="menu-icon"><i class="fas fa-car-side"></i></div>
+        <div><h6 class="mb-0 fw-bold text-dark">Novo Logbook</h6><small class="text-muted">Registar viagem e custos</small></div>
     </button>
-
     <button class="menu-card" onclick="openView('view-maintenance')">
-        <div class="menu-icon bg-blue"><i class="fas fa-tools"></i></div>
-        <div><h6 class="mb-0 fw-bold">Manutenção</h6><small class="text-muted">Serviços e revisões</small></div>
+        <div class="menu-icon"><i class="fas fa-tools"></i></div>
+        <div><h6 class="mb-0 fw-bold text-dark">Manutenção</h6><small class="text-muted">Serviços e revisões</small></div>
     </button>
-
     <button class="menu-card" onclick="openView('view-incidents')">
-        <div class="menu-icon bg-red"><i class="fas fa-exclamation-triangle"></i></div>
-        <div><h6 class="mb-0 fw-bold text-danger">Ocorrências</h6><small class="text-muted">Acidentes e avarias</small></div>
+        <div class="menu-icon icon-red"><i class="fas fa-exclamation-triangle"></i></div>
+        <div><h6 class="mb-0 fw-bold text-danger">Ocorrências</h6><small class="text-muted">Reportar acidentes/avarias</small></div>
     </button>
-
-    <button class="menu-card" onclick="loadHistory()">
-        <div class="menu-icon bg-blue"><i class="fas fa-history"></i></div>
-        <div><h6 class="mb-0 fw-bold">Histórico</h6><small class="text-muted">Consultar registos</small></div>
+    <button class="menu-card" onclick="openView('view-history'); loadRecentHistory();">
+        <div class="menu-icon"><i class="fas fa-history"></i></div>
+        <div><h6 class="mb-0 fw-bold text-dark">Histórico</h6><small class="text-muted">Últimos registos</small></div>
     </button>
 </div>
 
 <div id="view-form" class="app-view">
     <div class="p-4 d-flex align-items-center">
-        <button class="btn btn-light rounded-circle me-3" onclick="openView('view-home')"><i class="fas fa-arrow-left"></i></button>
-        <span class="fw-bold fs-5 text-navy">Novo Logbook</span>
+        <button class="btn btn-light rounded-circle me-3 shadow-sm" onclick="openView('view-home')"><i class="fas fa-arrow-left"></i></button>
+        <span class="fw-bold fs-5" style="color: var(--us-navy);">Registo de Missão</span>
     </div>
 
+    <ul class="nav nav-pills nav-justified" id="pills-tab">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-1">Viatura</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-2">Custos</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-3">Equipa</button></li>
+    </ul>
+
     <form id="logForm">
-        <div class="form-card">
-            <label class="form-label">Geolocalização</label>
-            <div class="mb-3">
-                <div class="input-group">
-                    <input type="text" id="ori" class="form-control" placeholder="Origem atual">
-                    <button class="btn btn-outline-secondary border-start-0" type="button" onclick="launchMap('ori')"><i class="fas fa-map-marker-alt"></i></button>
-                </div>
-            </div>
-            <div class="mb-0">
-                <div class="input-group">
-                    <input type="text" id="des" class="form-control" placeholder="Destino da missão">
-                    <button class="btn btn-outline-secondary border-start-0" type="button" onclick="launchMap('des')"><i class="fas fa-map-marker-alt"></i></button>
-                </div>
-            </div>
-        </div>
+        <div class="tab-content">
+            
+            <div class="tab-pane fade show active" id="tab-1">
+                <div class="form-card">
+                    <div class="vehicle-thumb-container"><img id="vehicleThumb" src="" alt=""></div>
+                    
+                    <label class="form-label">Motorista</label>
+                    <select id="driver" class="form-select" required></select>
 
-        <div class="form-card">
-            <label class="form-label">Odómetro (KM)</label>
-            <div class="row g-2">
-                <div class="col-6"><input type="number" id="kmI" class="form-control" placeholder="Inicial"></div>
-                <div class="col-6"><input type="number" id="kmF" class="form-control" placeholder="Final"></div>
-            </div>
-        </div>
+                    <label class="form-label">Contexto Geográfico</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <select id="province" class="form-select" onchange="atualizarFrota(); sugerirPreco()" required>
+                                <option value="">Província...</option>
+                                <option value="Maputo">Maputo</option><option value="Sofala">Sofala</option><option value="Manica">Manica</option><option value="Tete">Tete</option><option value="Niassa">Niassa</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <select id="vehicle" class="form-select" disabled required onchange="updateThumb()"></select>
+                        </div>
+                    </div>
 
-        <div class="px-3"><button type="submit" class="btn-action">FINALIZAR VIAGEM</button></div>
+                    <div class="summary-box mt-2">
+                        <h2 id="dispKm">0 KM</h2>
+                        <div id="dispDuration" class="duration-text">Duração: 0h 0m</div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6"><label class="form-label">Partida</label><input type="datetime-local" id="tP" class="form-control" onchange="calcViagem()" required></div>
+                        <div class="col-6"><label class="form-label">Chegada</label><input type="datetime-local" id="tC" class="form-control" onchange="calcViagem()" required></div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6"><label class="form-label">KM Inicial</label><input type="number" id="kmI" class="form-control" inputmode="numeric" oninput="calcViagem()" required></div>
+                        <div class="col-6"><label class="form-label">KM Final</label><input type="number" id="kmF" class="form-control" inputmode="numeric" oninput="calcViagem()" required></div>
+                    </div>
+                </div>
+                <div class="fixed-bottom-btn"><button type="button" class="btn-action" onclick="navToTab('tab-2')">AVANÇAR PARA CUSTOS</button></div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-2">
+                <div class="form-card">
+                    <div id="fuelList"></div>
+                    <button type="button" class="btn btn-outline-secondary w-100 mb-4 fw-bold" style="border-radius:14px; padding:12px;" onclick="addFuel()">
+                        <i class="fas fa-gas-pump me-2"></i>+ ABASTECIMENTO
+                    </button>
+                    <div class="p-3 bg-light rounded-3 d-flex justify-content-between border">
+                        <span class="text-muted small fw-bold">Total L: <span id="resL" class="text-dark fs-6">0.00</span></span>
+                        <span class="text-muted small fw-bold">Total MT: <span id="resM" class="text-dark fs-6">0.00</span></span>
+                    </div>
+                </div>
+                <div class="fixed-bottom-btn"><button type="button" class="btn-action" onclick="navToTab('tab-3')">AVANÇAR PARA EQUIPA</button></div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-3">
+                <div class="form-card">
+                    <label class="form-label">Passageiro Responsável</label>
+                    <input class="form-control" list="staffList" id="passenger" placeholder="Nome | Email">
+                    <datalist id="staffList">
+                        <option value="A carregar dados da cloud...">
+                    </datalist>
+
+                    <label class="form-label">Task Code</label>
+                    <select id="task" class="form-select" required></select>
+
+                    <label class="form-label">Percurso (GPS)</label>
+                    <div class="input-group mb-2">
+                        <input type="text" id="ori" class="form-control" placeholder="Origem">
+                        <button class="input-group-text" type="button" onclick="launchMap('ori')"><i class="fas fa-map-marker-alt"></i></button>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="text" id="des" class="form-control" placeholder="Destino">
+                        <button class="input-group-text" type="button" onclick="launchMap('des')"><i class="fas fa-map-marker-alt"></i></button>
+                    </div>
+
+                    <label class="form-label">Notas Adicionais</label>
+                    <textarea id="obs" class="form-control" rows="2" placeholder="Descreva a missão ou observações..."></textarea>
+                </div>
+                <div class="fixed-bottom-btn"><button type="submit" class="btn-action" style="background:#059669;"><i class="fas fa-check-circle me-2"></i>FINALIZAR LOGBOOK</button></div>
+            </div>
+
+        </div>
     </form>
+</div>
+
+<div id="view-history" class="app-view">
+    <div class="p-4 d-flex align-items-center border-bottom bg-white">
+        <button class="btn btn-light rounded-circle me-3 shadow-sm" onclick="openView('view-home')"><i class="fas fa-arrow-left"></i></button>
+        <span class="fw-bold fs-5" style="color: var(--us-navy);">Histórico Recente</span>
+    </div>
+    <div id="historicoContainer" class="p-4">
+        <div class="text-center py-5 text-muted">A carregar registos da cloud...</div>
+    </div>
+</div>
+
+<div id="view-maintenance" class="app-view">
+    <div class="p-4 d-flex align-items-center">
+        <button class="btn btn-light rounded-circle me-3 shadow-sm" onclick="openView('view-home')"><i class="fas fa-arrow-left"></i></button>
+        <span class="fw-bold fs-5" style="color: var(--us-navy);">Manutenção</span>
+    </div>
+    <div class="form-card text-center py-5">
+        <i class="fas fa-tools fa-3x mb-3 text-muted"></i>
+        <h5 class="fw-bold">Módulo em Construção</h5>
+        <p class="text-muted small">A gestão de manutenção estará disponível em breve.</p>
+    </div>
+</div>
+
+<div id="view-incidents" class="app-view">
+    <div class="p-4 d-flex align-items-center">
+        <button class="btn btn-light rounded-circle me-3 shadow-sm" onclick="openView('view-home')"><i class="fas fa-arrow-left"></i></button>
+        <span class="fw-bold fs-5" style="color: var(--us-red);">Ocorrências</span>
+    </div>
+    <div class="form-card text-center py-5">
+        <i class="fas fa-exclamation-triangle fa-3x mb-3 text-danger"></i>
+        <h5 class="fw-bold">Módulo de Incidentes</h5>
+        <p class="text-muted small">Área reservada para reportar sinistros e avarias críticas.</p>
+    </div>
 </div>
 
 <div class="modal fade" id="mapModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg">
-            <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-navy"><i class="fas fa-map-pin me-2"></i>Seleccionar Local</span>
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light" style="border-radius: 24px 24px 0 0;">
+                <span class="fw-bold" style="color: var(--us-navy);"><i class="fas fa-crosshairs me-2"></i>Afinar Localização</span>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div id="mapCanvas"></div>
@@ -136,52 +247,229 @@
 </div>
 
 <script>
-    let map, marker, activeField;
+    // --- DADOS BASE ---
+    const motoristasFallback = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa", "Carlos Mirassy", "Carlos Saboia", "Edson de Sousa", "Faizal Matuare Alide", "Fernando Muianga", "Fungai Ulhanane", "Herminio Muchave", "Inacio Paulo Augusto Junior", "Joao Aide", "Joao Bonda", "Joao Massocha", "Joao Paulo Ganje", "Jone Juze Aleixo", "Manuel Jose", "Manuel Xavier", "Marcos Campaunda", "Moises Ndoa", "Rajhi Mussa", "Raul Baptista", "Silvestre Angelica"];
+    const taskCodesBase = [2010,2020,2030,2040,2050,2060,2070,2110,2120,2130,2140,2150,2160,2170,2210,2220,2230,2240,2250,2260,2270,2310,2320,2330,2340,2350,2360,2370,2410,2420,2430,2440,2450,2460,2470,2510,2520,2530,2540,2550,2560,2570,3020,3030,3040,3050,3060,3070,4010,4020];
+    const frota = {
+        "Sofala": ["AEA-596-MP (Ford)", "AGG-921-MC (Hilux)", "AGQ-300-MP (Hilux)", "AIU-716-MC (Nissan)", "AIU-717-MC (Nissan)", "AIU-719-MC (Nissan)", "AJV-251-MC (LC)", "AAZ-782-SF (Hilux)", "AAZ-783-SF (Hilux)", "ABA-169-SF (Hilux)", "ABA-170-SF (Hilux)", "ANI-566-MC (Hilux)", "AIA-702-MP (Hilux)", "AEA-592-MP (Ford)"],
+        "Niassa": ["ABY-323-MP (LC)", "AGD-264-MC (Hilux)", "AGD-263-MC (Hilux)", "AGD-261-MC (Hilux)", "AGG-929-MC (Hilux)", "AJV-236-MC (LC)"],
+        "Manica": ["AGQ-261-MC (Hilux)", "AIT-430-MC (Nissan)", "AIT-434-MC (Nissan)", "AIU-721-MC (Nissan)", "AJV-250-MC (LC)", "AIB-879-MP (Hilux)"],
+        "Tete": ["AGG-919-MC (Hilux)", "AGG-924-MC (Hilux)", "AGG-925-MC (Hilux)", "AGG-926-MC (Hilux)", "AGD-266-MC (Hilux)", "AIT-437-MC (Nissan)", "AIT-441-MC (Nissan)", "ANN-412-MC (Mazda)"],
+        "Maputo": ["AFX-797-MP (Fortuner)"]
+    };
+    const precos = { "Maputo": 89.15, "Sofala": 90.50, "Manica": 91.20, "Tete": 92.40, "Niassa": 94.80 };
+    const icons = { "Hilux": "https://prowars.info/wp-content/uploads/2020/09/hilux-icon.png", "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png", "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png", "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png" };
+    let fuelIdx = 0, map, marker, activeField;
 
+    // --- INICIALIZAÇÃO E INTEGRAÇÃO DE UTILIZADORES ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Popular Motoristas
+        const dSel = document.getElementById('driver');
+        dSel.innerHTML = '<option value="">Seleccione o motorista...</option>';
+        motoristasFallback.forEach(m => dSel.add(new Option(m, m)));
+
+        // Popular Task Codes
+        const tSel = document.getElementById('task');
+        tSel.innerHTML = '<option value="">Código...</option>';
+        taskCodesBase.forEach(c => tSel.add(new Option(c, c)));
+
+        // Popular Passageiros via Vercel Backend
+        carregarPassageiros();
+    });
+
+    async function carregarPassageiros() {
+        const staffList = document.getElementById('staffList');
+        try {
+            const response = await fetch('/api/get-users');
+            if (!response.ok) throw new Error();
+            const data = await response.json();
+            staffList.innerHTML = ''; 
+            if (data.users && data.users.length > 0) {
+                data.users.forEach(u => staffList.appendChild(new Option(u, u)));
+            } else {
+                staffList.innerHTML = '<option value="Nenhum utilizador encontrado">';
+            }
+        } catch (error) {
+            console.log('Modo Offline: A usar lista local de fallback.');
+            staffList.innerHTML = '<option value="Abdul Fahamo | Abdul_Fahamo@echomoz.org"><option value="Julio Pacca | Julio.Pacca@abtglobal.com"><option value="Vânia Macome | Vania_Macome@echomoz.org">';
+        }
+    }
+
+    // --- NAVEGAÇÃO SPA ---
     function openView(id) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         window.scrollTo(0,0);
+        if(id === 'view-form') autoFillOrigin();
+    }
+    function navToTab(id) {
+        new bootstrap.Tab(document.querySelector(`button[data-bs-target="#${id}"]`)).show();
+        window.scrollTo(0,0);
     }
 
-    // Lógica Segura de Envio (Vercel Backend)
+    // --- LÓGICA DE NEGÓCIO (VIATURA) ---
+    function atualizarFrota() {
+        const p = document.getElementById("province").value;
+        const s = document.getElementById("vehicle");
+        s.innerHTML = '<option value="">Viatura...</option>';
+        if(p && frota[p]) { s.disabled = false; frota[p].forEach(v => s.add(new Option(v, v))); }
+        else { s.disabled = true; }
+        updateThumb();
+    }
+    function updateThumb() {
+        const v = document.getElementById("vehicle").value;
+        const img = document.getElementById("vehicleThumb");
+        if(!v) { img.style.opacity = "0"; return; }
+        let m = v.includes("Hilux") ? "Hilux" : (v.includes("Ford") ? "Ford" : (v.includes("LC") ? "LC" : "default"));
+        img.src = icons[m]; img.style.opacity = "1";
+    }
+    function calcViagem() {
+        const ki = parseFloat(document.getElementById('kmI').value) || 0;
+        const kf = parseFloat(document.getElementById('kmF').value) || 0;
+        const p = new Date(document.getElementById('tP').value);
+        const c = new Date(document.getElementById('tC').value);
+        
+        document.getElementById('dispKm').innerText = (kf - ki > 0 ? kf - ki : 0) + " KM";
+        if(p && c && c > p) {
+            const d = c - p;
+            const h = Math.floor(d / 3600000);
+            const m = Math.round((d % 3600000) / 60000);
+            document.getElementById('dispDuration').innerText = `Duração: ${h}h ${m}m`;
+            document.getElementById('dispDuration').style.color = "#059669";
+        } else if(c < p) {
+            document.getElementById('dispDuration').innerText = "Erro nas datas!";
+            document.getElementById('dispDuration').style.color = "var(--us-red)";
+        }
+    }
+
+    // --- LÓGICA DE COMBUSTÍVEL ---
+    function addFuel() {
+        fuelIdx++;
+        const div = document.createElement('div');
+        div.className = 'fuel-entry';
+        div.innerHTML = `<button type="button" class="remove-entry" onclick="this.parentElement.remove();updateFuelTotals()"><i class="fas fa-times-circle"></i></button>
+            <div class="row g-2">
+                <div class="col-4"><label class="form-label text-muted" style="font-size:0.65rem;">Litros</label><input type="number" step="0.01" inputmode="decimal" class="form-control fuel-l p-2" oninput="updateFuelTotals()"></div>
+                <div class="col-4"><label class="form-label text-muted" style="font-size:0.65rem;">Preço/L</label><input type="number" step="0.01" inputmode="decimal" class="form-control fuel-p p-2" oninput="updateFuelTotals()"></div>
+                <div class="col-4"><label class="form-label text-muted" style="font-size:0.65rem;">KM Atual</label><input type="number" inputmode="numeric" class="form-control fuel-km p-2"></div>
+            </div>`;
+        document.getElementById('fuelList').appendChild(div);
+        sugerirPreco();
+    }
+    function sugerirPreco() {
+        const prov = document.getElementById("province").value;
+        const pRef = precos[prov] || 89.15;
+        document.querySelectorAll('.fuel-p').forEach(i => { if(!i.value) i.value = pRef; });
+        updateFuelTotals();
+    }
+    function updateFuelTotals() {
+        let lT = 0, mT = 0;
+        document.querySelectorAll('.fuel-entry').forEach(e => {
+            const l = parseFloat(e.querySelector('.fuel-l').value) || 0;
+            const p = parseFloat(e.querySelector('.fuel-p').value) || 0;
+            lT += l; mT += (l * p);
+        });
+        document.getElementById('resL').innerText = lT.toFixed(2);
+        document.getElementById('resM').innerText = mT.toFixed(2);
+    }
+
+    // --- MAPAS & GEOLOCALIZAÇÃO ---
+    function autoFillOrigin() {
+        if (navigator.geolocation && !document.getElementById('ori').value) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                new google.maps.Geocoder().geocode({ location: { lat: pos.coords.latitude, lng: pos.coords.longitude } }, (res, status) => {
+                    if (status === "OK" && res[0]) document.getElementById('ori').value = res[0].formatted_address;
+                });
+            });
+        }
+    }
+    function launchMap(fieldId) {
+        activeField = fieldId;
+        new bootstrap.Modal(document.getElementById('mapModal')).show();
+        setTimeout(() => {
+            map = new google.maps.Map(document.getElementById("mapCanvas"), { center: {lat: -25.96, lng: 32.58}, zoom: 15, disableDefaultUI: true });
+            marker = new google.maps.Marker({ position: {lat: -25.96, lng: 32.58}, map: map, draggable: true });
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const l = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    map.setCenter(l); marker.setPosition(l);
+                });
+            }
+        }, 300);
+    }
+    function confirmLocation() {
+        const pos = marker.getPosition();
+        new google.maps.Geocoder().geocode({ location: pos }, (res, status) => {
+            document.getElementById(activeField).value = (status === "OK" && res[0]) ? res[0].formatted_address : `${pos.lat().toFixed(5)}, ${pos.lng().toFixed(5)}`;
+            bootstrap.Modal.getInstance(document.getElementById('mapModal')).hide();
+        });
+    }
+
+    // --- SUBMISSÃO E VERCEL BACKEND ---
+    async function loadRecentHistory() {
+        // Placeholder até o endpoint de history estar criado no backend
+        const hc = document.getElementById('historicoContainer');
+        hc.innerHTML = '<div class="form-card mb-2 border"><div class="d-flex justify-content-between"><span class="fw-bold">A Carregar...</span></div></div>';
+    }
+
     document.getElementById('logForm').onsubmit = async (e) => {
         e.preventDefault();
-        const btn = e.target.querySelector('button');
-        btn.disabled = true;
-        btn.innerText = "A ENVIAR...";
+        
+        // Validação de KM
+        const kmInic = parseFloat(document.getElementById('kmI').value) || 0;
+        const kmFina = parseFloat(document.getElementById('kmF').value) || 0;
+        if (kmFina < kmInic) {
+            alert('Atenção: O KM Final não pode ser inferior ao KM Inicial!');
+            return;
+        }
 
-        const data = {
-            type: 'logbook',
-            ori: document.getElementById('ori').value,
-            des: document.getElementById('des').value,
-            kmI: document.getElementById('kmI').value,
-            kmF: document.getElementById('kmF').value
+        document.getElementById('loader').style.display = 'flex';
+
+        // Array de Combustível Original Preservada
+        let abastecimentos = [];
+        document.querySelectorAll('.fuel-entry').forEach(caixa => {
+            abastecimentos.push({
+                litros: parseFloat(caixa.querySelector('.fuel-l').value) || 0,
+                preco: parseFloat(caixa.querySelector('.fuel-p').value) || 0,
+                km_atual: parseFloat(caixa.querySelector('.fuel-km').value) || 0
+            });
+        });
+
+        const formData = {
+            motorista: document.getElementById('driver').value,
+            provincia: document.getElementById('province').value,
+            viatura: document.getElementById('vehicle').value,
+            partida: document.getElementById('tP').value,
+            chegada: document.getElementById('tC').value,
+            kmInicial: kmInic,
+            kmFinal: kmFina,
+            passageiro: document.getElementById('passenger').value,
+            taskCode: document.getElementById('task').value,
+            origem: document.getElementById('ori').value,
+            destino: document.getElementById('des').value,
+            observacoes: document.getElementById('obs').value,
+            abastecimentos: abastecimentos
         };
 
         try {
-            // Rota de API do Vercel protegida por conta de serviço
-            const res = await fetch('/api/save-entry', {
+            const response = await fetch('/api/save-entry', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify(formData)
             });
             
-            if(res.ok) {
-                alert('Registo guardado com sucesso!');
-                location.reload();
-            } else {
-                throw new Error();
-            }
-        } catch (err) {
-            alert('Erro ao sincronizar. Verifique a ligação ou permissões do Vercel.');
-            btn.disabled = false;
-            btn.innerText = "TENTAR NOVAMENTE";
+            if (!response.ok) throw new Error("Erro de servidor ou rede.");
+            
+            alert('Logbook submetido com sucesso à base de dados!');
+            location.reload();
+        } catch (error) {
+            document.getElementById('loader').style.display = 'none';
+            alert('Falha na ligação. Certifique-se de que o ficheiro /api/save-entry.js está no Vercel e as variáveis de ambiente ativas.');
+            console.error(error);
         }
     };
-
-    // [INSERIR AQUI AS FUNÇÕES JS DE MAPA: launchMap, confirmLocation, autoFillOrigin]
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
