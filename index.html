@@ -451,6 +451,11 @@
         <div id="historicoContainer">
             <div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>
         </div>
+
+        <h2 class="mb-3 fs-5 mt-4">Ocorrências</h2>
+        <div id="incidentesContainer">
+            <div class="text-center py-4 text-secondary small">A carregar ocorrências...</div>
+        </div>
     </div>
 </div>
 
@@ -501,7 +506,7 @@
 <div class="bottom-nav">
     <button class="nav-item-btn active" id="nav-home" onclick="switchView('home-view')"><i class="fa-solid fa-house"></i> Início</button>
     <button class="nav-item-btn" id="nav-form" onclick="switchView('form-view'); navTo('tab-1');"><i class="fa-solid fa-car"></i> Viagem</button>
-    <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view'); loadRecentHistory();"><i class="fa-solid fa-list-ul"></i> Relatórios</button>
+    <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view');"><i class="fa-solid fa-list-ul"></i> Relatórios</button>
     <button class="nav-item-btn" id="nav-about" onclick="switchView('about-view')"><i class="fa-solid fa-user-gear"></i> Perfil</button>
 </div>
 
@@ -638,6 +643,11 @@
             loadIncidentsSummary();
         }
 
+        if (viewId === 'history-view') {
+            loadRecentHistory();
+            loadIncidentsHistory();
+        }
+
         window.scrollTo(0, 0);
     }
 
@@ -740,8 +750,8 @@
 
                         const o = parseLatLng(row.Origem);
                         const d = parseLatLng(row.Destino);
-                        if (o) routePoints.push(o);
-                        if (d) routePoints.push(d);
+                        if (o) routePoints.push({ type: 'origem', point: o });
+                        if (d) routePoints.push({ type: 'destino', point: d });
                         
                         return `
                         <div class="history-item">
@@ -805,6 +815,80 @@
         }
     }
 
+    async function loadIncidentsHistory() {
+        const container = document.getElementById('incidentesContainer');
+        if (!container) return;
+
+        container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-secondary"></div><p class="mt-2 text-secondary small">A carregar ocorrências...</p></div>';
+
+        try {
+            const res = await fetch(VERCEL_API_INCIDENTS);
+            const data = await res.json();
+
+            if (!res.ok || data.status !== 'success') {
+                throw new Error(data.message || 'Erro ao obter ocorrências');
+            }
+
+            const incidents = data.incidents || [];
+            if (!incidents.length) {
+                container.innerHTML = '<div class="text-center py-3 text-secondary small">Nenhuma ocorrência registada.</div>';
+                return;
+            }
+
+            container.innerHTML = incidents
+                .map((inc) => {
+                    const ts = inc.Timestamp || '';
+                    const hora = ts.split(',')[1]?.trim() || '';
+                    const dataDia = ts.split(',')[0] || '';
+                    const grav = inc.Gravidade || '';
+                    let gravClass = 'badge bg-secondary';
+                    if (grav === 'Alta') gravClass = 'badge bg-danger';
+                    else if (grav === 'Média') gravClass = 'badge bg-warning text-dark';
+                    else if (grav === 'Baixa') gravClass = 'badge bg-success';
+
+                    const foto = inc.Foto && inc.Foto !== 'Sem Foto' ? inc.Foto : null;
+
+                    return `
+                    <div class="history-item">
+                        <div class="d-flex align-items-start gap-3 flex-grow-1">
+                            <div class="history-icon-wrapper">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="fw-bold" style="color: var(--text-dark);">${inc.TipoOcorrencia || 'Ocorrência'}</div>
+                                    <span class="${gravClass}" style="font-size:0.7rem;">${grav || ''}</span>
+                                </div>
+                                <div class="small text-secondary">
+                                    ${inc.Provincia || 'Província N/A'} • ${inc.Viatura || 'Viatura N/A'}
+                                </div>
+                                <div class="small text-secondary">
+                                    ${dataDia} ${hora} • ${inc.Motorista || 'Motorista N/A'}
+                                </div>
+                                <div class="small mt-1" style="color: var(--text-dark); max-height: 2.8em; overflow: hidden; text-overflow: ellipsis;">
+                                    ${inc.Descricao || ''}
+                                </div>
+                            </div>
+                        </div>
+                        ${
+                            foto
+                                ? `<a href="${foto}" target="_blank" rel="noreferrer" class="ms-2">
+                                       <img src="${foto}" alt="Foto" style="width:56px;height:56px;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb;">
+                                   </a>`
+                                : ''
+                        }
+                    </div>`;
+                })
+                .join('');
+        } catch (e) {
+            console.error('Erro a carregar histórico de ocorrências:', e);
+            container.innerHTML = `<div class="text-center py-4 text-danger small">
+                Não foi possível carregar o histórico de ocorrências.<br>
+                <span class="text-muted">${e.message}</span>
+            </div>`;
+        }
+    }
+
     function renderChart(dataObj) {
         const ctx = document.getElementById('expenseChart').getContext('2d');
         if(expenseChartInstance) expenseChartInstance.destroy();
@@ -848,12 +932,21 @@
 
         const bounds = new google.maps.LatLngBounds();
         points.forEach(p => {
+            const color = p.type === 'origem' ? '#3b82f6' : '#ef4444';
             const marker = new google.maps.Marker({
                 map: routesMap,
-                position: p,
+                position: p.point,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: color,
+                    fillOpacity: 0.9,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2,
+                    scale: 6,
+                },
             });
             routesMarkers.push(marker);
-            bounds.extend(p);
+            bounds.extend(p.point);
         });
 
         routesMap.fitBounds(bounds);
