@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
         // Escreve na Google Sheet
         await sheets.spreadsheets.values.append({
-            spreadsheetId: process.env.SPREADSHEET_ID,
+            spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
             range: range,
             valueInputOption: 'USER_ENTERED',
             insertDataOption: 'INSERT_ROWS',
@@ -57,3 +57,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ status: 'error', message: 'Erro ao gravar na base de dados.' });
     }
 }
+
