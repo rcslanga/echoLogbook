@@ -599,9 +599,9 @@
         }
 
         if (viewId === 'home-view') {
-    loadRecentHistory();
-    loadIncidentsSummary();
-}
+            loadRecentHistory();
+            loadIncidentsSummary();
+        }
 
         window.scrollTo(0, 0);
     }
@@ -743,6 +743,26 @@
         }
     }
 
+    async function loadIncidentsSummary() {
+        const el = document.getElementById('summaryIncidents');
+        if (!el) return;
+
+        try {
+            const res = await fetch(VERCEL_API_INCIDENTS);
+            const data = await res.json();
+
+            if (res.ok && data.status === 'success') {
+                const incidents = data.incidents || [];
+                const total = data.count ?? incidents.length;
+                const altas = incidents.filter(i => i.Gravidade === 'Alta').length;
+
+                el.textContent = altas > 0 ? `${total} (${altas} alta)` : String(total);
+            }
+        } catch (e) {
+            console.error('Erro a carregar incidentes:', e);
+        }
+    }
+
     function renderChart(dataObj) {
         const ctx = document.getElementById('expenseChart').getContext('2d');
         if(expenseChartInstance) expenseChartInstance.destroy();
@@ -816,4 +836,3 @@
 </script>
 </body>
 </html>
-
