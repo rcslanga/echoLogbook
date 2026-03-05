@@ -27,8 +27,9 @@
         .app-view.active { display: block; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Login */
-        #login-view { background: linear-gradient(135deg, var(--us-navy) 0%, #001A44 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding-bottom: 0; margin: 0; }
+        /* Login (CORRIGIDO: Removido o display flex fixo) */
+        #login-view { background: linear-gradient(135deg, var(--us-navy) 0%, #001A44 100%); align-items: center; justify-content: center; min-height: 100vh; padding-bottom: 0; margin: 0; }
+        #login-view.active { display: flex; }
         .login-card { background: var(--bolt-card); border-radius: 24px; padding: 40px 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); margin: 20px; }
 
         /* Header e Menu (Home) */
@@ -167,7 +168,7 @@
                                 <option value="">Província...</option><option value="Maputo">Maputo</option><option value="Sofala">Sofala</option><option value="Manica">Manica</option><option value="Tete">Tete</option><option value="Niassa">Niassa</option>
                             </select>
                         </div>
-                        <div class="col-6"><select id="vehicle" class="form-select" disabled required onchange="updateThumb()"></select></div>
+                        <div class="col-6"><select id="vehicle" class="form-select" disabled required onchange="updateThumb()"><option value="">Viatura...</option></select></div>
                     </div>
 
                     <div class="summary-box mt-3">
@@ -247,7 +248,7 @@
         <div class="form-card mx-0 mt-2">
             <div class="vehicle-thumb-container"><img id="maintVehicleThumb" src="" alt=""></div>
             <label class="form-label">Viatura</label>
-            <select id="maintVehicle" class="form-select" required onchange="updateMaintThumb()"><option value="">A carregar frota...</option></select>
+            <select id="maintVehicle" class="form-select" required onchange="updateMaintThumb()"></select>
             
             <label class="form-label">Tipo de Serviço</label>
             <select id="maintType" class="form-select" required>
@@ -347,29 +348,30 @@
     const VERCEL_API_SAVE = '/api/save-entry';
     const VERCEL_API_USERS = '/api/get-users';
     const VERCEL_API_HISTORY = '/api/get-history';
-    const VERCEL_API_AUTH = '/api/verify-access'; // Pode ser a save-entry com action='verifyAccess' dependendo do seu backend
+    const VERCEL_API_AUTH = '/api/verify-access'; 
 
     let fuelIdx = 0; let currentUserEmail = ""; let map, mapMarker, geocoder, distanceService, estimatedDistanceKm = 0, currentTargetInput = '';
     
-    // Fallback Data
-    const motoristasFallback = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa"];
+    // Dados para Comboboxes
+    const motoristasFallback = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa", "Carlos Mirassy", "Carlos Saboia"];
     const taskCodesBase = [2010, 2020, 2030, 2040, 2050];
     const frota = { "Sofala": ["AEA-596-MP (Ford)", "AGG-921-MC (Hilux)"], "Maputo": ["AFX-797-MP (Fortuner)"] };
     const precos = { "Maputo": 89.15, "Sofala": 90.50 };
     const icons = { "Hilux": "https://www.pngall.com/wp-content/uploads/2/Toyota-Hilux-PNG-Photos.png", "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png", "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png", "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png" };
 
-    // 1. INIT & DB FETCH (VERCEL GET)
+    // 1. INIT & DB FETCH
     document.addEventListener('DOMContentLoaded', async () => {
-        const savedEmail = localStorage.getItem('echo_user_email');
-        if (savedEmail) { currentUserEmail = savedEmail; switchView('home-view'); } else { switchView('login-view'); }
-
-        document.getElementById('task').innerHTML = taskCodesBase.map(c => `<option>${c}</option>`).join('');
-        document.getElementById('driver').innerHTML = '<option value="">Seleccione o motorista...</option>' + motoristasFallback.map(m => `<option>${m}</option>`).join('');
+        // Preencher Comboboxes com Default seguro
+        document.getElementById('task').innerHTML = '<option value="">Selecione o código...</option>' + taskCodesBase.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.getElementById('driver').innerHTML = '<option value="">Seleccione o motorista...</option>' + motoristasFallback.map(m => `<option value="${m}">${m}</option>`).join('');
+        
         const mVeh = document.getElementById('maintVehicle');
+        mVeh.innerHTML = '<option value="">Selecione a viatura...</option>';
         Object.values(frota).flat().forEach(v => mVeh.insertAdjacentHTML('beforeend', `<option value="${v}">${v}</option>`));
 
         carregarPassageiros();
 
+        // Tabs Logic
         const triggerTabList = document.querySelectorAll('#pills-tab button')
         triggerTabList.forEach(triggerEl => {
             triggerEl.addEventListener('shown.bs.tab', event => {
@@ -382,6 +384,9 @@
                 if (target === '#tab-3') document.getElementById('btn-tab-3').style.display = 'block';
             })
         });
+
+        const savedEmail = localStorage.getItem('echo_user_email');
+        if (savedEmail) { currentUserEmail = savedEmail; switchView('home-view'); } else { switchView('login-view'); }
     });
 
     async function carregarPassageiros() {
@@ -390,7 +395,11 @@
             const res = await fetch(VERCEL_API_USERS);
             if(res.ok){
                 const data = await res.json();
-                if (data.users) staffList.innerHTML = data.users.map(u => `<option value="${u}">`).join('');
+                if (data.users && data.users.length > 0) {
+                    staffList.innerHTML = data.users.map(u => `<option value="${u}">`).join('');
+                } else {
+                    staffList.innerHTML = '<option value="Sem dados da cloud">';
+                }
             }
         } catch (e) { console.log('Uso de passageiros fallback (Vercel offline)'); }
     }
@@ -442,7 +451,7 @@
     function autoFillOrigin() { if (navigator.geolocation && geocoder && !document.getElementById('ori').value) { navigator.geolocation.getCurrentPosition(p => { geocoder.geocode({ location: {lat: p.coords.latitude, lng: p.coords.longitude} }).then(r => { if (r.results[0]) { document.getElementById('ori').value = r.results[0].formatted_address; calculateRouteDistance();} }); }); } }
     function autoFillIncidentOrigin() { const field = document.getElementById('incLocation'); if(navigator.geolocation) { navigator.geolocation.getCurrentPosition(p => { field.value = `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`; if(geocoder) { geocoder.geocode({ location: {lat: p.coords.latitude, lng: p.coords.longitude} }).then(r => { if (r.results[0]) field.value = r.results[0].formatted_address; }); } }); } }
 
-    // 5. SUBMISSÕES VERCEL (O SEU BACKEND)
+    // 5. SUBMISSÕES VERCEL
     document.getElementById('loginForm').onsubmit = async (e) => {
         e.preventDefault(); document.getElementById('loader').style.display = 'flex';
         const email = document.getElementById('loginEmail').value.trim();
@@ -450,20 +459,39 @@
             const res = await fetch(VERCEL_API_AUTH, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'verifyAccess', email: email }) }); 
             const answer = await res.json(); 
             if(answer.status === 'success'){ localStorage.setItem('echo_user_email', email); switchView('home-view'); } 
-            else { document.getElementById('loginError').innerText = "Acesso Negado."; document.getElementById('loginError').style.display = 'block'; }
-        } catch (err) { alert("Falha na ligação ao Vercel."); }
+            else { document.getElementById('loginError').innerText = "Acesso Negado ou Conta Inativa."; document.getElementById('loginError').style.display = 'block'; }
+        } catch (err) { document.getElementById('loginError').innerText = "Falha de ligação ao servidor."; document.getElementById('loginError').style.display = 'block'; }
         document.getElementById('loader').style.display = 'none';
     };
 
+    // Histórico Robusto (Mostra mensagem caso a API falhe)
     async function loadRecentHistory() {
         const hc = document.getElementById('historicoContainer');
-        hc.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+        hc.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-secondary small">A buscar dados...</p></div>';
         try {
-            const res = await fetch(VERCEL_API_HISTORY); const data = await res.json();
-            if (data.history && data.history.length > 0) {
-                hc.innerHTML = data.history.map(row => `<div class="history-item"><div class="history-icon-wrapper"><i class="fa-solid fa-car"></i></div><div class="history-details"><div class="history-title">${row['Motorista'] || 'N/A'}</div><div class="history-subtitle">${new Date(row['Data'] || row['Timestamp']).toLocaleDateString('pt-PT')} • ${row['Viatura'] || 'N/A'}</div></div><div class="history-value"><div class="history-km">+${(row['KM Final'] - row['KM Inicial']) || 0} km</div></div></div>`).join('');
-            } else hc.innerHTML = '<div class="text-center py-4">Nenhuma Viagem Encontrada.</div>';
-        } catch (e) { hc.innerHTML = '<div class="text-center py-4 text-danger">Erro de ligação ao Vercel.</div>'; }
+            const res = await fetch(VERCEL_API_HISTORY); 
+            if (!res.ok) throw new Error(`Erro do Servidor (${res.status})`);
+            const data = await res.json();
+            
+            if (data.status === 'success' && data.history && data.history.length > 0) {
+                hc.innerHTML = data.history.map(row => `
+                <div class="history-item">
+                    <div class="history-icon-wrapper"><i class="fa-solid fa-car"></i></div>
+                    <div class="history-details">
+                        <div class="history-title">${row.Motorista || 'N/A'}</div>
+                        <div class="history-subtitle">${row.Timestamp ? row.Timestamp.substring(0,10) : 'Data N/A'} • ${row.Viatura || 'N/A'}</div>
+                    </div>
+                    <div class="history-value">
+                        <div class="history-km">+${(parseFloat(row['KM Final']) - parseFloat(row['KM Inicial'])) || 0} km</div>
+                    </div>
+                </div>`).join('');
+            } else {
+                hc.innerHTML = '<div class="text-center py-4 text-secondary">Nenhuma Viagem Encontrada na base de dados.</div>';
+            }
+        } catch (e) { 
+            console.error(e);
+            hc.innerHTML = `<div class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation fs-1 mb-2"></i><br>Erro ao carregar.<br><small>${e.message}</small></div>`; 
+        }
     }
 
     document.getElementById('logForm').onsubmit = async (e) => {
