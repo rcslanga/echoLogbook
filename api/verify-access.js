@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
         // Lê a aba acessos (Assumindo Colunas: Nome, Email, Status)
         const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.SPREADSHEET_ID,
+            spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
             range: 'acessos!A2:C',
         });
 
