@@ -448,6 +448,7 @@
     const icons = { "Hilux": "https://www.pngall.com/wp-content/uploads/2/Toyota-Hilux-PNG-Photos.png", "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png", "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png", "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png" };
 
     // INIT
+// === 1. INIT E AVATAR DINÂMICO ===
     document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('task').innerHTML = '<option value="">Selecione o código...</option>' + taskCodesBase.map(c => `<option value="${c}">${c}</option>`).join('');
         document.getElementById('driver').innerHTML = '<option value="">Seleccione o motorista...</option>' + motoristasFallback.map(m => `<option value="${m}">${m}</option>`).join('');
@@ -458,22 +459,16 @@
 
         carregarPassageiros();
 
-        // Controlar a visibilidade dos botões de Seguinte usando os eventos Nativos do Bootstrap Tab
-        const pillButtons = document.querySelectorAll('button[data-bs-toggle="pill"]');
-        pillButtons.forEach(btn => {
-            btn.addEventListener('shown.bs.tab', function (event) {
-                const targetId = event.target.getAttribute('data-bs-target');
-                document.getElementById('btn-tab-1').style.display = (targetId === '#tab-1') ? 'block' : 'none';
-                document.getElementById('btn-tab-2').style.display = (targetId === '#tab-2') ? 'block' : 'none';
-                document.getElementById('btn-tab-3').style.display = (targetId === '#tab-3') ? 'block' : 'none';
-                window.scrollTo(0, 0);
-            });
-        });
-
         const savedEmail = localStorage.getItem('echo_user_email');
         if (savedEmail) { 
             currentUserEmail = savedEmail; 
             if(document.getElementById('userDisplayEmail')) document.getElementById('userDisplayEmail').innerText = currentUserEmail;
+            
+            // MAGIA DO AVATAR: Gera ícone com a inicial do email (ex: "rcslanga@gmail.com" gera um "R")
+            const avatarUrl = `https://ui-avatars.com/api/?name=${currentUserEmail}&background=002868&color=fff&rounded=true&bold=true`;
+            const profileIcon = document.querySelector('.user-profile');
+            if(profileIcon) profileIcon.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%;" alt="User">`;
+            
             switchView('home-view'); 
         } else { 
             switchView('login-view'); 
@@ -493,7 +488,7 @@
         } catch (e) { console.log('Uso de passageiros fallback'); }
     }
 
-    // NAVEGAÇÃO
+    // === 2. NAVEGAÇÃO E LÓGICA DE DADOS ===
     function switchView(viewId) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
@@ -516,21 +511,18 @@
         window.scrollTo(0, 0);
     }
 
-    // Navegação programática de abas (Botão Próximo) usando API do Bootstrap
     function navTo(id) { 
-        const tabTriggerEl = document.querySelector(`button[data-bs-target="#${id}"]`);
-        if(tabTriggerEl) {
-            const tab = new bootstrap.Tab(tabTriggerEl);
-            tab.show();
-        }
+        document.getElementById('formSectionSelect').value = id;
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('btn-tab-1').style.display = (id === 'tab-1') ? 'block' : 'none';
+        document.getElementById('btn-tab-2').style.display = (id === 'tab-2') ? 'block' : 'none';
+        document.getElementById('btn-tab-3').style.display = (id === 'tab-3') ? 'block' : 'none';
+        window.scrollTo(0, 0); 
     }
 
-    function logout() {
-        localStorage.removeItem('echo_user_email');
-        location.reload(); 
-    }
+    function logout() { localStorage.removeItem('echo_user_email'); location.reload(); }
 
-    // UI LÓGICA (Veículos, Custos, KM)
     function atualizarFrota() { const p = document.getElementById("province").value; const s = document.getElementById("vehicle"); s.innerHTML = '<option value="">Viatura...</option>'; if (p && frota[p]) { s.disabled = false; frota[p].forEach(v => s.add(new Option(v, v))); } else { s.disabled = true; } updateThumb(); }
     function updateThumb() { const v = document.getElementById("vehicle").value; const img = document.getElementById("vehicleThumb"); if (!v) { img.style.opacity = "0"; return; } img.src = icons[v.includes("Hilux") ? "Hilux" : v.includes("Ford") ? "Ford" : "default"]; img.style.opacity = "1"; }
     function updateMaintThumb() { const v = document.getElementById("maintVehicle").value; const img = document.getElementById("maintVehicleThumb"); if (!v) { img.style.opacity = "0"; return; } img.src = icons[v.includes("Hilux") ? "Hilux" : v.includes("Ford") ? "Ford" : "default"]; img.style.opacity = "1"; }
@@ -548,38 +540,23 @@
         div.innerHTML = `<span class="remove-entry" onclick="this.parentElement.remove();updateFuelTotals()"><i class="fa-solid fa-xmark"></i></span>
         <div class="row g-2">
             <div class="col-4"><label class="form-label small">Litros</label><input type="number" step="0.01" class="form-control fuel-l" oninput="updateFuelTotals()"></div>
-            <div class="col-4"><label class="form-label small">Preço/L (MT)</label><input type="number" step="0.01" class="form-control fuel-p" oninput="updateFuelTotals()"></div>
+            <div class="col-4"><label class="form-label small">Preço/L</label><input type="number" step="0.01" class="form-control fuel-p" oninput="updateFuelTotals()"></div>
             <div class="col-4"><label class="form-label small">KM Actual</label><input type="number" class="form-control"></div>
         </div>`;
         document.getElementById('fuelList').appendChild(div); sugerirPreco();
     }
-    function sugerirPreco() { const pRef = precos[document.getElementById("province").value] || 89.15; document.querySelectorAll('.fuel-p').forEach(i => { if (!i.value) i.value = pRef; }); updateFuelTotals(); }
+    function sugerirPreco() { const pRef = precos[document.getElementById("province").value] || precos["default"]; document.querySelectorAll('.fuel-p').forEach(i => { if (!i.value) i.value = pRef; }); updateFuelTotals(); }
     function updateFuelTotals() { let lT = 0, mT = 0; document.querySelectorAll('.fuel-entry').forEach(e => { const l = parseFloat(e.querySelector('.fuel-l').value) || 0, p = parseFloat(e.querySelector('.fuel-p').value) || 0; lT += l; mT += (l * p); }); document.getElementById('resL').innerText = lT.toFixed(2); document.getElementById('resM').innerText = mT.toFixed(2); }
 
-    // MAPAS (GOOGLE API)
+    // === 3. MAPAS ===
     function initMap() { geocoder = new google.maps.Geocoder(); distanceService = new google.maps.DistanceMatrixService(); map = new google.maps.Map(document.getElementById("map"), { zoom: 15, center: { lat: -25.9692, lng: 32.5732 }, disableDefaultUI: true }); mapMarker = new google.maps.Marker({ map: map, draggable: true, position: { lat: -25.9692, lng: 32.5732 } }); document.getElementById('mapModal').addEventListener('shown.bs.modal', () => { google.maps.event.trigger(map, 'resize'); map.setCenter(mapMarker.getPosition()); }); }
-    
-    function openMapModal(id) { 
-        currentTargetInput = id; 
-        const modalEl = document.getElementById('mapModal');
-        let myModal = bootstrap.Modal.getInstance(modalEl);
-        if (!myModal) myModal = new bootstrap.Modal(modalEl);
-        myModal.show(); 
-        
-        if(navigator.geolocation) { 
-            navigator.geolocation.getCurrentPosition(p => { 
-                const pos = { lat: p.coords.latitude, lng: p.coords.longitude }; 
-                if (mapMarker && map) { mapMarker.setPosition(pos); map.setCenter(pos); }
-            }, ()=>{}, {enableHighAccuracy: true}); 
-        } 
-    }
-    
+    function openMapModal(id) { currentTargetInput = id; const modalEl = document.getElementById('mapModal'); let myModal = bootstrap.Modal.getInstance(modalEl); if (!myModal) myModal = new bootstrap.Modal(modalEl); myModal.show(); if(navigator.geolocation) { navigator.geolocation.getCurrentPosition(p => { const pos = { lat: p.coords.latitude, lng: p.coords.longitude }; if (mapMarker && map) { mapMarker.setPosition(pos); map.setCenter(pos); } }, ()=>{}, {enableHighAccuracy: true}); } }
     function confirmLocation() { const pos = mapMarker.getPosition(); document.getElementById(currentTargetInput).value = `${pos.lat().toFixed(5)}, ${pos.lng().toFixed(5)}`; bootstrap.Modal.getInstance(document.getElementById('mapModal')).hide(); if(geocoder) { geocoder.geocode({location: pos}).then(r => { if(r.results[0]) { let addr = r.results[0].formatted_address; if(r.results[1] && r.results[0].types.includes('plus_code')) addr = r.results[1].formatted_address; document.getElementById(currentTargetInput).value = addr; calculateRouteDistance();} }); } }
     function calculateRouteDistance() { const ori = document.getElementById('ori').value, des = document.getElementById('des').value; if (ori && des && distanceService) { distanceService.getDistanceMatrix({origins:[ori], destinations:[des], travelMode: 'DRIVING'}).then(r => { if(r.rows[0].elements[0].status === "OK") { estimatedDistanceKm = r.rows[0].elements[0].distance.value / 1000; document.getElementById('sugestaoKm').innerText = `Estimado: ${estimatedDistanceKm.toFixed(1)} km`; } }); } }
     function autoFillOrigin() { if (navigator.geolocation && geocoder && !document.getElementById('ori').value) { navigator.geolocation.getCurrentPosition(p => { geocoder.geocode({ location: {lat: p.coords.latitude, lng: p.coords.longitude} }).then(r => { if (r.results[0]) { document.getElementById('ori').value = r.results[0].formatted_address; calculateRouteDistance();} }); }); } }
     function autoFillIncidentOrigin() { const field = document.getElementById('incLocation'); if(navigator.geolocation) { navigator.geolocation.getCurrentPosition(p => { field.value = `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`; if(geocoder) { geocoder.geocode({ location: {lat: p.coords.latitude, lng: p.coords.longitude} }).then(r => { if (r.results[0]) field.value = r.results[0].formatted_address; }); } }); } }
 
-    // SUBMISSÕES (VERCEL)
+    // === 4. SUBMISSÕES VERCEL & IMGBB ===
     document.getElementById('loginForm').onsubmit = async (e) => {
         e.preventDefault(); document.getElementById('loader').style.display = 'flex';
         const email = document.getElementById('loginEmail').value.trim();
@@ -588,11 +565,8 @@
             const answer = await res.json(); 
             if(answer.status === 'success'){ 
                 localStorage.setItem('echo_user_email', email); 
-                if(document.getElementById('userDisplayEmail')) document.getElementById('userDisplayEmail').innerText = email;
-                switchView('home-view'); 
-            } else { 
-                document.getElementById('loginError').innerText = "Acesso Negado ou Conta Inativa."; document.getElementById('loginError').style.display = 'block'; 
-            }
+                location.reload(); // Recarrega para gerar o avatar e entrar
+            } else { document.getElementById('loginError').innerText = "Acesso Negado ou Conta Inativa."; document.getElementById('loginError').style.display = 'block'; }
         } catch (err) { document.getElementById('loginError').innerText = "Falha de ligação ao servidor."; document.getElementById('loginError').style.display = 'block'; }
         document.getElementById('loader').style.display = 'none';
     };
@@ -602,13 +576,10 @@
         hc.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-secondary small">A ligar à Cloud...</p></div>';
         try {
             const res = await fetch(VERCEL_API_HISTORY); 
-            // Tratamento à prova de balas para evitar SyntaxError caso o Vercel devolva HTML
             const text = await res.text();
             let data;
             try { data = JSON.parse(text); } catch(err) { throw new Error('Servidor devolveu formato inválido.'); }
-
             if (!res.ok) throw new Error(data.message || `Erro do Servidor (${res.status})`);
-            
             if (data.status === 'success' && data.history && data.history.length > 0) {
                 hc.innerHTML = data.history.map(row => `
                 <div class="history-item">
@@ -625,11 +596,7 @@
                 hc.innerHTML = '<div class="text-center py-4 text-secondary">Nenhuma Viagem Encontrada na base de dados.</div>';
             }
         } catch (e) { 
-            hc.innerHTML = `<div class="text-center py-4 text-danger border border-danger rounded-3 bg-white mt-2">
-                <i class="fa-solid fa-triangle-exclamation fs-1 mb-2"></i><br><b>Falha na Comunicação</b><br>
-                <small class="text-dark">Detalhe: ${e.message}</small><br><br>
-                <small class="text-muted">A app está a apontar para o URL correto da API?</small>
-            </div>`; 
+            hc.innerHTML = `<div class="text-center py-4 text-danger border border-danger rounded-3 bg-white mt-2"><i class="fa-solid fa-triangle-exclamation fs-1 mb-2"></i><br><b>Falha na Comunicação</b><br><small class="text-dark">Detalhe: ${e.message}</small></div>`; 
         }
     }
 
@@ -637,10 +604,8 @@
         e.preventDefault(); document.getElementById('loader').style.display = 'flex';
         const kmI = parseFloat(document.getElementById('kmI').value) || 0, kmF = parseFloat(document.getElementById('kmF').value) || 0;
         if (kmF < kmI) { alert('Erro: Odómetro Final inferior ao Inicial!'); document.getElementById('loader').style.display = 'none'; return; }
-        
         let abastecimentos = [];
         document.querySelectorAll('.fuel-entry').forEach(caixa => { abastecimentos.push({ litros: parseFloat(caixa.querySelector('.fuel-l').value) || 0, precoPorLitro: parseFloat(caixa.querySelector('.fuel-p').value) || 0, custoTotal: parseFloat((caixa.querySelector('.fuel-l').value * caixa.querySelector('.fuel-p').value).toFixed(2)) }); });
-
         const formData = { action: 'logbook', submetidoPor: currentUserEmail, motorista: document.getElementById('driver').value, viatura: document.getElementById('vehicle').value, partida: document.getElementById('tP').value, chegada: document.getElementById('tC').value, kmInicial: kmI, kmFinal: kmF, taskCode: document.getElementById('task').value, provincia: document.getElementById('province').value, passageiro: document.getElementById('passenger').value, origem: document.getElementById('ori').value, destino: document.getElementById('des').value, observacoes: document.getElementById('obs').value, abastecimentos: abastecimentos };
         try { const res = await fetch(VERCEL_API_SAVE, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) }); const answer = await res.json(); if(answer.status === 'success') { alert('Viagem Submetida ✅'); location.reload(); } else throw new Error(answer.message); } 
         catch (err) { alert('Erro: ' + err.message); document.getElementById('loader').style.display = 'none'; }
@@ -653,14 +618,57 @@
         catch (err) { alert('Erro: ' + err.message); document.getElementById('loader').style.display = 'none'; }
     };
 
+    // FORMULÁRIO DE OCORRÊNCIA (COM IMGBB PARA GOOGLE SHEETS)
     document.getElementById('incidentForm').onsubmit = async (e) => {
-        e.preventDefault(); document.getElementById('loader').style.display = 'flex';
-        let base64Photo = "Sem Foto"; const fileInput = document.getElementById('incPhoto');
-        if (fileInput.files.length > 0) { const reader = new FileReader(); reader.readAsDataURL(fileInput.files[0]); await new Promise(r => reader.onload = () => { base64Photo = reader.result; r(); }); }
-        const formData = { action: 'incident', submetidoPor: currentUserEmail, tipoOcorrencia: document.getElementById('incType').value, gravidade: document.querySelector('input[name="incSeverity"]:checked')?.value || '', localizacao: document.getElementById('incLocation').value, descricao: document.getElementById('incDesc').value, foto: base64Photo };
-        try { const res = await fetch(VERCEL_API_SAVE, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) }); const answer = await res.json(); if(answer.status === 'success') { alert('Ocorrência Reportada 🚨'); location.reload(); } else throw new Error(answer.message); } 
+        e.preventDefault(); 
+        document.getElementById('loader').style.display = 'flex';
+        
+        let finalPhotoUrl = "Sem Foto"; 
+        const fileInput = document.getElementById('incPhoto');
+        
+        if (fileInput.files.length > 0) { 
+            try {
+                // A sua chave oficial inserida aqui
+                const IMGBB_API_KEY = '752f66aaa3afa895ee81d09b023b226a'; 
+                
+                const imgData = new FormData();
+                imgData.append('image', fileInput.files[0]);
+                
+                const imgResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: imgData
+                });
+                
+                const imgResult = await imgResponse.json();
+                if(imgResult.success) {
+                    finalPhotoUrl = imgResult.data.url; // Pega o link real da imagem
+                } else {
+                    finalPhotoUrl = "Erro ao carregar para o ImgBB";
+                }
+            } catch (err) {
+                console.error("Falha no ImgBB:", err);
+                finalPhotoUrl = "Falha no serviço de upload de imagens";
+            }
+        }
+        
+        const formData = { 
+            action: 'incident', 
+            submetidoPor: currentUserEmail, 
+            tipoOcorrencia: document.getElementById('incType').value, 
+            gravidade: document.querySelector('input[name="incSeverity"]:checked')?.value || '', 
+            localizacao: document.getElementById('incLocation').value, 
+            descricao: document.getElementById('incDesc').value, 
+            foto: finalPhotoUrl // Envia o link curto para a planilha!
+        };
+
+        try { 
+            const res = await fetch(VERCEL_API_SAVE, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) }); 
+            const answer = await res.json(); 
+            if(answer.status === 'success') { alert('Ocorrência Reportada 🚨'); location.reload(); } else throw new Error(answer.message); 
+        } 
         catch (err) { alert('Erro: ' + err.message); document.getElementById('loader').style.display = 'none'; }
     };
 </script>
 </body>
 </html>
+
