@@ -341,11 +341,76 @@
     </div>
 </div>
 
-<div class="bottom-nav">
-    <button class="nav-item-btn active" id="nav-home" onclick="switchView('home-view')"><i class="fa-solid fa-house"></i> Início</button>
-    <button class="nav-item-btn" id="nav-form" onclick="switchView('form-view'); navTo('tab-1');"><i class="fa-solid fa-car"></i> Viagem</button>
-    <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view'); loadRecentHistory();"><i class="fa-solid fa-list-ul"></i> Relatórios</button>
-    <button class="nav-item-btn" id="nav-about" onclick="switchView('about-view')"><i class="fa-solid fa-user-gear"></i> Perfil</button>
+<div id="about-view" class="app-view">
+    <div class="form-header">
+        <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
+        <h3 class="mb-0 fs-5">Perfil e Ajuda</h3>
+    </div>
+    <div class="p-3">
+        <div class="text-center mb-4 mt-3">
+            <i class="fa-solid fa-car-side" style="font-size: 3.5rem; color: var(--us-navy);"></i>
+            <h3 class="mt-3 mb-1" style="font-weight: 800; color: var(--us-navy);">StateDrive Pro</h3>
+            <p class="text-secondary mb-0">v1.0.0</p>
+            <p class="mt-2 mb-0" style="font-weight: 500;">Desenvolvido por: <br><span style="color:#059669;">Rodrigues Langa</span></p>
+            
+            <div class="mt-3 pt-3" style="border-top: 1px dashed var(--border-color);">
+                <p class="text-secondary small mb-0">Sessão iniciada como:</p>
+                <strong id="userDisplayEmail" style="color: var(--us-navy); font-size: 1.1rem;"></strong>
+            </div>
+        </div>
+
+        <div class="form-card mx-0 mt-4 text-center p-3">
+            <button type="button" class="btn btn-outline-danger w-100 py-2" onclick="logout()" style="border-radius: 12px; font-weight: 600;">
+                <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Terminar Sessão
+            </button>
+        </div>
+
+        <div class="form-card mx-0 mt-4 p-4">
+            <h4 class="mb-3 fs-5" style="color: var(--us-navy);">FAQ (Perguntas Frequentes)</h4>
+            <div class="accordion accordion-flush" id="faqAccordion" style="--bs-accordion-bg: transparent; --bs-accordion-color: var(--text-dark);">
+                
+                <div class="accordion-item" style="border-bottom: 1px solid var(--border-color);">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
+                            O que faço se me enganar nos KMs?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
+                            Vá ao separador de Relatórios e informe o administrador ou edite diretamente a folha Google Sheets associada, comunicando a anomalia.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item" style="border-bottom: 1px solid var(--border-color);">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
+                            O Mapa não encontra a minha origem?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
+                            A geolocalização funciona por estimativa na rede. Se falhar, pode clicar no botão do mapa ao lado e arrastar o pino ou escrever o endereço exato manualmente.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item" style="border-bottom: 1px solid var(--border-color);">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
+                            Diferença entre Manutenção e Actividade normal?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
+                            Use a Nova Viagem p/ consumos e saídas regulares em missão. O separador de Manutenção é exclusivo para reportar serviços mecânicos, óleos ou pneus no veículo.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
@@ -575,3 +640,4 @@
 </script>
 </body>
 </html>
+
