@@ -1,47 +1,22 @@
-const { google } = require('googleapis');
+import { google } from 'googleapis';
 
 export default async function handler(req, res) {
-    if (req.method !== 'GET') {
-        return res.status(405).json({ message: 'Apenas método GET permitido' });
-    }
-
     try {
-        // Puxa as credenciais da variável de ambiente do Vercel
         const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
-        
-        // Autenticação segura
-        const auth = new google.auth.GoogleAuth({
-            credentials,
-            scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-        });
-
+        const auth = new google.auth.GoogleAuth({ credentials, scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'] });
         const sheets = google.sheets({ version: 'v4', auth });
-        
-        // ATENÇÃO: Substitua pelo ID real da sua Planilha (encontra-se no URL da folha do Google)
-        const SPREADSHEET_ID = '1e5svBTbcbaZdZuc9Go-i-r2mnX45DMYuBFG019kq8HM/';
 
-        // Vai à aba 'userlist' e lê da linha 2 em diante, colunas A e B
+        // Lê a aba userlist (Colunas: Nome, Email)
         const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: SPREADSHEET_ID,
-            range: 'userlist!A2:B', 
+            spreadsheetId: process.env.SPREADSHEET_ID,
+            range: 'userlist!A2:B',
         });
 
-        const rows = response.data.values;
-        if (!rows || rows.length === 0) {
-            return res.status(200).json({ users: [] });
-        }
+        const rows = response.data.values || [];
+        const usersList = rows.map(row => `${row[0]} | ${row[1]}`).filter(u => u !== 'undefined | undefined');
 
-        // Formata os dados para o padrão "Nome | Email"
-        const usersList = rows.map(row => {
-            const nome = row[0] || '';
-            const email = row[1] || '';
-            return `${nome} | ${email}`;
-        }).filter(u => u !== ' | '); // Filtra linhas vazias
-
-        return res.status(200).json({ users: usersList });
-
+        return res.status(200).json({ status: 'success', users: usersList });
     } catch (error) {
-        console.error('Erro ao ler utilizadores:', error);
-        return res.status(500).json({ message: 'Erro de ligação à Google Sheet' });
+        return res.status(500).json({ status: 'error', message: 'Erro ao buscar utilizadores.' });
     }
 }
