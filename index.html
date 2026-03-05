@@ -179,7 +179,7 @@
         <p class="text-secondary mb-4 small">Acesso Restrito ECHO</p>
         <form id="loginForm">
             <div class="text-start mb-4">
-                <label class="form-label text-secondary small mb-1">E-mail Autorizado</label>
+                <label class="form-label text-secondary small mb-1">E-mail Corporativo</label>
                 <input type="email" id="loginEmail" class="form-control" placeholder="o.seu.email@exemplo.com" required style="background: var(--bg-light); border-radius: 12px; border: 1px solid var(--border-color); padding: 12px;">
             </div>
             <button type="submit" class="btn-main" style="border-radius: 12px;">Entrar</button>
@@ -442,6 +442,11 @@
             <canvas id="expenseChart"></canvas>
         </div>
 
+        <h2 class="mb-2 fs-5">Mapa de Rotas</h2>
+        <div class="form-card p-3 mb-4" style="height: 260px;">
+            <div id="routesMap" style="width:100%;height:100%;border-radius:18px;"></div>
+        </div>
+
         <h2 class="mb-3 fs-5">Viagens Realizadas</h2>
         <div id="historicoContainer">
             <div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>
@@ -527,6 +532,8 @@
 
     let fuelIdx = 0; let currentUserEmail = ""; let map, mapMarker, geocoder, distanceService, estimatedDistanceKm = 0, currentTargetInput = '';
     let expenseChartInstance = null;
+    let routesMap = null;
+    let routesMarkers = [];
     
     const motoristasFallback = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa", "Carlos Mirassy", "Carlos Saboia"];
     const taskCodesBase = [2010, 2020, 2030, 2040, 2050];
@@ -718,6 +725,7 @@
                 let totalTrips = data.history.length;
                 let totalDistance = 0;
                 let totalFuel = 0;
+                const routePoints = [];
                 
                 if (hc) {
                     hc.innerHTML = data.history.map(row => {
@@ -729,6 +737,11 @@
                                 totalFuel += f.custoTotal || 0;
                             }); 
                         } catch(err) {}
+
+                        const o = parseLatLng(row.Origem);
+                        const d = parseLatLng(row.Destino);
+                        if (o) routePoints.push(o);
+                        if (d) routePoints.push(d);
                         
                         return `
                         <div class="history-item">
@@ -755,6 +768,7 @@
                 if (fuelEl) fuelEl.textContent = totalFuel.toFixed(2) + ' MT';
 
                 renderChart(exp);
+                updateRoutesMap(routePoints);
             } else {
                 if (hc) {
                     hc.innerHTML = '<div class="text-center py-4 text-secondary">Nenhuma Viagem Encontrada na base de dados.</div>';
@@ -799,6 +813,50 @@
             data: { labels: Object.keys(dataObj), datasets: [{ label: 'MZN', data: Object.values(dataObj), backgroundColor: '#002868', borderRadius: 8 }] },
             options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
         });
+    }
+
+    function parseLatLng(str) {
+        if (!str) return null;
+        const match = str.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+        if (!match) return null;
+        const lat = parseFloat(match[1]);
+        const lng = parseFloat(match[2]);
+        if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+        return { lat, lng };
+    }
+
+    function ensureRoutesMap() {
+        if (routesMap) return;
+        if (!window.google || !google.maps) return;
+        const el = document.getElementById('routesMap');
+        if (!el) return;
+        routesMap = new google.maps.Map(el, {
+            zoom: 8,
+            center: { lat: -25.9692, lng: 32.5732 },
+            disableDefaultUI: true,
+        });
+    }
+
+    function updateRoutesMap(points) {
+        ensureRoutesMap();
+        if (!routesMap || !window.google || !google.maps) return;
+
+        routesMarkers.forEach(m => m.setMap(null));
+        routesMarkers = [];
+
+        if (!points.length) return;
+
+        const bounds = new google.maps.LatLngBounds();
+        points.forEach(p => {
+            const marker = new google.maps.Marker({
+                map: routesMap,
+                position: p,
+            });
+            routesMarkers.push(marker);
+            bounds.extend(p);
+        });
+
+        routesMap.fitBounds(bounds);
     }
 
     document.getElementById('loginForm').onsubmit = async (e) => {
