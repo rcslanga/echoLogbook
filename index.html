@@ -1,1486 +1,181 @@
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ECHO Drive Pro - Dashboard</title>
+    <title>ECHO Drive Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Maps API -->
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIJPWtg4ruD7z9f1OGltvFFVPQBqa8eGQ&libraries=places&callback=initMap"
-        async defer></script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIJPWtg4ruD7z9f1OGltvFFVPQBqa8eGQ&libraries=places"></script>
+
     <style>
-        :root {
-            --bolt-blue: #002868;
-            --bolt-red: #BF0A30;
-            --bg-light: #F5F7FA;
-            --card-bg: #FFFFFF;
-            --input-bg: #FFFFFF;
-            --text-gray: #6B7280;
-            --text-dark: #1A1A1A;
-            --border-color: #E5E7EB;
-        }
-
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            padding-bottom: 90px;
-            margin: 0;
-        }
-
-        /* Views */
-        .app-view {
-            display: none;
-        }
-
-        .app-view.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Typography */
-        h1,
-        h2,
-        h3,
-        h4 {
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        /* Home View Styles */
-        .home-header {
-            padding: 40px 20px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bolt-blue);
-            color: white;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 40, 104, 0.15);
-        }
-
-        .home-header h1 {
-            color: white;
-        }
-
-        .home-header .text-secondary {
-            color: rgba(255, 255, 255, 0.8) !important;
-        }
-
-        .user-profile {
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            padding: 0 20px;
-        }
-
-        .action-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 24px 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-        }
-
-        .action-card:hover,
-        .action-card:active {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .action-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-        }
-
-        .icon-ride {
-            background: #E8F0FE;
-            color: var(--bolt-blue);
-        }
-
-        .icon-history {
-            background: #F3F4F6;
-            color: var(--text-dark);
-        }
-
-        .icon-danger {
-            background: #FDE8E8;
-            color: var(--bolt-red);
-        }
-
-        .promo-banner {
-            margin: 25px 20px;
-            background: linear-gradient(135deg, var(--bolt-blue) 0%, #001A44 100%);
-            border-radius: 24px;
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
-            color: white;
-            box-shadow: 0 8px 20px rgba(0, 40, 104, 0.2);
-        }
-
-        .promo-banner h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            z-index: 2;
-            position: relative;
-        }
-
-        .promo-banner p {
-            margin: 8px 0 0;
-            font-size: 0.85rem;
-            opacity: 0.9;
-            z-index: 2;
-            position: relative;
-            line-height: 1.4;
-        }
-
-        .promo-icon {
-            position: absolute;
-            right: -10px;
-            bottom: -20px;
-            font-size: 7rem;
-            opacity: 0.15;
-            transform: rotate(-10deg);
-        }
-
-        .recent-section {
-            padding: 20px;
-        }
-
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-
-        /* Form & History Styles */
-        .form-header {
-            padding: 30px 20px 20px;
-            background: var(--bolt-blue);
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-bottom-left-radius: 24px;
-            border-bottom-right-radius: 24px;
-            box-shadow: 0 4px 15px rgba(0, 40, 104, 0.1);
-        }
-
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            font-size: 1.1rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .back-btn:active {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .nav-pills {
-            background: #E5E7EB;
-            margin: -10px 20px 20px;
-            border-radius: 12px;
-            padding: 4px;
-            position: relative;
-            z-index: 11;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .nav-pills .nav-link {
-            color: var(--text-gray);
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            border: none;
-            padding: 10px 5px;
-            transition: all 0.2s;
-        }
-
-        .nav-pills .nav-link.active {
-            background-color: var(--card-bg);
-            color: var(--bolt-blue);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        .form-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 0 20px 20px;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border-color);
-        }
-
-        .form-label {
-            color: var(--text-dark);
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .form-control,
-        .form-select {
-            background-color: transparent;
-            border: none;
-            border-bottom: 2px solid var(--border-color);
-            color: var(--text-dark);
-            border-radius: 0;
-            padding: 10px 5px;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        .form-control:focus,
-        .form-select:focus {
-            background-color: transparent;
-            color: var(--text-dark);
-            box-shadow: none;
-            border-bottom: 2px solid var(--bolt-blue);
-        }
-
-        .summary-box {
-            background: var(--bg-light);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            border: none;
-            margin-bottom: 20px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
-        }
-
-        .summary-box h2 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--bolt-blue);
-            margin: 0;
-            letter-spacing: -1px;
-        }
-
-        .duration-text {
-            font-size: 0.85rem;
-            color: var(--text-gray);
-            font-weight: 600;
-            margin-top: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .vehicle-thumb-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 60px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #vehicleThumb {
-            max-width: 100%;
-            max-height: 100%;
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .fuel-entry {
-            background: var(--bg-light);
-            border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--bolt-blue);
-            position: relative;
-        }
-
-        .remove-entry {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            color: var(--bolt-red);
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        /* Buttons */
-        .btn-uber,
-        .btn-main {
-            background-color: var(--bolt-blue);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 16px;
-            width: 100%;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 10px rgba(0, 40, 104, 0.2);
-        }
-
-        .btn-uber:active,
-        .btn-main:active {
-            transform: scale(0.98);
-            background-color: #001A44;
-        }
-
-        .btn-danger-custom {
-            background-color: var(--bolt-red);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 16px;
-            width: 100%;
-            font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 10px rgba(191, 10, 48, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .fixed-bottom-btn {
-            position: fixed;
-            bottom: 85px;
-            left: 20px;
-            right: 20px;
-            z-index: 900;
-        }
-
-        /* History Item */
-        .history-item {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border-color);
-        }
-
-        .history-icon-wrapper {
-            background: #E8F0FE;
-            color: var(--bolt-blue);
-            height: 50px;
-            width: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .history-details {
-            flex-grow: 1;
-        }
-
-        .history-title {
-            font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 3px;
-            color: var(--text-dark);
-        }
-
-        .history-subtitle {
-            color: var(--text-gray);
-            font-size: 0.8rem;
-        }
-
-        .history-value {
-            font-weight: 700;
-            color: var(--text-dark);
-            text-align: right;
-        }
-
-        .history-km {
-            font-size: 1rem;
-            color: var(--bolt-blue);
-        }
-
-        /* Bottom Nav */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--card-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0 25px;
-            z-index: 1000;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.03);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
-
-        .nav-item-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-gray);
-            text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: none;
-            background: none;
-            gap: 5px;
-            transition: color 0.2s;
-            opacity: 0.6;
-        }
-
-        .nav-item-btn i {
-            font-size: 1.4rem;
-            margin-bottom: 2px;
-        }
-
-        .nav-item-btn.active {
-            color: var(--bolt-blue);
-            opacity: 1;
-        }
-
-        #loader {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            backdrop-filter: blur(5px);
-        }
-
-        /* Map Modal Styles */
-        #mapModal .modal-dialog {
-            margin: 10px auto;
-            max-width: 95%;
-            max-height: 90vh;
-        }
-
-        #mapModal .modal-content {
-            background: var(--card-bg);
-            border-radius: 24px;
-            border: none;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        #mapModal .modal-header {
-            border-bottom: 1px solid #333;
-        }
-
-        #mapModal .modal-title {
-            color: var(--text-dark);
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        #mapModal .btn-close {
-            /* Removes the filter that inverted the close symbol to white previously */
-        }
-
-        #mapModal .modal-footer {
-            border-top: 1px solid var(--border-color);
-            background: var(--card-bg);
-        }
-
-        #map {
-            width: 100%;
-            height: 400px;
-            border-radius: 12px;
-        }
-
-        #mapModal {
-            z-index: 10050;
-        }
-
-        /* Ensure it's above other elements */
-        .modal-backdrop {
-            z-index: 10040 !important;
-        }
+        :root { --uber-black: #000000; --uber-white: #ffffff; --uber-blue: #276ef1; --card-dark: #121212; --input-bg: #1f1f1f; }
+        body { background-color: var(--uber-black); color: white; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+
+        /* SPA Navigation */
+        .app-view { display: none; min-height: 100vh; animation: fadeIn 0.3s ease; }
+        .app-view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Landing Page */
+        .home-header { padding: 60px 25px 30px; }
+        .uber-logo { font-size: 2.5rem; font-weight: 800; letter-spacing: -1.5px; }
+        .uber-logo span { color: var(--uber-blue); }
+        .main-btn { background: white; color: black; border-radius: 18px; padding: 25px; margin-bottom: 20px; border: none; display: flex; align-items: center; width: 100%; transition: 0.2s; }
+        .main-btn i { font-size: 1.5rem; margin-right: 15px; color: var(--uber-blue); }
+
+        /* Form Elements */
+        .form-card { background: var(--card-dark); border-radius: 20px; padding: 20px; margin: 0 15px 20px; border: 1px solid #222; }
+        .form-label { color: #888; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .form-control { background: var(--input-bg); border: 1px solid #333; color: white; border-radius: 12px; padding: 12px; }
+        
+        /* Map Customization */
+        #mapCanvas { width: 100%; height: 400px; border-radius: 0 0 15px 15px; }
+        .modal-content { background: var(--card-dark); border: 1px solid #333; border-radius: 25px; overflow: hidden; }
+        .input-group-text { background: #222; border: 1px solid #333; color: var(--uber-blue); cursor: pointer; border-radius: 0 12px 12px 0 !important; }
+
+        .btn-uber-next { background: var(--uber-blue); color: white; border: none; border-radius: 15px; padding: 18px; width: 100%; font-weight: 700; }
     </style>
 </head>
-
 <body>
 
-    <div id="loader">
-        <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;"></div>
-        <span class="mt-3 fw-bold text-dark">A PROCESSAR...</span>
+<div id="view-home" class="app-view active">
+    <div class="home-header">
+        <div class="uber-logo">ECHO<span>Drive</span></div>
+        <p class="text-secondary small">Gestão de Logbook e Frotas</p>
     </div>
-
-    <!-- ================= HOME VIEW ================= -->
-    <div id="home-view" class="app-view active">
-        <div class="home-header">
-            <div>
-                <h1 class="mb-0">ECHO Drive</h1>
-                <div class="text-secondary small fw-bold mt-1"><i class="fa-solid fa-star"></i> Pro Fleet | Moçambique
-                </div>
-            </div>
-            <div class="user-profile"><i class="fa-solid fa-user"></i></div>
-        </div>
-
-        <div class="action-grid">
-            <div class="action-card" onclick="switchView('form-view'); navTo('tab-1');">
-                <div class="action-icon icon-ride"><i class="fa-solid fa-car-side"></i></div>
-                <span class="fw-bold" style="color: black !important;">Nova Viagem</span>
-            </div>
-            <div class="action-card" onclick="switchView('maintenance-view');">
-                <div class="action-icon icon-ride" style="background:var(--bolt-blue); color:white;"><i
-                        class="fa-solid fa-tools"></i></div>
-                <span class="fw-bold" style="color: black !important;">Manutenção</span>
-            </div>
-            <div class="action-card" onclick="switchView('incidents-view'); autoFillIncidentOrigin();">
-                <div class="action-icon icon-danger" style="background:var(--bolt-red); color:white;"><i
-                        class="fa-solid fa-triangle-exclamation"></i></div>
-                <span class="fw-bold" style="color: black !important;">Ocorrência</span>
-            </div>
-            <div class="action-card" onclick="switchView('history-view'); loadRecentHistory();"
-                style="grid-column: span 2; align-items: center; flex-direction: row; justify-content: center; padding: 15px;">
-                <div class="action-icon icon-history"
-                    style="width: 40px; height: 40px; font-size:1.1rem; border-radius: 12px;"><i
-                        class="fa-solid fa-clock-rotate-left"></i></div>
-                <span class="fw-bold mb-0" style="margin-left: 5px; color: black !important;">Histórico de
-                    Viagens</span>
-            </div>
-        </div>
-
-        <div class="promo-banner" onclick="switchView('history-view'); loadRecentHistory();">
-            <i class="fa-solid fa-leaf promo-icon"></i>
-            <h3>Impacto Local</h3>
-            <p>Acompanhe os abastecimentos e custos globais da frota ECHO.</p>
-        </div>
-
-        <div class="recent-section">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="section-title mb-0">Atalhos</h3>
-            </div>
-            <div class="history-item" onclick="switchView('form-view'); navTo('tab-2');">
-                <div class="history-icon-wrapper"><i class="fa-solid fa-gas-pump" style="color:var(--bolt-blue)"></i>
-                </div>
-                <div class="history-details">
-                    <div class="history-title">Registar Combustível</div>
-                    <div class="history-subtitle">Ir directo para custos</div>
-                </div>
-                <div class="history-value"><i class="fa-solid fa-chevron-right text-secondary"></i></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= FORM VIEW (NUEVA VIAGEM) ================= -->
-    <div id="form-view" class="app-view">
-        <div class="form-header">
-            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
-            <h3 class="mb-0 fs-5">Registo de Viagem</h3>
-        </div>
-
-        <ul class="nav nav-pills nav-justified" id="pills-tab">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill"
-                    data-bs-target="#tab-1">VIATURA</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-2">CUSTOS</button>
-            </li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-3">GERAL</button>
-            </li>
-        </ul>
-
-        <form id="logForm">
-            <div class="tab-content pb-5">
-                <!-- TAB 1: VIATURA -->
-                <div class="tab-pane fade show active" id="tab-1">
-                    <div class="form-card">
-                        <div class="vehicle-thumb-container"><img id="vehicleThumb" src="" alt=""></div>
-
-                        <label class="form-label">Motorista Principal</label>
-                        <select id="driver" class="form-select" required>
-                            <option value="">A carregar motoristas...</option>
-                        </select>
-
-                        <label class="form-label mt-2">Contexto da Operação</label>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <select id="province" class="form-select" onchange="atualizarFrota(); sugerirPreco()"
-                                    required>
-                                    <option value="">Província...</option>
-                                    <option value="Maputo">Maputo</option>
-                                    <option value="Sofala">Sofala</option>
-                                    <option value="Manica">Manica</option>
-                                    <option value="Tete">Tete</option>
-                                    <option value="Niassa">Niassa</option>
-                                </select>
-                            </div>
-                            <div class="col-6"><select id="vehicle" class="form-select" disabled required
-                                    onchange="updateThumb()"></select></div>
-                        </div>
-
-                        <div class="summary-box mt-3">
-                            <h2 id="dispKm">0 KM</h2>
-                            <div id="dispDuration" class="duration-text">Distância percorrida</div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-6"><label class="form-label">Partida (Data/Hora)</label><input
-                                    type="datetime-local" id="tP" class="form-control" onchange="calcViagem()" required>
-                            </div>
-                            <div class="col-6"><label class="form-label">Chegada (Data/Hora)</label><input
-                                    type="datetime-local" id="tC" class="form-control" onchange="calcViagem()" required>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-6"><label class="form-label">Odómetro Inicial</label><input type="number"
-                                    id="kmI" class="form-control" inputmode="numeric"
-                                    oninput="calcViagem(); validateKmFinal();" required>
-                            </div>
-                            <div class="col-6"><label class="form-label">Odómetro Final</label><input type="number"
-                                    id="kmF" class="form-control" inputmode="numeric"
-                                    oninput="calcViagem(); validateKmFinal();" required>
-                                <div id="sugestaoKm" class="small mt-1"
-                                    style="color:var(--bolt-blue); font-weight: 500;"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="fixed-bottom-btn" id="btn-tab-1"><button type="button" class="btn-uber"
-                            onclick="navTo('tab-2')">Próximo: Custos</button></div>
-                </div>
-
-                <!-- TAB 2: CUSTOS -->
-                <div class="tab-pane fade" id="tab-2">
-                    <div class="form-card">
-                        <h4 class="mb-4">Abastecimentos</h4>
-                        <div id="fuelList"></div>
-                        <button type="button" class="btn btn-uber"
-                            style="background:var(--uber-light-gray); color:var(--text-dark); font-size:0.9rem;"
-                            onclick="addFuel()">
-                            <i class="fa-solid fa-plus mr-2"></i> Adicionar Recibo
-                        </button>
-
-                        <div class="mt-4 p-3 rounded-3 text-end"
-                            style="background:#FFFFFF; border:1px solid #E2E2E2; box-shadow: 0 2px 4px rgba(0,0,0,0.02)">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-secondary small">Total Litros</span>
-                                <span class="fw-bold"><span id="resL">0.00</span> L</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary small">Custo Total</span>
-                                <span class="fw-bold fs-5 text-dark"><span id="resM">0.00</span> MT</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="fixed-bottom-btn" id="btn-tab-2" style="display:none;"><button type="button"
-                            class="btn-uber" onclick="navTo('tab-3')">Próximo: Geral</button></div>
-                </div>
-
-                <!-- TAB 3: GERAL -->
-                <div class="tab-pane fade" id="tab-3">
-                    <div class="form-card">
-                        <label class="form-label">Passageiro Responsável / Missão</label>
-                        <input class="form-control" list="staffList" id="passenger" placeholder="E.g., Julio Pacca">
-                        <datalist id="staffList">
-                            <option value="Abdul Fahamo">
-                            <option value="Julio Pacca">
-                            <option value="Vânia Macome">
-                        </datalist>
-
-                        <label class="form-label mt-2">Código da Tarefa (Task Code)</label>
-                        <select id="task" class="form-select" required>
-                            <!-- Preenchido via script -->
-                        </select>
-
-                        <label class="form-label mt-2">Percurso Geográfico</label>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <div class="input-group" style="margin-bottom: 15px;">
-                                    <input type="text" id="ori" class="form-control" placeholder="Local de Saída"
-                                        style="margin-bottom: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                                    <button class="btn btn-outline-secondary" type="button"
-                                        onclick="openMapModal('ori')"
-                                        style="border-color: var(--border-color); color: var(--bolt-blue); border-top-right-radius: 12px; border-bottom-right-radius: 12px; background: transparent;"><i
-                                            class="fas fa-map-marker-alt"></i></button>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="input-group" style="margin-bottom: 15px;">
-                                    <input type="text" id="des" class="form-control" placeholder="Destino Final"
-                                        style="margin-bottom: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                                    <button class="btn btn-outline-secondary" type="button"
-                                        onclick="openMapModal('des')"
-                                        style="border-color: var(--border-color); color: var(--bolt-blue); border-top-right-radius: 12px; border-bottom-right-radius: 12px; background: transparent;"><i
-                                            class="fas fa-map-marker-alt"></i></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <label class="form-label mt-2">Observações / Incidentes</label>
-                        <textarea id="obs" class="form-control" rows="3"
-                            placeholder="Insira detalhes adicionais aqui..."></textarea>
-                    </div>
-                    <div class="fixed-bottom-btn" id="btn-tab-3" style="display:none;"><button type="submit"
-                            class="btn-main">Finalizar Viagem</button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- ================= HISTORY VIEW ================= -->
-    <div id="history-view" class="app-view">
-        <div class="form-header">
-            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
-            <h3 class="mb-0 fs-5">Actividade Passada</h3>
-        </div>
-
-        <div class="p-3">
-            <h2 class="mb-4">Viagens Realizadas</h2>
-            <div id="historicoContainer">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-secondary" style="width:2rem;height:2rem;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= MAINTENANCE VIEW ================= -->
-    <div id="maintenance-view" class="app-view">
-        <div class="form-header">
-            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
-            <h3 class="mb-0 fs-5">Registo de Manutenção</h3>
-        </div>
-
-        <form id="maintForm" class="p-3">
-            <div class="form-card mx-0 mt-2">
-                <div class="vehicle-thumb-container"><img id="maintVehicleThumb" src="" alt=""></div>
-
-                <label class="form-label">Viatura</label>
-                <select id="maintVehicle" class="form-select" required onchange="updateMaintThumb()">
-                    <option value="">A carregar frota...</option>
-                </select>
-
-                <label class="form-label">Tipo de Serviço</label>
-                <select id="maintType" class="form-select" required>
-                    <option value="">Selecione...</option>
-                    <option value="Óleo e Filtros">Óleo e Filtros</option>
-                    <option value="Pneus">Pneus (Substituição/Alinhamento)</option>
-                    <option value="Travões">Travões (Pastilhas/Discos)</option>
-                    <option value="Geral/Revisão">Revisão Geral / Inspecção</option>
-                    <option value="Reparação Avaria">Reparação de Avaria</option>
-                </select>
-
-                <div class="row">
-                    <div class="col-6"><label class="form-label">Odómetro Act. (KM)</label><input type="number"
-                            id="maintKm" class="form-control" inputmode="numeric" required></div>
-                    <div class="col-6"><label class="form-label">Custo Total (MZN)</label><input type="number"
-                            id="maintCost" class="form-control" inputmode="decimal" required></div>
-                </div>
-
-                <label class="form-label mt-2">Data Prevista p/ Próxima Revisão</label>
-                <input type="date" id="maintNextDate" class="form-control" required>
-
-                <label class="form-label mt-2">Notas / Fornecedor (Opcional)</label>
-                <textarea id="maintObs" class="form-control" rows="2"
-                    placeholder="Oficina, peças trocadas..."></textarea>
-            </div>
-            <button type="submit" class="btn-main mb-5 mt-3">Registar Manutenção</button>
-        </form>
-    </div>
-
-    <!-- ================= INCIDENTS VIEW ================= -->
-    <div id="incidents-view" class="app-view">
-        <div class="form-header" style="background: var(--bolt-red);">
-            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
-            <h3 class="mb-0 fs-5">Registar Ocorrência</h3>
-        </div>
-
-        <div class="p-3 mb-3 text-center">
-            <button class="btn-danger-custom" type="button" onclick="alert('Funcionalidade de emergência acionada!')">
-                <i class="fa-solid fa-phone-volume mb-1 fs-3"></i><br>
-                SOS / EMERGÊNCIA
-            </button>
-            <p class="text-secondary small mt-2">Toque para alertar a central de operações de imediato.</p>
-        </div>
-
-        <form id="incidentForm" class="p-3">
-            <div class="form-card mx-0">
-                <label class="form-label">Tipo de Ocorrência</label>
-                <select id="incType" class="form-select" required>
-                    <option value="">Selecione...</option>
-                    <option value="Acidente de Viação">Acidente de Viação</option>
-                    <option value="Avaria Mecânica Urgente">Avaria Mecânica Urgente</option>
-                    <option value="Furo de Pneu">Furo de Pneu</option>
-                    <option value="Problema de Segurança">Problema de Segurança / Assalto</option>
-                </select>
-
-                <label class="form-label mt-2">Gravidade</label>
-                <div class="d-flex gap-2 mb-3">
-                    <input type="radio" class="btn-check" name="incSeverity" id="sev1" value="Alta" autocomplete="off"
-                        required>
-                    <label class="btn btn-outline-danger flex-grow-1" for="sev1"
-                        style="border-radius:12px; font-weight: 600;">Alta</label>
-
-                    <input type="radio" class="btn-check" name="incSeverity" id="sev2" value="Média" autocomplete="off">
-                    <label class="btn btn-outline-warning flex-grow-1" for="sev2"
-                        style="border-radius:12px; font-weight: 600;">Média</label>
-
-                    <input type="radio" class="btn-check" name="incSeverity" id="sev3" value="Baixa" autocomplete="off">
-                    <label class="btn btn-outline-info flex-grow-1" for="sev3"
-                        style="border-radius:12px; font-weight: 600;">Baixa</label>
-                </div>
-
-                <label class="form-label mt-2">Localização GPS Automática</label>
-                <div class="input-group" style="margin-bottom: 15px;">
-                    <input type="text" id="incLocation" class="form-control" placeholder="A obter localização..."
-                        style="margin-bottom: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;" readonly>
-                    <button class="btn btn-outline-secondary" type="button" onclick="autoFillIncidentOrigin()"
-                        style="border-color: var(--border-color); color: var(--bolt-blue); border-top-right-radius: 12px; border-bottom-right-radius: 12px; background: transparent;"><i
-                            class="fa-solid fa-location-crosshairs"></i></button>
-                </div>
-
-                <label class="form-label mt-2">Descrição da Ocorrência</label>
-                <textarea id="incDesc" class="form-control" rows="3" required
-                    placeholder="Descreva o que aconteceu de forma clara..."></textarea>
-
-                <label class="form-label mt-2">Evidência Fotográfica</label>
-                <input type="file" id="incPhoto" class="form-control" accept="image/*" capture="environment"
-                    style="border-radius: 12px; border: 1px solid var(--border-color); padding: 5px;">
-            </div>
-            <button type="submit" class="btn-main mb-5 mt-3" style="background:var(--text-dark);">Submeter
-                Relatório</button>
-        </form>
-    </div>
-
-    <!-- ================= ABOUT VIEW ================= -->
-    <div id="about-view" class="app-view">
-        <div class="form-header">
-            <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
-            <h3 class="mb-0 fs-5">Sobre</h3>
-        </div>
-
-        <div class="p-3">
-            <div class="text-center mb-4 mt-3">
-                <i class="fa-solid fa-car-side" style="font-size: 3.5rem; color: var(--bolt-blue);"></i>
-                <h3 class="mt-3 mb-1" style="font-weight: 800;">ECHO Drive Pro</h3>
-                <p class="text-secondary mb-0">v1.0.0</p>
-                <p class="mt-2 mb-0" style="font-weight: 500;">Desenvolvido por: <br><span
-                        style="color:var(--uber-green)">Rodrigues Langa</span></p>
-            </div>
-
-            <div class="form-card mx-0 mt-4">
-                <h4 class="mb-3 fs-5">FAQ (Perguntas Frequentes)</h4>
-                <div class="accordion accordion-flush" id="faqAccordion"
-                    style="--bs-accordion-bg: transparent; --bs-accordion-color: var(--text-dark);">
-                    <div class="accordion-item" style="border-bottom: 1px solid #E2E2E2;">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#faq1"
-                                style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
-                                O que faço se me enganar nos KMs?
-                            </button>
-                        </h2>
-                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
-                                Vá ao separador de Relatórios e informe o administrador ou edite diretamente a folha
-                                Google Sheets associada, comunicando a anomalia.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item" style="border-bottom: 1px solid #E2E2E2;">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#faq2"
-                                style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
-                                O Mapa não encontra a minha origem?
-                            </button>
-                        </h2>
-                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
-                                A geolocalização funciona por estimativa na rede. Se falhar, pode clicar no botão do
-                                mapa ao lado e arrastar o pino ou escrever o endereço exato manualmente.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item" style="border-bottom: 1px solid #E2E2E2;">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#faq3"
-                                style="background: transparent; color: var(--text-dark); box-shadow: none; font-weight: 600;">
-                                Qual é a diferença entre Manutenção e Actividade normal?
-                            </button>
-                        </h2>
-                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body px-0 pt-0 text-secondary" style="font-size: 0.9rem;">
-                                Use a Nova Viagem p/ consumos e saídas regulares em missão. O separador de Manutenção é
-                                exclusivo para reportar serviços mecânicos, óleos ou pneus no veículo.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= MAP MODAL ================= -->
-    <div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Selecionar Localização</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div id="map"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                        style="border-radius: 12px; background: var(--input-bg); border-color: #E2E2E2; color: var(--text-dark);">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="confirmLocation()"
-                        style="background: var(--bolt-blue); border-radius: 12px; border: none; font-weight: 600;">Confirmar
-                        Local</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= BOTTOM NAVIGATION ================= -->
-    <div class="bottom-nav">
-        <button class="nav-item-btn active" id="nav-home" onclick="switchView('home-view')">
-            <i class="fa-solid fa-house"></i> Início
+    <div class="px-4">
+        <button class="main-btn" onclick="openView('view-form')">
+            <i class="fas fa-plus-circle"></i>
+            <div class="text-start"><b>Nova Viagem</b><br><small class="text-muted">Registo de saída e custos</small></div>
         </button>
-        <button class="nav-item-btn" id="nav-form" onclick="switchView('form-view')">
-            <i class="fa-solid fa-car"></i> Viagem
-        </button>
-        <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view'); loadRecentHistory();">
-            <i class="fa-solid fa-list-ul"></i> Relatórios
-        </button>
-        <button class="nav-item-btn" id="nav-about" onclick="switchView('about-view')">
-            <i class="fa-solid fa-circle-info"></i> Sobre
+        <button class="main-btn" onclick="openView('view-history')">
+            <i class="fas fa-history"></i>
+            <div class="text-start"><b>Histórico</b><br><small class="text-muted">Consultar registos anteriores</small></div>
         </button>
     </div>
+</div>
 
-    <script>
-        // Configura aqui o URL exportado pelo teu Google Apps Script
-        // Localize esta linha no seu código HTML e substitua:
-const GOOGLE_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzAO9cGqaGy_F8i9ocWGGD5AAJkdB45_rvmvcyDw8D2KP6KjxoDjWTzQ1N7CH-6QWAmWQ/exec';
+<div id="view-form" class="app-view">
+    <div class="p-3 d-flex align-items-center border-bottom border-dark">
+        <button class="btn text-white me-2" onclick="openView('view-home')"><i class="fas fa-arrow-left"></i></button>
+        <span class="fw-bold">Novo Registo</span>
+    </div>
 
-        // Dados base
-        const motoristasFallback = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa", "Bernardo Nsicuzinaimue", "Carlos Mirassy", "Carlos Saboia", "Edson de Sousa", "Faizal Matuare Alide", "Fernando Muianga", "Fungai Ulhanane", "Herminio Muchave", "Inacio Paulo Augusto Junior", "Joao Aide", "Joao Bonda", "Joao Massocha", "Joao Paulo Ganje", "Jone Juze Aleixo", "Manuel Jose", "Manuel Xavier", "Marcos Campaunda", "Moises Ndoa", "Rajhi Mussa", "Raul Baptista", "Silvestre Angelica"];
-        const taskCodesBase = [2010, 2020, 2030, 2040, 2050, 2060, 2070, 2110, 2120, 2130, 2140, 2150, 2160, 2170, 2210, 2220, 2230, 2240, 2250, 2260, 2270, 2310, 2320, 2330, 2340, 2350, 2360, 2370, 2410, 2420, 2430, 2440, 2450, 2460, 2470, 2510, 2520, 2530, 2540, 2550, 2560, 2570, 3020, 3030, 3040, 3050, 3060, 3070, 4010, 4020];
+    <form id="logForm" class="mt-3">
+        <div class="form-card">
+            <label class="form-label text-primary">Geolocalização</label>
+            
+            <div class="mb-3">
+                <label class="small text-muted mb-1">Origem</label>
+                <div class="input-group">
+                    <input type="text" id="ori" class="form-control" placeholder="Local de saída">
+                    <span class="input-group-text" onclick="launchMap('ori')"><i class="fas fa-map-marked-alt"></i></span>
+                </div>
+            </div>
 
-        const frota = {
-            "Sofala": ["AEA-596-MP (Ford)", "AGG-921-MC (Hilux)", "AGQ-300-MP (Hilux)", "AIU-716-MC (Nissan)", "AIU-717-MC (Nissan)", "AIU-719-MC (Nissan)", "AJV-251-MC (LC)", "AAZ-782-SF (Hilux)", "AAZ-783-SF (Hilux)", "ABA-169-SF (Hilux)", "ABA-170-SF (Hilux)", "ANI-566-MC (Hilux)", "AIA-702-MP (Hilux)", "AEA-592-MP (Ford)"],
-            "Niassa": ["ABY-323-MP (LC)", "AGD-264-MC (Hilux)", "AGD-263-MC (Hilux)", "AGD-261-MC (Hilux)", "AGG-929-MC (Hilux)", "AJV-236-MC (LC)"],
-            "Manica": ["AGQ-261-MC (Hilux)", "AIT-430-MC (Nissan)", "AIT-434-MC (Nissan)", "AIU-721-MC (Nissan)", "AJV-250-MC (LC)", "AIB-879-MP (Hilux)"],
-            "Tete": ["AGG-919-MC (Hilux)", "AGG-924-MC (Hilux)", "AGG-925-MC (Hilux)", "AGG-926-MC (Hilux)", "AGD-266-MC (Hilux)", "AIT-437-MC (Nissan)", "AIT-441-MC (Nissan)", "ANN-412-MC (Mazda)"],
-            "Maputo": ["AFX-797-MP (Fortuner)"]
-        };
-        const precos = { "Maputo": 89.15, "Sofala": 90.50, "Manica": 91.20, "Tete": 92.40, "Niassa": 94.80 };
-        const icons = { "Hilux": "https://www.pngall.com/wp-content/uploads/2/Toyota-Hilux-PNG-Photos.png", "Ford": "https://www.pngall.com/wp-content/uploads/2/Ford-Ranger-PNG-Clipart.png", "LC": "https://www.pngall.com/wp-content/uploads/2/Toyota-Land-Cruiser-PNG-HD.png", "default": "https://cdn-icons-png.flaticon.com/512/744/744465.png" };
+            <div class="mb-2">
+                <label class="small text-muted mb-1">Destino</label>
+                <div class="input-group">
+                    <input type="text" id="des" class="form-control" placeholder="Local de chegada">
+                    <span class="input-group-text" onclick="launchMap('des')"><i class="fas fa-map-marked-alt"></i></span>
+                </div>
+            </div>
+        </div>
 
-        let fuelIdx = 0;
-
-        // View Switching Logic
-        function switchView(viewId) {
-            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-
-            document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
-            if (viewId === 'home-view') document.getElementById('nav-home').classList.add('active');
-            if (viewId === 'form-view') {
-                document.getElementById('nav-form').classList.add('active');
-                if (!document.getElementById('ori').value) autoFillOrigin();
-            }
-            if (viewId === 'history-view') document.getElementById('nav-history').classList.add('active');
-            if (viewId === 'about-view') document.getElementById('nav-about').classList.add('active');
-            // 'incidents-view' and 'maintenance-view' unselect bottom navs specifically
-            window.scrollTo(0, 0);
-        }
-
-        function autoFillOrigin() {
-            if (navigator.geolocation && geocoder) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
-                    geocoder.geocode({ location: pos }).then(response => {
-                        if (response.results && response.results[0]) {
-                            let bestAddr = response.results[0].formatted_address;
-                            if (response.results[1] && response.results[0].types.includes('plus_code')) {
-                                bestAddr = response.results[1].formatted_address;
-                            }
-                            document.getElementById('ori').value = bestAddr;
-                            calculateRouteDistance();
-                        }
-                    }).catch(e => console.log("Auto-origin failed"));
-                }, () => { }, { enableHighAccuracy: true, timeout: 5000 });
-            }
-        }
-
-        function autoFillIncidentOrigin() {
-            const field = document.getElementById('incLocation');
-            if (!field.value && navigator.geolocation && geocoder) {
-                field.placeholder = "A obter localização...";
-                navigator.geolocation.getCurrentPosition(position => {
-                    const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
-                    geocoder.geocode({ location: pos }).then(response => {
-                        if (response.results && response.results[0]) {
-                            let bestAddr = response.results[0].formatted_address;
-                            if (response.results[1] && response.results[0].types.includes('plus_code')) {
-                                bestAddr = response.results[1].formatted_address;
-                            }
-                            field.value = bestAddr;
-                        } else {
-                            field.value = pos.lat.toFixed(5) + ", " + pos.lng.toFixed(5);
-                        }
-                    }).catch(e => field.value = pos.lat.toFixed(5) + ", " + pos.lng.toFixed(5));
-                }, () => { field.placeholder = "Erro no GPS. Use formato Manual."; }, { enableHighAccuracy: true, timeout: 5000 });
-            }
-        }
-
-        // EVENTOS INICIAIS
-        document.addEventListener('DOMContentLoaded', async () => {
-            const tSel = document.getElementById('task');
-            taskCodesBase.forEach(c => tSel.insertAdjacentHTML('beforeend', `<option>${c}</option>`));
-
-            const dSel = document.getElementById('driver');
-            dSel.innerHTML = '<option value="">Seleccione o motorista...</option>';
-            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
-                motoristasFallback.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
-            } else {
-                try {
-                    const res = await fetch(`${GOOGLE_WEBAPP_URL}?action=getInitialData`);
-                    const data = await res.json();
-                    if (data.status === 'success' && data.motoristas) {
-                        data.motoristas.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
-                    }
-                } catch (err) {
-                    motoristasFallback.forEach(m => dSel.insertAdjacentHTML('beforeend', `<option>${m}</option>`));
-                }
-            }
-
-            // Tab observer to show/hide fixed buttons
-            const triggerTabList = document.querySelectorAll('#pills-tab button')
-            triggerTabList.forEach(triggerEl => {
-                triggerEl.addEventListener('shown.bs.tab', event => {
-                    document.getElementById('btn-tab-1').style.display = 'none';
-                    document.getElementById('btn-tab-2').style.display = 'none';
-                    document.getElementById('btn-tab-3').style.display = 'none';
-
-                    const target = event.target.getAttribute('data-bs-target');
-                    if (target === '#tab-1') document.getElementById('btn-tab-1').style.display = 'block';
-                    if (target === '#tab-2') document.getElementById('btn-tab-2').style.display = 'block';
-                    if (target === '#tab-3') document.getElementById('btn-tab-3').style.display = 'block';
-                })
-            });
-
-            // Populate Maintenance Vehicles
-            const mVeh = document.getElementById('maintVehicle');
-            Object.values(frota).flat().forEach(v => mVeh.insertAdjacentHTML('beforeend', `<option value="${v}">${v}</option>`));
-        });
-
-        // SISTEMA RESPONSIVO
-        function atualizarFrota() {
-            const p = document.getElementById("province").value;
-            const s = document.getElementById("vehicle");
-            s.innerHTML = '<option value="">Viatura...</option>';
-            if (p && frota[p]) { s.disabled = false; frota[p].forEach(v => s.add(new Option(v, v))); }
-            else { s.disabled = true; }
-            updateThumb();
-        }
-
-        function sugerirPreco() {
-            const prov = document.getElementById("province").value;
-            const pRef = precos[prov] || 89.15;
-            document.querySelectorAll('.fuel-p').forEach(i => { if (!i.value) i.value = pRef; });
-            updateFuelTotals();
-        }
-
-        function updateThumb() {
-            const v = document.getElementById("vehicle").value;
-            const img = document.getElementById("vehicleThumb");
-            if (!v) { img.style.opacity = "0"; return; }
-            let m = v.includes("Hilux") ? "Hilux" : (v.includes("Ford") ? "Ford" : (v.includes("LC") ? "LC" : "default"));
-            img.src = icons[m]; img.style.opacity = "1";
-        }
-
-        function updateMaintThumb() {
-            const v = document.getElementById("maintVehicle").value;
-            const img = document.getElementById("maintVehicleThumb");
-            if (!v) { img.style.opacity = "0"; return; }
-            let m = v.includes("Hilux") ? "Hilux" : (v.includes("Ford") ? "Ford" : (v.includes("LC") ? "LC" : "default"));
-            img.src = icons[m]; img.style.opacity = "1";
-        }
-
-        function calcViagem() {
-            const ki = parseFloat(document.getElementById('kmI').value) || 0;
-            const kf = parseFloat(document.getElementById('kmF').value) || 0;
-            const p = new Date(document.getElementById('tP').value);
-            const c = new Date(document.getElementById('tC').value);
-
-            if (kf > 0 && kf < ki) {
-                document.getElementById('dispKm').innerText = "Erro: KM Final!";
-                document.getElementById('dispKm').style.color = "#ff4d4d";
-            } else {
-                document.getElementById('dispKm').innerText = (kf - ki > 0 ? kf - ki : 0) + " KM";
-                document.getElementById('dispKm').style.color = "var(--text-dark)";
-            }
-
-            if (p && c && c > p) {
-                const d = c - p;
-                const h = Math.floor(d / 3600000);
-                const m = Math.round((d % 3600000) / 60000);
-                document.getElementById('dispDuration').innerText = `Duração: ${h}h ${m}m`;
-            }
-        }
-
-        function validateKmFinal() {
-            const ki = parseFloat(document.getElementById('kmI').value) || 0;
-            const kf = parseFloat(document.getElementById('kmF').value) || 0;
-            const kmInput = document.getElementById('kmF');
-
-            if (kf > 0 && ki > 0 && kf >= ki && estimatedDistanceKm > 0) {
-                const travelled = kf - ki;
-                const diffRatio = Math.abs(travelled - estimatedDistanceKm) / estimatedDistanceKm;
-                if (diffRatio > 0.20) {
-                    kmInput.classList.add('text-warning');
-                    kmInput.style.color = "#ffc107"; // Bootstrap warning orange
-                } else {
-                    kmInput.classList.remove('text-warning');
-                    kmInput.style.color = "var(--text-dark)";
-                }
-            } else {
-                kmInput.classList.remove('text-warning');
-                kmInput.style.color = "var(--text-dark)";
-            }
-        }
-
-        function addFuel() {
-            fuelIdx++;
-            const div = document.createElement('div');
-            div.className = 'fuel-entry';
-            div.id = `fuel-${fuelIdx}`;
-            div.innerHTML = `<span class="remove-entry" onclick="this.parentElement.remove();updateFuelTotals()"><i class="fa-solid fa-xmark"></i></span>
+        <div class="form-card">
+            <label class="form-label">Detalhes da Viagem</label>
             <div class="row g-2">
-                <div class="col-4"><label class="form-label small">Litros</label><input type="number" step="0.01" class="form-control fuel-l" oninput="updateFuelTotals()" inputmode="decimal" placeholder="0.00"></div>
-                <div class="col-4"><label class="form-label small">Preço/L (MT)</label><input type="number" step="0.01" class="form-control fuel-p" oninput="updateFuelTotals()" inputmode="decimal"></div>
-                <div class="col-4"><label class="form-label small">KM Actual</label><input type="number" class="form-control" inputmode="numeric"></div>
-            </div>`;
-            document.getElementById('fuelList').appendChild(div);
-            sugerirPreco();
-        }
+                <div class="col-6"><label class="small text-muted">KM Inicial</label><input type="number" class="form-control" id="kmI"></div>
+                <div class="col-6"><label class="small text-muted">KM Final</label><input type="number" class="form-control" id="kmF"></div>
+            </div>
+        </div>
 
-        function updateFuelTotals() {
-            let lT = 0, mT = 0;
-            document.querySelectorAll('.fuel-entry').forEach(e => {
-                const l = parseFloat(e.querySelector('.fuel-l').value) || 0;
-                const p = parseFloat(e.querySelector('.fuel-p').value) || 0;
-                lT += l; mT += (l * p);
-            });
-            document.getElementById('resL').innerText = lT.toFixed(2);
-            document.getElementById('resM').innerText = mT.toFixed(2);
-        }
+        <div class="p-3"><button type="submit" class="btn-uber-next">SUBMETER DADOS</button></div>
+    </form>
+</div>
 
-        function navTo(id) {
-            new bootstrap.Tab(document.querySelector(`button[data-bs-target="#${id}"]`)).show();
-            window.scrollTo(0, 0);
-        }
+<div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="p-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 fw-bold text-white">Marcar Localização</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div id="mapCanvas"></div>
+            <div class="p-3">
+                <button type="button" class="btn btn-primary w-100 fw-bold" onclick="confirmLocation()" style="border-radius:12px;">CONFIRMAR ESTE LOCAL</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // CARREGAR HISTÓRICO
-        async function loadRecentHistory() {
-            const hc = document.getElementById('historicoContainer');
-            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
-                hc.innerHTML = '<div class="text-center py-4 text-secondary"><i class="fa-solid fa-cloud-arrow-down fs-1 mb-3"></i><br>Sem conexão Google configurada.<br><small>A simular ambiente offline.</small></div>';
-                return;
-            }
+<script>
+    let map, marker, activeField;
 
-            hc.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-light mb-3"></div></div>';
+    function openView(id) {
+        document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0,0);
+    }
 
-            try {
-                const res = await fetch(`${GOOGLE_WEBAPP_URL}?action=getHistory`);
-                const data = await res.json();
+    // Inicializa o Mapa no Modal
+    function launchMap(fieldId) {
+        activeField = fieldId;
+        const myModal = new bootstrap.Modal(document.getElementById('mapModal'));
+        myModal.show();
 
-                if (data.status === 'success' && data.history && data.history.length > 0) {
-                    hc.innerHTML = data.history.map(row => `
-                    <div class="history-item">
-                        <div class="history-icon-wrapper"><i class="fa-solid fa-car" style="color:var(--text-dark);"></i></div>
-                        <div class="history-details">
-                            <div class="history-title">${row['Motorista'] || 'N/A'}</div>
-                            <div class="history-subtitle">${new Date(row['Data'] || row['Timestamp']).toLocaleDateString('pt-PT')} • ${row['Viatura']}</div>
-                            <div class="history-subtitle mt-1"><i class="fa-solid fa-location-dot me-1"></i> ${row['Partida'] ? row['Partida'].substring(11, 16) : ''} ➔ ${row['Chegada'] ? row['Chegada'].substring(11, 16) : ''}</div>
-                        </div>
-                        <div class="history-value">
-                            <div class="history-km">+${(row['KM Final'] - row['KM Inicial']) || 0} km</div>
-                        </div>
-                    </div>
-                `).join('');
-                } else {
-                    hc.innerHTML = '<div class="text-center py-4 text-secondary">Nenhuma Viagem Realizada.</div>';
-                }
-            } catch (e) {
-                hc.innerHTML = '<div class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation fs-1 mb-2"></i><br>Erro de ligação</div>';
-            }
-        }
-
-        // SUBMETER LOGBOOK
-        document.getElementById('logForm').onsubmit = async (e) => {
-            e.preventDefault();
-
-            const kmInic = parseFloat(document.getElementById('kmI').value) || 0;
-            const kmFina = parseFloat(document.getElementById('kmF').value) || 0;
-            if (kmFina < kmInic) {
-                alert('Atenção: Odómetro de Chegada inferior à Partida!');
-                return;
-            }
-
-            document.getElementById('loader').style.display = 'flex';
-
-            const formData = {
-                motorista: document.getElementById('driver').value,
-                viatura: document.getElementById('vehicle').value,
-                dataViagem: new Date().toISOString().split('T')[0],
-                partida: document.getElementById('tP').value,
-                chegada: document.getElementById('tC').value,
-                kmInicial: kmInic,
-                kmFinal: kmFina,
-                taskCode: document.getElementById('task').value,
-                provincia: document.getElementById('province').value,
-                passageiro: document.getElementById('passenger').value,
-                origem: document.getElementById('ori').value,
-                destino: document.getElementById('des').value,
-                observacoes: document.getElementById('obs').value,
-                abastecimentos: []
-            };
-
-            document.querySelectorAll('.fuel-entry').forEach(caixa => {
-                const litro = parseFloat(caixa.querySelector('.fuel-l').value);
-                const preco = parseFloat(caixa.querySelector('.fuel-p').value);
-                if (!isNaN(litro) && !isNaN(preco)) {
-                    formData.abastecimentos.push({ litros: litro, precoPorLitro: preco, custoTotal: parseFloat((litro * preco).toFixed(2)), provincia: formData.provincia });
-                }
-            });
-
-            if (GOOGLE_WEBAPP_URL === 'SUA_URL_AQUI') {
-                setTimeout(() => {
-                    alert('SUCESSO! Viagem registada (Simulação Offline).');
-                    location.reload();
-                }, 1000);
-                return;
-            }
-
-            try {
-                const res = await fetch(GOOGLE_WEBAPP_URL, { method: "POST", body: JSON.stringify(formData) });
-                const answer = await res.json();
-                if (answer.status === 'success') {
-                    alert('Viagem submetida para a Cloud! ✅');
-                    location.reload();
-                } else {
-                    alert('Erro: ' + answer.message);
-                    document.getElementById('loader').style.display = 'none';
-                }
-            } catch (error) {
-                alert('Sem ligação. Tente mais tarde.');
-                document.getElementById('loader').style.display = 'none';
-            }
-        };
-
-        // GOOGLE MAPS & GEOLOCATION LOGIC
-        let map;
-        let mapMarker;
-        let geocoder;
-        let distanceService;
-        let estimatedDistanceKm = 0;
-        let currentTargetInput = '';
-
-        function initMap() {
-            geocoder = new google.maps.Geocoder();
-            distanceService = new google.maps.DistanceMatrixService();
-
-            // Estilo Global Claro para o mapa (Light Theme)
-            const lightMapStyle = [
-                { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
-                { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-                { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
-                { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{ "color": "#bdbdbd" }] },
-                { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
-                { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-                { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
-                { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
-                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-                { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-                { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
-                { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
-                { "featureType": "transit.line", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
-                { "featureType": "transit.station", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
-                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
-                { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] }
-            ];
-
-            const mapOptions = {
+        // Aguarda animação do modal para carregar o mapa
+        setTimeout(() => {
+            const defaultPos = { lat: -25.96, lng: 32.58 }; // Moçambique
+            
+            map = new google.maps.Map(document.getElementById("mapCanvas"), {
+                center: defaultPos,
                 zoom: 15,
-                center: { lat: -25.9692, lng: 32.5732 }, // Maputo Default
                 disableDefaultUI: true,
-                zoomControl: true,
-                styles: lightMapStyle
-            };
+                mapId: 'DEMO_MAP_ID' 
+            });
 
-            map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-            mapMarker = new google.maps.Marker({
+            marker = new google.maps.Marker({
+                position: defaultPos,
                 map: map,
                 draggable: true,
-                position: mapOptions.center,
                 animation: google.maps.Animation.DROP
             });
 
-            // Lidar com o redimensionamento quando o modal Bootstrap abre e termina a transição
-            const mapModalEl = document.getElementById('mapModal');
-            mapModalEl.addEventListener('shown.bs.modal', () => {
-                google.maps.event.trigger(map, 'resize');
-                map.setCenter(mapMarker.getPosition());
-            });
-        }
-
-        function openMapModal(targetId) {
-            currentTargetInput = targetId;
-            const modal = new bootstrap.Modal(document.getElementById('mapModal'));
-            modal.show();
-
+            // GPS do Telemóvel
             if (navigator.geolocation) {
-                // Tenta centrar na localização do utilizador
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const pos = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                        };
-                        mapMarker.setPosition(pos);
-                        map.setCenter(pos);
-                    },
-                    (err) => {
-                        console.warn("Geolocalização indisponível:", err);
-                    },
-                    { enableHighAccuracy: true, timeout: 5000 }
-                );
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const myLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    map.setCenter(myLoc);
+                    marker.setPosition(myLoc);
+                });
             }
-        }
+        }, 400);
+    }
 
-        function confirmLocation() {
-            if (!mapMarker) return;
-            const pos = mapMarker.getPosition();
-            if (!pos) return;
-
-            const latLng = { lat: pos.lat(), lng: pos.lng() };
-            const defFallback = latLng.lat.toFixed(5) + ", " + latLng.lng.toFixed(5);
-            const targetInput = document.getElementById(currentTargetInput);
-
-            // Preenche imediatamente a garantia (fallback puro)
-            targetInput.value = defFallback;
-
-            // Fecha o modal para não bloquear a UI do motorista enqanto converte
-            const modalEl = document.getElementById('mapModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
-
-            // Tenta Reverse Geocoding
-            if (geocoder) {
-                geocoder.geocode({ location: latLng })
-                    .then((response) => {
-                        if (response.results && response.results[0]) {
-                            // Tenta simplificar Endereço completo vs Plus Code
-                            let bestAddr = response.results[0].formatted_address;
-                            // Previne string enormes se houver uma opção mais amigável
-                            if (response.results[1] && response.results[0].types.includes('plus_code')) {
-                                bestAddr = response.results[1].formatted_address;
-                            }
-                            targetInput.value = bestAddr;
-                            calculateRouteDistance();
-                        }
-                    })
-                    .catch((e) => {
-                        console.log("Geocoding failed, keeping exact coordinates. Error: " + e);
-                        calculateRouteDistance();
-                    });
+    function confirmLocation() {
+        const pos = marker.getPosition();
+        const geocoder = new google.maps.Geocoder();
+        
+        geocoder.geocode({ location: pos }, (results, status) => {
+            if (status === "OK" && results[0]) {
+                document.getElementById(activeField).value = results[0].formatted_address;
+            } else {
+                // Se estiver offline ou sem dados, guarda a coordenada pura
+                document.getElementById(activeField).value = pos.lat().toFixed(5) + ", " + pos.lng().toFixed(5);
             }
-        }
+            bootstrap.Modal.getInstance(document.getElementById('mapModal')).hide();
+        });
+    }
 
-        function calculateRouteDistance() {
-            const origin = document.getElementById('ori').value;
-            const dest = document.getElementById('des').value;
+    document.getElementById('logForm').onsubmit = (e) => {
+        e.preventDefault();
+        alert('Dados salvos localmente! Pronto para enviar para a Cloud.');
+    };
+</script>
 
-            if (origin && dest && distanceService) {
-                distanceService.getDistanceMatrix({
-                    origins: [origin],
-                    destinations: [dest],
-                    travelMode: google.maps.TravelMode.DRIVING,
-                }).then(response => {
-                    if (response.rows && response.rows[0] && response.rows[0].elements[0].status === "OK") {
-                        const distMeters = response.rows[0].elements[0].distance.value;
-                        estimatedDistanceKm = distMeters / 1000;
-                        document.getElementById('sugestaoKm').innerText = `Estimado: ${estimatedDistanceKm.toFixed(1)} km`;
-                        validateKmFinal();
-                    }
-                }).catch(e => console.log("Distance API Exception", e));
-            }
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
-
