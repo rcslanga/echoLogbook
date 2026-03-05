@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
         // Lê a aba DB_Logbook
         const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.SPREADSHEET_ID,
+            spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
             range: 'DB_Logbook!A2:N', // Ajuste a letra final conforme o número de colunas
         });
 
