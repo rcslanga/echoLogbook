@@ -21,13 +21,24 @@ export default async function handler(req, res) {
         if (data.action === 'logbook') {
             
             // A. Gravar Viagem Principal
-            const logbookValues = [[
-                timestamp, data.provincia, data.viatura, data.motorista, 
-                data.kmInicial, data.kmFinal, data.taskCode, data.passageiro, 
-                data.origem, data.destino, data.obs || '', 
-                JSON.stringify(data.abastecimentos || []), data.submetidoPor
-            ]];
-
+            // A. Gravar Viagem Principal
+const logbookValues = [[
+    timestamp,                                  // 1. Data de Registo
+    data.motorista,                             // 2. Motorista
+    data.viatura,                               // 3. Viatura
+    data.dataInicio || '',                      // 4. Início (Data/Hora)
+    data.dataFim || '',                         // 5. Fim (Data/Hora)
+    data.kmInicial,                             // 6. KM Inicial
+    data.kmFinal,                               // 7. KM Final
+    data.taskCode,                              // 8. Task Code
+    data.provincia,                             // 9. Província
+    data.passageiro,                            // 10. Passageiro
+    data.origem,                                // 11. Origem
+    data.destino,                               // 12. Destino
+    data.obs || '',                             // 13. Motivo da viagem
+    JSON.stringify(data.abastecimentos || []),  // 14. Abastecimentos
+    data.submetidoPor                           // 15. Coluna 2 (Email/Submetido Por)
+]];
             await sheets.spreadsheets.values.append({
                 spreadsheetId: spreadsheetId,
                 range: 'DB_Logbook!A:A',
@@ -106,3 +117,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ status: 'error', message: 'Erro interno de servidor.' });
     }
 }
+
