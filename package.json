@@ -1,0 +1,12 @@
+{
+    "name": "echo-drive-backend",
+    "version": "1.0.0",
+    "description": "Vercel backend for ECHO Drive",
+    "main": "api/save-entry.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "googleapis": "^122.0.0"
+    }
+}
