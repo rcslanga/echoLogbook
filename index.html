@@ -518,7 +518,7 @@
     </form>
 </div>
 
-<div id="-view" class="app-view">
+<div id="history-view" class="app-view">
     <div class="form-header">
         <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 class="mb-0 fs-5">Actividade Passada</h3>
@@ -527,6 +527,11 @@
         <h2 class="mb-2 fs-5">Gastos por Província (MZN)</h2>
         <div class="form-card p-3 mb-4" style="height: 220px;">
             <canvas id="expenseChart"></canvas>
+        </div>
+
+        <h2 class="mb-3 fs-5 mt-4">Eficiência de Combustível (km/L)</h2>
+        <div id="efficiencyContainer" class="recent-activities-list mb-4">
+            <div class="text-center py-3 text-secondary small">A carregar indicadores...</div>
         </div>
 
         <h2 class="mb-2 fs-5">Mapa de Rotas</h2>
@@ -542,12 +547,9 @@
         <h2 class="mb-3 fs-5 mt-4">Ocorrências</h2>
         <div id="incidentesContainer">
             <div class="text-center py-4 text-secondary small">A carregar ocorrências...</div>
-
-        <h2 class="mb-3 fs-5 mt-4">Eficiência de Combustível (km/L)</h2>
-            <div id="incidentesContainer">
-        <div id="efficiencyContainer" class="recent-activities-list mb-4">
-    </div>v
-
+        </div>
+    </div>
+</div>
             
         </div>
     </div>
@@ -851,54 +853,52 @@ async function loadRecentHistory() {
     const hc = document.getElementById('historicoContainer');
     const effContainer = document.getElementById('efficiencyContainer');
     
-    // 1. Limpar ambos os containers antes de começar
     if (hc) hc.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>';
     if (effContainer) effContainer.innerHTML = ''; 
 
     try {
         const res = await fetch(VERCEL_API_HISTORY);
-        if (!res.ok) throw new Error("Erro na resposta do servidor"); // Verificação de segurança
-        
+        if (!res.ok) throw new Error("Erro na resposta do servidor");
         const data = await res.json();
 
         if (data.status === 'success' && data.history && data.history.length > 0) {
             let exp = { "Maputo": 0, "Sofala": 0, "Manica": 0, "Tete": 0, "Niassa": 0 };
             let totalDistance = 0, totalFuel = 0;
             let efficiencyHtml = "";
+            const routePoints = [];
 
             hc.innerHTML = data.history.map(row => {
-                // Conversão segura para número
                 const ki = parseFloat(row['KM Inicial']) || 0;
                 const kf = parseFloat(row['KM Final']) || 0;
-                const dist = Math.max(0, kf - ki); // Garante que não é negativo
+                const dist = Math.max(0, kf - ki);
                 totalDistance += dist;
+
+                // Coletar pontos para o mapa
+                const o = parseLatLng(row.Origem);
+                const d = parseLatLng(row.Destino);
+                if (o) routePoints.push({ type: 'origem', point: o });
+                if (d) routePoints.push({ type: 'destino', point: d });
 
                 let litrosViagem = 0;
                 try {
                     const abastecimentos = JSON.parse(row.Abastecimentos || '[]');
                     abastecimentos.forEach(f => {
-                        const l = parseFloat(f.litros) || 0;
-                        const c = parseFloat(f.custoTotal) || 0;
-                        litrosViagem += l;
-                        if(exp[row.Província] !== undefined) exp[row.Província] += c;
-                        totalFuel += c;
+                        litrosViagem += parseFloat(f.litros) || 0;
+                        if(exp[row.Província] !== undefined) exp[row.Província] += parseFloat(f.custoTotal) || 0;
+                        totalFuel += parseFloat(f.custoTotal) || 0;
                     });
-                } catch(err) { console.error("Erro no JSON de abastecimento", err); }
+                } catch(err) { console.error("Erro JSON Abastecimento", err); }
 
-                // Cálculo de Eficiência
                 if (litrosViagem > 0 && dist > 0) {
                     const eficiencia = (dist / litrosViagem).toFixed(1);
-                    // Cores baseadas na eficiência (Ajusta os limites conforme as tuas viaturas)
                     const effColor = eficiencia > 12 ? "#059669" : eficiencia > 8 ? "#b45309" : "#b91c1c";
                     
                     efficiencyHtml += `
                     <div class="recent-activity-card mb-2">
-                        <div class="recent-activity-icon" style="background: #f3f4f6; color: var(--us-navy);">
-                            <i class="fa-solid fa-gas-pump"></i>
-                        </div>
+                        <div class="recent-activity-icon" style="background: #f3f4f6; color: var(--us-navy);"><i class="fa-solid fa-gas-pump"></i></div>
                         <div class="recent-activity-body">
-                            <div class="recent-activity-title">${row.Viatura || 'Viatura s/ Nome'}</div>
-                            <div class="recent-activity-meta">${dist} km • ${litrosViagem.toFixed(1)}L abastecidos</div>
+                            <div class="recent-activity-title">${row.Viatura || 'N/A'}</div>
+                            <div class="recent-activity-meta">${dist} km • ${litrosViagem.toFixed(1)}L</div>
                         </div>
                         <div class="text-end">
                             <span class="fw-bold fs-5" style="color: ${effColor};">${eficiencia}</span>
@@ -907,23 +907,33 @@ async function loadRecentHistory() {
                     </div>`;
                 }
 
-                return `
+                return;
                 <div class="history-item mb-2">
                     <div class="d-flex align-items-center gap-3">
                         <div class="history-icon-wrapper"><i class="fa-solid fa-car"></i></div>
                         <div class="history-details">
-                            <div class="fw-bold" style="color: var(--text-dark);">${row.Motorista || 'N/A'}</div>
-                            <div class="small text-secondary">${row.Timestamp ? row.Timestamp.substring(0,10) : 'Data N/A'} • ${row.Viatura || 'N/A'}</div>
+                            <div class="fw-bold">${row.Motorista || 'N/A'}</div>
+                            <div class="small text-secondary">${row.Timestamp ? row.Timestamp.substring(0,10) : ''} • ${row.Viatura || ''}</div>
                         </div>
                     </div>
                     <div class="history-value"><div class="fw-bold fs-5" style="color: var(--us-navy);">+${dist} km</div></div>
                 </div>`;
             }).join('');
 
-            if (effContainer) {
-                effContainer.innerHTML = efficiencyHtml || '<div class="text-center py-3 text-secondary small">Sem dados de abastecimento recentes.</div>';
-            }
-
+            if (effContainer) effContainer.innerHTML = efficiencyHtml || '<div class="text-center py-3 text-secondary small">Sem abastecimentos registados.</div>';
+            
+            // Atualizar Dashboard e Gráficos
+            if(document.getElementById('summaryTrips')) document.getElementById('summaryTrips').textContent = data.history.length;
+            if(document.getElementById('summaryDistance')) document.getElementById('summaryDistance').textContent = totalDistance + ' km';
+            if(document.getElementById('summaryFuel')) document.getElementById('summaryFuel').textContent = totalFuel.toFixed(2) + ' MT';
+            
+            renderChart(exp);
+            updateRoutesMap(routePoints);
+        }
+    } catch (e) {
+        console.error("Erro:", e);
+    }
+}
             // Atualização dos indicadores globais
             const updateEl = (id, val) => { if(document.getElementById(id)) document.getElementById(id).textContent = val; };
             updateEl('summaryTrips', data.history.length);
@@ -1301,6 +1311,7 @@ async function loadRecentHistory() {
     
 </body>
 </html>
+
 
 
 
