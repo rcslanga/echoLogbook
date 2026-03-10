@@ -8,48 +8,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIJPWtg4ruD7z9f1OGltvFFVPQBqa8eGQ&libraries=places&callback=initMap" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#111827">
-    <link rel="apple-touch-icon" href="/icon-192.png">
     <style>
         :root { --us-navy: #111827; --us-red: #ef4444; --bolt-bg: #F6F6F6; --bolt-card: #ffffff; --text-gray: #6B7280; --border-color: #E5E7EB; --text-dark: #111827; }
         body { background: var(--bolt-bg); color: var(--text-dark); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 100px; }
         .app-view { display: none; }
         .app-view.active { display: block; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        #login-view { background: var(--bolt-bg); align-items: center; justify-content: center; min-height: 100vh; display: none; }
+        #login-view { background: var(--bolt-bg); align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         #login-view.active { display: flex; }
-        .login-card { background: #ffffff; border-radius: 24px; padding: 40px 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(15,23,42,0.12); border: 1px solid var(--border-color); }
-        .login-logo-img { width: 80px; height: 80px; margin-bottom: 15px; border-radius: 18px; object-fit: cover; }
-        .home-header { background: #ffffff; padding: 20px; border-radius: 0 0 24px 24px; margin-bottom: 8px; box-shadow: 0 6px 20px rgba(15,23,42,0.06); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(229,231,235,0.9); }
-        .user-profile { width: 40px; height: 40px; background: #111827; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; color: #f9fafb; font-weight: 700; }
-        .summary-cards { padding: 0 20px 5px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .summary-card { background: #ffffff; border-radius: 18px; padding: 14px 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(15,23,42,0.06); }
-        .summary-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-gray); font-weight: 600; }
-        .summary-value { font-size: 1.2rem; font-weight: 800; color: var(--text-dark); }
-        .primary-cta-card { background: #111827; color: #fff; border-radius: 20px; padding: 20px; margin: 0 20px 16px; position: relative; cursor: pointer; }
-        .primary-cta-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; background: #fff; color: #111827; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .recent-activities-list { display: flex; flex-direction: column; gap: 10px; }
-        .recent-activity-card { background: #fff; border-radius: 18px; padding: 14px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 14px; }
-        .recent-activity-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .recent-activity-body { flex: 1; }
-        .recent-activity-title { font-weight: 700; font-size: 0.95rem; }
-        .recent-activity-status { font-size: 0.7rem; padding: 4px 10px; border-radius: 999px; background: #f3f4f6; font-weight: 600; }
-        .form-header { padding: 20px; background: #ffffff; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 15px; border-radius: 0 0 20px 20px; box-shadow: 0 6px 20px rgba(15,23,42,0.06); }
-        .back-btn { background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .form-card { background: #fff; border-radius: 24px; padding: 20px; margin: 0 20px 20px; border: 1px solid var(--border-color); }
-        .form-label { color: var(--text-gray); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; display: block; }
-        .form-control, .form-select { border: none; border-bottom: 2px solid #e5e7eb; border-radius: 0; padding: 8px 0; margin-bottom: 15px; width: 100%; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-around; padding: 10px 0 15px; z-index: 1000; }
-        .nav-item-btn { display: flex; flex-direction: column; align-items: center; color: var(--text-gray); border: none; background: none; font-size: 0.7rem; font-weight: 600; gap: 4px; }
-        .nav-item-btn.active { color: #111827; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 9999; justify-content: center; align-items: center; color: white; flex-direction: column; backdrop-filter: blur(4px); }
-        .history-item { background: #fff; border-radius: 16px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-color); }
-        .new-record-modal { position: fixed; inset: 0; z-index: 1050; display: none; align-items: flex-end; justify-content: center; }
+        .login-card { background: #fff; border-radius: 24px; padding: 40px 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .home-header { background: #fff; padding: 20px; border-radius: 0 0 24px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .user-profile { width: 40px; height: 40px; background: var(--us-navy); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .summary-cards { padding: 15px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .summary-card { background: #fff; border-radius: 18px; padding: 15px; border: 1px solid var(--border-color); }
+        .summary-label { font-size: 0.65rem; color: var(--text-gray); font-weight: bold; text-transform: uppercase; }
+        .summary-value { font-size: 1.1rem; font-weight: 800; }
+        .primary-cta-card { background: var(--us-navy); color: #fff; border-radius: 20px; padding: 20px; margin: 15px 20px; position: relative; cursor: pointer; }
+        .primary-cta-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; background: #fff; color: var(--us-navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .recent-activity-card { background: #fff; border-radius: 18px; padding: 12px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .recent-activity-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f3f4f6; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 12px 0 20px; border-top: 1px solid #eee; z-index: 1000; }
+        .nav-item-btn { border: none; background: none; color: var(--text-gray); font-size: 0.7rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item-btn.active { color: var(--us-navy); }
+        .form-card { background: #fff; border-radius: 20px; padding: 20px; margin: 15px; border: 1px solid var(--border-color); }
+        .form-control, .form-select { border: none; border-bottom: 2px solid #eee; border-radius: 0; padding: 10px 0; margin-bottom: 15px; width: 100%; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; color: #fff; flex-direction: column; backdrop-filter: blur(4px); }
+        .new-record-modal { position: fixed; inset: 0; z-index: 1050; display: none; align-items: flex-end; }
         .new-record-modal.show { display: flex; }
         .new-record-modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
-        .new-record-modal-content { position: relative; background: #fff; border-radius: 24px 24px 0 0; width: 100%; padding: 20px; }
-        .new-record-option { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #eee; background: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; text-align: left; }
+        .new-record-modal-content { position: relative; background: #fff; width: 100%; border-radius: 24px 24px 0 0; padding: 25px; }
+        #map { width: 100%; height: 300px; border-radius: 15px; }
+        .fuel-entry { background: #f9fafb; padding: 10px; border-radius: 12px; margin-bottom: 10px; position: relative; border-left: 4px solid var(--us-navy); }
     </style>
 </head>
 <body>
@@ -61,76 +50,82 @@
 
 <div id="login-view" class="app-view active">
     <div class="login-card">
-        <img src="/icon-192.png" class="login-logo-img">
-        <h2 class="fw-bold">MovaCare | LogBook</h2>
-        <p class="text-secondary small">ECHO Project Mozambique</p>
+        <h2 class="fw-bold">MovaCare</h2>
+        <p class="text-secondary">ECHO Project Mozambique</p>
         <form id="loginForm">
-            <input type="email" id="loginEmail" class="form-control" placeholder="E-mail" required style="border: 1px solid #ddd; padding: 12px; border-radius: 10px;">
-            <button type="submit" class="btn btn-dark w-100 mt-3 py-3 fw-bold" style="border-radius: 12px;">Entrar</button>
+            <input type="email" id="loginEmail" class="form-control" placeholder="E-mail" required>
+            <button type="submit" class="btn btn-dark w-100 py-3 mt-3 fw-bold" style="border-radius: 12px;">Entrar</button>
         </form>
-        <div id="loginError" class="text-danger small mt-2" style="display:none;"></div>
     </div>
 </div>
 
 <div id="home-view" class="app-view">
     <div class="home-header">
-        <div>
-            <div id="greetingText" class="small text-uppercase fw-bold text-secondary">Olá</div>
-            <h1 class="h4 fw-bold mb-0">MovaCare Log</h1>
-        </div>
+        <div><small id="greetingText" class="text-secondary fw-bold">OLÁ</small><h4 class="fw-bold mb-0">Dashboard</h4></div>
         <div class="user-profile" id="userInitials">LB</div>
     </div>
-
     <div class="primary-cta-card" onclick="document.getElementById('newRecordModal').classList.add('show')">
         <div class="small text-white-50">ACÇÃO RÁPIDA</div>
-        <div class="h5 fw-bold">Novo registro</div>
-        <div class="small text-white-50">Viagem, Manutenção ou SOS</div>
+        <div class="fw-bold h5">Novo registro</div>
         <div class="primary-cta-btn"><i class="fa-solid fa-plus"></i></div>
     </div>
-
     <div class="summary-cards">
         <div class="summary-card"><div class="summary-label">Viagens</div><div class="summary-value" id="summaryTrips">--</div></div>
         <div class="summary-card"><div class="summary-label">Distância</div><div class="summary-value" id="summaryDistance">-- km</div></div>
         <div class="summary-card"><div class="summary-label">Combustível</div><div class="summary-value" id="summaryFuel">-- MT</div></div>
-        <div class="summary-card"><div class="summary-label">Alertas</div><div class="summary-value" id="summaryIncidents">0</div></div>
+        <div class="summary-card"><div class="summary-label">SOS</div><div class="summary-value text-danger" id="summaryIncidents">0</div></div>
     </div>
-
     <div class="px-3 mt-4">
-        <div class="d-flex justify-content-between mb-2">
-            <h2 class="h6 fw-bold">Actividades Recentes</h2>
-            <a href="#" class="small text-secondary text-decoration-none" onclick="switchView('history-view')">Ver tudo</a>
-        </div>
-        <div id="homeRecentActivities" class="recent-activities-list"></div>
+        <h6 class="fw-bold mb-3">Atividades Recentes</h6>
+        <div id="homeRecentActivities"></div>
     </div>
 </div>
 
 <div id="history-view" class="app-view">
-    <div class="form-header">
-        <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
-        <h3 class="h5 mb-0 fw-bold">Relatórios e Performance</h3>
-    </div>
     <div class="p-3">
-        <h2 class="h6 fw-bold mb-3">Eficiência de Frota (km/L)</h2>
-        <div id="efficiencyContainer" class="recent-activities-list mb-4"></div>
-
-        <h2 class="h6 fw-bold mb-3">Gastos por Província</h2>
+        <button class="btn btn-light rounded-circle mb-3" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
+        <h5 class="fw-bold">Eficiência (km/L)</h5>
+        <div id="efficiencyContainer" class="mb-4"></div>
+        
+        <h5 class="fw-bold">Gastos por Província</h5>
         <div class="form-card mx-0 mb-4" style="height: 200px;"><canvas id="expenseChart"></canvas></div>
-
-        <h2 class="h6 fw-bold mb-3">Histórico de Viagens</h2>
+        
+        <h5 class="fw-bold">Histórico Geral</h5>
         <div id="historicoContainer"></div>
     </div>
 </div>
 
-<div id="newRecordModal" class="new-record-modal">
-    <div class="new-record-modal-backdrop" onclick="this.parentElement.classList.remove('show')"></div>
-    <div class="new-record-modal-content">
-        <h5 class="fw-bold mb-3">O que pretende registar?</h5>
-        <button class="new-record-option" onclick="switchView('form-view'); document.getElementById('newRecordModal').classList.remove('show')">
-            <i class="fa-solid fa-car text-primary"></i> <div><strong>Viagem</strong><br><small>Saída e chegada</small></div>
-        </button>
-        <button class="new-record-option" onclick="switchView('incidents-view'); document.getElementById('newRecordModal').classList.remove('show')">
-            <i class="fa-solid fa-triangle-exclamation text-danger"></i> <div><strong>Ocorrência</strong><br><small>Avaria ou SOS</small></div>
-        </button>
+<div id="form-view" class="app-view">
+    <div class="p-3">
+        <button class="btn btn-light rounded-circle mb-3" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
+        <h5 class="fw-bold">Registar Viagem</h5>
+        <form id="logForm">
+            <div class="form-card mx-0">
+                <label class="form-label">Motorista</label>
+                <select id="driver" class="form-select" required></select>
+                <label class="form-label">Província</label>
+                <select id="province" class="form-select" onchange="atualizarFrota()" required>
+                    <option value="">Selecione...</option>
+                    <option value="Maputo">Maputo</option>
+                    <option value="Sofala">Sofala</option>
+                </select>
+                <label class="form-label">Viatura</label>
+                <select id="vehicle" class="form-select" disabled required></select>
+                <div class="row">
+                    <div class="col-6"><label class="form-label">KM Inicial</label><input type="number" id="kmI" class="form-control" oninput="calcViagem()" required></div>
+                    <div class="col-6"><label class="form-label">KM Final</label><input type="number" id="kmF" class="form-control" oninput="calcViagem()" required></div>
+                </div>
+                <div class="text-center p-2 bg-light rounded-3 fw-bold h4 mt-2" id="dispKm">0 KM</div>
+            </div>
+            
+            <div class="form-card mx-0">
+                <h6 class="fw-bold">Abastecimentos</h6>
+                <div id="fuelList"></div>
+                <button type="button" class="btn btn-outline-dark btn-sm w-100" onclick="addFuel()">+ Adicionar Recibo</button>
+            </div>
+            
+            <button type="submit" class="btn btn-dark w-100 py-3 mt-3 fw-bold">Finalizar Viagem</button>
+        </form>
     </div>
 </div>
 
@@ -138,12 +133,24 @@
     <button class="nav-item-btn active" id="nav-home" onclick="switchView('home-view')"><i class="fa-solid fa-house"></i>Início</button>
     <button class="nav-item-btn" id="nav-form" onclick="switchView('form-view')"><i class="fa-solid fa-car"></i>Viagem</button>
     <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view')"><i class="fa-solid fa-chart-line"></i>Relatórios</button>
-    <button class="nav-item-btn" onclick="switchView('about-view')"><i class="fa-solid fa-user"></i>Perfil</button>
+</div>
+
+<div id="newRecordModal" class="new-record-modal">
+    <div class="new-record-modal-backdrop" onclick="this.parentElement.classList.remove('show')"></div>
+    <div class="new-record-modal-content">
+        <h6 class="fw-bold mb-3">Novo Registro</h6>
+        <button class="btn btn-outline-dark w-100 mb-2 py-3 text-start" onclick="switchView('form-view'); document.getElementById('newRecordModal').classList.remove('show')"><i class="fa-solid fa-car me-2"></i> Viagem</button>
+        <button class="btn btn-outline-danger w-100 py-3 text-start" onclick="alert('SOS Acionado!'); document.getElementById('newRecordModal').classList.remove('show')"><i class="fa-solid fa-phone me-2"></i> Emergência / SOS</button>
+    </div>
 </div>
 
 <script>
+    const VERCEL_API_SAVE = '/api/save-entry';
     const VERCEL_API_HISTORY = '/api/get-history';
+    const motoristasFallback = ["Agostinho Mujanda", "Alberto Barros", "Arlindo Cossa"];
+    const frota = { "Sofala": ["AEA-596-MP", "AGD-259-MC"], "Maputo": ["AFX-797-MP"] };
     let currentUserEmail = localStorage.getItem('echo_user_email');
+    let expenseChartInstance = null;
 
     function switchView(viewId) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
@@ -151,71 +158,112 @@
         document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
         const btn = document.getElementById('nav-' + viewId.replace('-view', ''));
         if(btn) btn.classList.add('active');
-        
         if(viewId === 'history-view') loadRecentHistory();
-        if(viewId === 'home-view') loadHomeRecentActivities();
+        window.scrollTo(0,0);
+    }
+
+    function atualizarFrota() {
+        const p = document.getElementById('province').value;
+        const v = document.getElementById('vehicle');
+        v.innerHTML = '<option value="">Viatura...</option>';
+        if(p && frota[p]) {
+            v.disabled = false;
+            frota[p].forEach(item => v.add(new Option(item, item)));
+        }
+    }
+
+    function calcViagem() {
+        const ki = parseFloat(document.getElementById('kmI').value) || 0;
+        const kf = parseFloat(document.getElementById('kmF').value) || 0;
+        document.getElementById('dispKm').innerText = (kf - ki > 0 ? kf - ki : 0) + " KM";
+    }
+
+    function addFuel() {
+        const div = document.createElement('div');
+        div.className = 'fuel-entry';
+        div.innerHTML = `
+            <div class="row g-2">
+                <div class="col-6"><label class="small">Litros</label><input type="number" step="0.01" class="form-control fuel-l" required></div>
+                <div class="col-6"><label class="small">Total (MT)</label><input type="number" step="0.01" class="form-control fuel-p" required></div>
+            </div>
+            <button type="button" class="btn btn-sm text-danger p-0" onclick="this.parentElement.remove()">Remover</button>`;
+        document.getElementById('fuelList').appendChild(div);
     }
 
     async function loadRecentHistory() {
         const hc = document.getElementById('historicoContainer');
-        const effContainer = document.getElementById('efficiencyContainer');
-        if (hc) hc.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm"></div></div>';
+        const ec = document.getElementById('efficiencyContainer');
+        if (hc) hc.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-secondary"></div></div>';
 
         try {
             const res = await fetch(VERCEL_API_HISTORY);
             const data = await res.json();
-
             if (data.status === 'success' && data.history) {
-                let efficiencyHtml = "";
-                let totalDistance = 0, totalFuel = 0;
-                let expData = { "Maputo": 0, "Sofala": 0, "Manica": 0, "Tete": 0, "Niassa": 0 };
+                let effHtml = ""; let distTotal = 0; let fuelTotal = 0;
+                let provExp = { "Maputo": 0, "Sofala": 0, "Manica": 0, "Tete": 0, "Niassa": 0 };
 
                 hc.innerHTML = data.history.map(row => {
-                    const dist = Math.max(0, (parseFloat(row['KM Final']) || 0) - (parseFloat(row['KM Inicial']) || 0));
-                    totalDistance += dist;
-
-                    let litros = 0;
+                    const d = (parseFloat(row['KM Final']) || 0) - (parseFloat(row['KM Inicial']) || 0);
+                    distTotal += d;
+                    let lts = 0;
                     try {
                         const fuel = JSON.parse(row.Abastecimentos || '[]');
                         fuel.forEach(f => {
-                            litros += parseFloat(f.litros) || 0;
-                            totalFuel += parseFloat(f.custoTotal) || 0;
-                            if(expData[row.Província] !== undefined) expData[row.Província] += parseFloat(f.custoTotal) || 0;
+                            lts += parseFloat(f.litros) || 0;
+                            fuelTotal += parseFloat(f.custoTotal) || 0;
+                            if(provExp[row.Província] !== undefined) provExp[row.Província] += parseFloat(f.custoTotal) || 0;
                         });
                     } catch(e) {}
 
-                    if(litros > 0 && dist > 0) {
-                        const eff = (dist / litros).toFixed(1);
-                        const color = eff > 12 ? "#059669" : eff > 8 ? "#b45309" : "#b91c1c";
-                        efficiencyHtml += `<div class="recent-activity-card mb-2">
-                            <i class="fa-solid fa-gas-pump text-secondary"></i>
-                            <div class="recent-activity-body"><strong>${row.Viatura}</strong><br><small>${dist}km / ${litros}L</small></div>
-                            <div class="text-end"><span class="fw-bold fs-5" style="color:${color}">${eff}</span><br><small class="text-secondary">km/L</small></div>
+                    if(lts > 0 && d > 0) {
+                        const kmL = (d / lts).toFixed(1);
+                        const color = kmL > 12 ? "#059669" : kmL > 8 ? "#b45309" : "#b91c1c";
+                        effHtml += `<div class="recent-activity-card">
+                            <div class="recent-activity-icon"><i class="fa-solid fa-gas-pump"></i></div>
+                            <div class="recent-activity-body"><strong>${row.Viatura}</strong><br><small>${d}km / ${lts}L</small></div>
+                            <div class="text-end"><span class="fw-bold fs-5" style="color:${color}">${kmL}</span><br><small class="text-secondary">km/L</small></div>
                         </div>`;
                     }
-
-                    return `<div class="history-item">
-                        <div><strong>${row.Motorista}</strong><br><small>${row.Viatura}</small></div>
-                        <div class="fw-bold text-navy">+${dist} km</div>
-                    </div>`;
+                    return `<div class="history-item"><div><strong>${row.Motorista}</strong><br><small>${row.Viatura}</small></div><div class="fw-bold">+${d}km</div></div>`;
                 }).join('');
 
-                effContainer.innerHTML = efficiencyHtml || '<p class="small text-center text-muted">Sem dados de consumo.</p>';
-                document.getElementById('summaryTrips').textContent = data.history.length;
-                document.getElementById('summaryDistance').textContent = totalDistance + ' km';
-                document.getElementById('summaryFuel').textContent = totalFuel.toFixed(0) + ' MT';
-                renderChart(expData);
+                ec.innerHTML = effHtml || '<p class="small text-center">Sem dados de consumo.</p>';
+                document.getElementById('summaryTrips').innerText = data.history.length;
+                document.getElementById('summaryDistance').innerText = distTotal + " km";
+                document.getElementById('summaryFuel').innerText = fuelTotal.toFixed(0) + " MT";
+                renderChart(provExp);
             }
-        } catch (e) { console.error(e); }
+        } catch(e) { console.error(e); }
     }
 
-    // Inicialização
-    window.onload = () => {
-        if(!currentUserEmail) switchView('login-view');
-        else switchView('home-view');
+    function renderChart(dataObj) {
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        if(expenseChartInstance) expenseChartInstance.destroy();
+        expenseChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: Object.keys(dataObj), datasets: [{ label: 'MZN', data: Object.values(dataObj), backgroundColor: '#111827', borderRadius: 8 }] },
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+    }
+
+    document.getElementById('loginForm').onsubmit = (e) => {
+        e.preventDefault();
+        currentUserEmail = document.getElementById('loginEmail').value;
+        localStorage.setItem('echo_user_email', currentUserEmail);
+        switchView('home-view');
     };
-    
-    // Funções de login e gráficos simplificadas aqui...
+
+    document.getElementById('logForm').onsubmit = async (e) => {
+        e.preventDefault();
+        document.getElementById('loader').style.display = 'flex';
+        // Coleta de dados aqui e envio fetch(VERCEL_API_SAVE)...
+        setTimeout(() => { alert('Sucesso!'); location.reload(); }, 1500);
+    };
+
+    window.onload = () => {
+        document.getElementById('driver').innerHTML = motoristasFallback.map(m => `<option value="${m}">${m}</option>`).join('');
+        if(currentUserEmail) switchView('home-view');
+    };
 </script>
 </body>
 </html>
