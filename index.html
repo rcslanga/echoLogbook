@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -273,7 +274,7 @@
     <div class="px-3 mt-3">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h2 class="mb-0 fs-5 fw-bold" style="color: var(--text-dark);">Actividades recentes</h2>
-            <a href="javascript:void(0)" class="small text-secondary text-decoration-none" onclick="switchView('history-view'); loadRecentHistory();">Ver tudo</a>
+            <a href="javascript:void(0)" class="small text-secondary text-decoration-none" onclick="switchView('-view'); loadRecent();">Ver tudo</a>
         </div>
         <div id="homeRecentActivities" class="recent-activities-list">
             <div class="text-center py-4 text-secondary small">A carregar...</div>
@@ -282,7 +283,7 @@
 
     <!-- Botão Histórico (acesso rápido) -->
     <div class="px-3 mt-2 mb-2">
-        <div class="action-card" onclick="switchView('history-view'); loadRecentHistory();" style="flex-direction: row; justify-content: center; padding: 14px;">
+        <div class="action-card" onclick="switchView('-view'); loadRecent();" style="flex-direction: row; justify-content: center; padding: 14px;">
             <div class="action-icon" style="width: 40px; height: 40px; font-size:1.1rem; border-radius: 12px;"><i class="fa-solid fa-clock-rotate-left"></i></div>
             <span class="fw-bold mb-0 ms-2" style="color: var(--text-dark);">Histórico de Operações</span>
         </div>
@@ -312,6 +313,8 @@
                 <span class="new-record-option-icon" style="background:#ede9fe; color:#5b21b6;"><i class="fa-solid fa-tools"></i></span>
                 <span class="fw-bold" style="color: var(--text-dark);">Manutenção</span>
                 <span class="small text-secondary">Revisão, óleo, pneus, reparação</span>
+
+                
             </button>
         </div>
     </div>
@@ -516,7 +519,7 @@
     </form>
 </div>
 
-<div id="history-view" class="app-view">
+<div id="-view" class="app-view">
     <div class="form-header">
         <button class="back-btn" onclick="switchView('home-view')"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 class="mb-0 fs-5">Actividade Passada</h3>
@@ -540,6 +543,12 @@
         <h2 class="mb-3 fs-5 mt-4">Ocorrências</h2>
         <div id="incidentesContainer">
             <div class="text-center py-4 text-secondary small">A carregar ocorrências...</div>
+
+<h2 class="mb-3 fs-5 mt-4">Eficiência de Combustível (km/L)</h2>
+<div id="efficiencyContainer" class="recent-activities-list mb-4">
+    </div>v
+
+            
         </div>
     </div>
 </div>
@@ -591,7 +600,7 @@
 <div class="bottom-nav">
     <button class="nav-item-btn active" id="nav-home" onclick="switchView('home-view')"><i class="fa-solid fa-house"></i> Início</button>
     <button class="nav-item-btn" id="nav-form" onclick="switchView('form-view'); navTo('tab-1');"><i class="fa-solid fa-car"></i> Viagem</button>
-    <button class="nav-item-btn" id="nav-history" onclick="switchView('history-view');"><i class="fa-solid fa-list-ul"></i> Relatórios</button>
+    <button class="nav-item-btn" id="nav-" onclick="switchView('-view');"><i class="fa-solid fa-list-ul"></i> Relatórios</button>
     <button class="nav-item-btn" id="nav-about" onclick="switchView('about-view')"><i class="fa-solid fa-user-gear"></i> Perfil</button>
 </div>
 
@@ -1251,4 +1260,6 @@
     
 </body>
 </html>
+
+
 
